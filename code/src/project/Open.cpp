@@ -89,53 +89,39 @@ namespace Project::Open {
         delete[] filePath;
     }
 
-    block MatchCommand ( 
-        IN  const char* const commandMainName, 
-        IN  const char* const commandSubName,
-        OUT uint8& mainCommandIndex,
-        OUT uint8& subCommandIndex
+    block MatchCommandSearch ( 
+        IN  const char* const commandName, 
+        OUT uint8& commandMainNameLength,
+        OUT uint8& commandIndex
     ) {
 
         // SEARCH
         //  all-compare known length search.
 
-        uint8 commandMainNameLength = 0;
-        uint8 commandSubNameLength = 0;
-
-        // Get Length.
-        for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
-        for (; commandSubName[commandSubNameLength] != '\0'; ++commandSubNameLength);
-
-        // Check Length.
-        if (commandMainNameLength > COMMAND_NAME_LENGTH) {
-            printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
-            return;
-        }
-
         // MAIN COMMAND SEARCH
-        KnownLengthSearch<char>(
-            mainCommandIndex, 
-            commandMainNameLength, commandMainName,
-            mainCommands.size(), (const void**)(mainCommands.data()),
-            sizeof(MainCommand), 8
-        );
+        //KnownLengthSearch<char>(
+        //    mainCommandIndex, 
+        //    commandMainNameLength, commandMainName,
+        //    mainCommands.size(), (const void**)(mainCommands.data()),
+        //    sizeof(MainCommand), 8
+        //);
 
-        DEBUG {
-            printf("\nm: %s", mainCommands[mainCommandIndex].name.Pointer());
-        }
+        //DEBUG {
+        //    printf("\nm: %s", mainCommands[mainCommandIndex].name.Pointer());
+        //}
 
         // SUB COMMAND SEARCH
-        KnownLengthSearch<char>(
-            subCommandIndex, 
-            commandSubNameLength, commandSubName,
-            mainCommands[mainCommandIndex].commands.size(), (const void**)(mainCommands[mainCommandIndex].commands.data()),
-            sizeof(SubCommand), 8
-        );
+        //KnownLengthSearch<char>(
+        //    subCommandIndex, 
+        //    commandSubNameLength, commandSubName,
+        //    mainCommands[mainCommandIndex].commands.size(), (const void**)(mainCommands[mainCommandIndex].commands.data()),
+        //    sizeof(SubCommand), 8
+        //);
 
-        DEBUG {
-            printf("\nn: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].name.Pointer());
-            printf("\nc: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].context.Pointer());
-        }
+        //DEBUG {
+        //    printf("\nn: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].name.Pointer());
+        //    printf("\nc: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].context.Pointer());
+        //}
     }
 
     block MainCommandListPage() {
@@ -146,6 +132,35 @@ namespace Project::Open {
         DEBUG std::cout << "DEBUG Entered action 'Open'\n";
 
         ReadConfigurationFile();
+
+        if (actionArgs.argumentsLength == 2) {
+            printf("%s", "Fail no project_name specified!");
+            return;
+        }
+
+        auto& commandMainName = actionArgs.arguments[2];
+        uint8 commandMainNameLength = 0;
+        uint8 commandMainIndex = 0;
+
+        { // GET MAIN COMMAND
+            // Get Length.
+            for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
+
+            // Check Length.
+            if (commandMainNameLength > COMMAND_NAME_LENGTH) {
+                printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
+                return;
+            }
+
+            // MAIN COMMAND SEARCH
+            KnownLengthSearch<char>(
+                commandMainIndex, 
+                commandMainNameLength, commandMainName,
+                mainCommands.size(), 
+                (const void**)(mainCommands.data()),
+                sizeof(MainCommand), 8
+            );
+        }
 
         // eg. No subcommand `quil -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
@@ -168,18 +183,36 @@ namespace Project::Open {
                 collision += subcommand[i] == commandListName[i];
             }
 
-            //printf("\n%i, %i", collision, subcommandLength);
             if (collision == subcommandLength) {
-                printf("%s", "list!");
+                //printf("%s", "list!");
+                auto& commands = mainCommands[commandMainIndex].commands;
+                
+                for (uint8 i = 0; i < commands.size(); ++i) {
+                    printf("\t%s: %s\n", commands[i].name.Pointer(), commands[i].context.Pointer());
+                }
+
                 return;
             }
         }
 
-        {
-            uint8 commandMainIndex = 0;
+        {   
+            
+            auto& commandSubName = actionArgs.arguments[3];
             uint8 commandSubIndex = 0;
+            uint8 commandSubNameLength = 0;
 
-            MatchCommand(actionArgs.arguments[2], actionArgs.arguments[3], commandMainIndex, commandSubIndex);
+            // Get Length.
+            
+            for (; commandSubName[commandSubNameLength] != '\0'; ++commandSubNameLength);
+
+            // SUB COMMAND SEARCH
+            KnownLengthSearch<char>(
+                commandSubIndex, 
+                commandSubNameLength, commandSubName,
+                mainCommands[commandMainIndex].commands.size(), 
+                (const void**)(mainCommands[commandMainIndex].commands.data()),
+                sizeof(SubCommand), 8
+            );
 
             // Execute the command
             auto& commandMain = mainCommands[commandMainIndex];
