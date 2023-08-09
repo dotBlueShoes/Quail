@@ -11,13 +11,27 @@ namespace Project::Open {
     const uint8 COMMAND_NAME_LENGTH ( 16 );
     const uint8 COMMAND_CONTEXT_LENGTH ( 255 );
 
-    struct SubCommand {
-        array<char, COMMAND_NAME_LENGTH> name; // 16 bytes + 8 bytes
-        array<char, COMMAND_CONTEXT_LENGTH> context; // 128 bytes + 8 bytes
+    using CommandName = array<char, COMMAND_NAME_LENGTH>;
+    using CommandContext = array<char, COMMAND_CONTEXT_LENGTH>;
+
+    enum CommandType : uint8 {
+        Normal = 0,
+        Pipe = 1,
     };
 
+    struct SubCommand {
+        CommandName name; // 16 bytes + 8 bytes
+        CommandType type;
+        CommandContext context; // 128 bytes + 8 bytes
+    };
+
+    //struct PipedCommand {
+    //    CommandName name;
+    //    vector<CommandContext> commands; 
+    //};
+
     struct MainCommand {
-        array<char, COMMAND_NAME_LENGTH> name;
+        CommandName name;
         vector<SubCommand> commands; // the size of that thing could get read and optimized i guess.
     };
 

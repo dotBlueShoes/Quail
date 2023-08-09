@@ -48,7 +48,7 @@ rule run_release_32bit
   command = $pathBuildRelease32bit
   
 rule run_debug_64bit
-  command = $pathBuildDebug64bit -o quail terminal
+  command = $pathBuildDebug64bit -o quail main
   #command = $pathBuildDebug64bit --npp-recreate lol
   #command = $pathBuildDebug64bit -c lol
   

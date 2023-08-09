@@ -5,7 +5,7 @@ namespace Project::Open {
 
     vector<MainCommand> mainCommands;
 
-    SubCommand currentSubCommand { { '\0' }, { '\0' } };
+    SubCommand currentSubCommand { { '\0' }, CommandType::Normal, { '\0' } };
     MainCommand currentMainCommand { { '\0' }, {  } };
 
     template <class T>
@@ -89,86 +89,33 @@ namespace Project::Open {
         delete[] filePath;
     }
 
+    block MatchCommand ( 
+        IN  const char* const commandMainName, 
+        IN  const char* const commandSubName,
+        OUT uint8& mainCommandIndex,
+        OUT uint8& subCommandIndex
+    ) {
 
-    callback Action ( Tokens::ActionArgs& actionArgs ) {
-        DEBUG std::cout << "Entered action 'Open'\n";
+        // SEARCH
+        //  all-compare known length search.
 
-        //std::system("ls -l >test.txt");
-        //char command[] = R"(wt -w 1 nt --title Quail -d "D:/Storage/Projects/Quail")";
-        //char command[] = R"(explorer.exe "D:/Storage/Projects/Quail")";
-        //char command[] = R"(call "D:/Storage/Projects/Quail/quail.npp")";
-        //char command[] = R"(call "D:\Storage/Projects/Quail\quail_vsc.lnk")";
-        //std::system(command);
-
-        ReadConfigurationFile();
-
-        //for (auto& mainCommand : mainCommands) {
-        //    //printf("%c", '\n');
-        //    printf("%s", "\nM: ");
-        //    printf("%s", mainCommand.name.Pointer());
-        //    for (auto& subCommand : mainCommand.commands) {
-        //        //printf("%c", '\n');
-        //        printf("%s", "\nN: ");
-        //        printf("%s", subCommand.name.Pointer());
-        //        printf("%s", "\nC: ");
-        //        printf("%s", subCommand.context.Pointer());
-        //    }
-        //}
-
-        // I cannot do a length search here...
-        //  instead i should do the easiest.
-        //  all-compare search.
-
-        auto& commandProjectName = actionArgs.arguments[2];
-        uint8 commandProjectNameLength = 0;
-
-        auto& commandProjectAction = actionArgs.arguments[3];
-        uint8 commandProjectActionLength = 0;
-        
-
-        uint8 mainCommandIndex = 0;
-        uint8 subCommandIndex = 0;
-        //uint8 collision = 1;
+        uint8 commandMainNameLength = 0;
+        uint8 commandSubNameLength = 0;
 
         // Get Length.
-        for (; commandProjectName[commandProjectNameLength] != '\0'; ++commandProjectNameLength);
-        for (; commandProjectAction[commandProjectActionLength] != '\0'; ++commandProjectActionLength);
+        for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
+        for (; commandSubName[commandSubNameLength] != '\0'; ++commandSubNameLength);
 
         // Check Length.
-        if (commandProjectNameLength > COMMAND_NAME_LENGTH) {
-            printf("%s", "Fail CommandProjectNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
+        if (commandMainNameLength > COMMAND_NAME_LENGTH) {
+            printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
             return;
         }
 
-        //printf("%s", "\nproject: ");
-        //printf("%s", commandProjectName);
-        //printf("%i", commandProjectNameLength);
-        //printf("%i", mainCommands[0].name.Length());
-        
-        // main commands have fixed size therefore no need to check for which is bigger.
-        // collision value is equal to commandProjectNameLength when both strins are in fact equal.
-        //  however loop will loop as long as collision is equal 1 therefore
-        //  we're iterating with collision that by default is equal 1.
-        //  inside the loop it is growing one by one and only is set to 0 when we find the match.
-        //  therefore there are some extra processing to make it all working and be optimized.
-        
-        //for (; mainCommandIndex < mainCommands.size() * collision; ++mainCommandIndex) {
-        //    for (uint8 c = 0; c < commandProjectNameLength; ++c) {
-        //        collision += (commandProjectName[c] == mainCommands[mainCommandIndex].name[c]);
-        //    }
-        //    collision = ((collision - 1) != commandProjectNameLength);
-        //}
-        //
-        //if (collision) {
-        //    printf("%s", "Fail No Matching Project!");
-        //    return;
-        //}
-        //
-        //--mainCommandIndex;
-
+        // MAIN COMMAND SEARCH
         KnownLengthSearch<char>(
             mainCommandIndex, 
-            commandProjectNameLength, commandProjectName,
+            commandMainNameLength, commandMainName,
             mainCommands.size(), (const void**)(mainCommands.data()),
             sizeof(MainCommand), 8
         );
@@ -176,39 +123,95 @@ namespace Project::Open {
         DEBUG {
             printf("\nm: %s", mainCommands[mainCommandIndex].name.Pointer());
         }
-        
 
-        // now the same but for subcommands...
-        //collision = 1;
-
+        // SUB COMMAND SEARCH
         KnownLengthSearch<char>(
             subCommandIndex, 
-            commandProjectActionLength, commandProjectAction,
+            commandSubNameLength, commandSubName,
             mainCommands[mainCommandIndex].commands.size(), (const void**)(mainCommands[mainCommandIndex].commands.data()),
             sizeof(SubCommand), 8
         );
-        
-        //for (; subCommandIndex < mainCommands[mainCommandIndex].commands.size() * collision; ++subCommandIndex) {
-        //    for (uint8 c = 0; c < commandProjectActionLength; ++c) {
-        //        collision += (commandProjectAction[c] == mainCommands[mainCommandIndex].commands[subCommandIndex].name[c]);
-        //    }
-        //    collision = ((collision - 1) != commandProjectActionLength);
-        //}
-        //
-        //if (collision) {
-        //    printf("%s", "Fail No Matching Action!");
-        //    return;
-        //}
-        //
-        //--subCommandIndex;
 
         DEBUG {
             printf("\nn: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].name.Pointer());
             printf("\nc: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].context.Pointer());
         }
+    }
+
+
+    callback Action ( Tokens::ActionArgs& actionArgs ) {
+        DEBUG std::cout << "DEBUG Entered action 'Open'\n";
+
+        ReadConfigurationFile();
+
+        {
+            uint8 commandMainIndex = 0;
+            uint8 commandSubIndex = 0;
+
+            MatchCommand(actionArgs.arguments[2], actionArgs.arguments[3], commandMainIndex, commandSubIndex);
+
+            // Execute the command
+            auto& commandMain = mainCommands[commandMainIndex];
+            auto& commandAction = commandMain.commands[commandSubIndex];
+
+            switch (commandAction.type) {
+                case Normal: {
+                    DEBUG printf("%s", "NORMAL COMMAND");
+                    std::system(commandAction.context.Pointer());
+                } break;
+
+                case Pipe: {
+                    DEBUG printf("%s", "PIPE COMMAND");
+
+                    const auto& data = commandAction.context.Pointer();
+                    vector<char*> commandNames;
+
+                    { // Split to substrings.
+                        const char* const delimeter = ",";
+                        char *substring = strtok(data, delimeter);
+
+                        do {
+                            commandNames.push_back(substring);
+                            substring = strtok(NULL, delimeter);
+                        } while (substring != nullptr);
+                    }
+
+                    for (auto& commandName : commandNames) {
+                        //printf("\n%s", commandName);
+
+                        uint8 commandNameLength = 0;
+                        uint8 commandSubIndex = 0;
+
+                        // Get Length. TODO: Ideally we should known that from substringing arleady.
+                        for (; commandName[commandNameLength] != '\0'; ++commandNameLength);
+
+                        // TODO: SEARCH ideally should be: 
+                        // 1. for multiple results.
+                        // 2. up to specified index so we don't check with itself and below it.
+                        // 3. allowing shourcuts.
+                        
+                        // SUB COMMAND SEARCH
+                        KnownLengthSearch<char>(
+                            commandSubIndex, 
+                            commandNameLength, commandName,
+                            commandMain.commands.size(), 
+                            (const void**)(commandMain.commands.data()),
+                            sizeof(SubCommand), 8
+                        );
+
+                        //printf("\n%s", commandMain.commands[commandSubIndex].context.Pointer());
+                        std::system(commandMain.commands[commandSubIndex].context.Pointer());
+                    }
+
+                } break;
+
+                default: {
+                    DEBUG printf("%s", "ERROR: UNKNOWN TYPE SET");
+                }
+            }
+            
+        }
         
-        // Execute the command
-        std::system(mainCommands[mainCommandIndex].commands[subCommandIndex].context.Pointer());
     }
 
 
@@ -338,7 +341,7 @@ namespace Project::Open {
                 currentMainCommand.name[i] = buffor[i];
                 buffor[i] = 0;
             }
-            bufforIndex = 1;
+            bufforIndex = 0;
 
             //printf("%s", currentMainCommand.name.Pointer()); // SET
             currentStage = SubCommandEntry;
@@ -348,7 +351,6 @@ namespace Project::Open {
             const StageArgs& args
         ) {
             switch (args.current) {
-
                 case ' ':
                 case '\t':
                 case '\n':
@@ -359,15 +361,19 @@ namespace Project::Open {
                     currentStage = Main;
                 } break;
 
-                default: {
-                    // CLEAR
-                    //for (uint8 i = 1; i < bufforIndex; ++i) {
-                    //    buffor[bufforIndex] = 0;
-                    //}
-                    //bufforIndex = 1;
+                // PIPE COMMAND
+                case '$': {
+                    currentSubCommand.type = CommandType::Pipe;
+                    currentStage = SubCommand;
+                    //printf("\nc:%c\n", args.current);
+                } break;
 
+                default: {
                     // SETS
-                    buffor[0] = args.current;
+                    buffor[bufforIndex] = args.current;
+                    ++bufforIndex;
+
+                    currentSubCommand.type = CommandType::Normal;
                     currentStage = SubCommand;
                 }
             }
@@ -388,10 +394,8 @@ namespace Project::Open {
 
                 case '=': {
                     // ACQUIRE
+                    //printf("%c", '\n');
                     buffor[bufforIndex] = '\0';
-                    //printf("\n");
-                    //printf("%s", buffor);
-
                     currentSubCommand.name[bufforIndex] = '\0';
 
                     // CLEAR
@@ -408,6 +412,7 @@ namespace Project::Open {
 
                 default: {
                     buffor[bufforIndex] = args.current;
+                    //printf("%c", args.current);
                     ++bufforIndex;
                 }
             }
@@ -430,11 +435,10 @@ namespace Project::Open {
                         currentSubCommand.context[i] = buffor[i];
                         buffor[i] = 0;
                     }
-                    bufforIndex = 1;
+                    bufforIndex = 0;
 
                     //printf("%s", currentSubCommand.context.Pointer());
                     currentMainCommand.commands.push_back(currentSubCommand);
-
                     currentStage = SubCommandEntry;
                 } break;
                 default: {
