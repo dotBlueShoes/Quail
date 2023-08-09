@@ -160,12 +160,14 @@ namespace Project::Open {
                 (const void**)(mainCommands.data()),
                 sizeof(MainCommand), 8
             );
+
+            //printf("\n%i", commandMainIndex);
         }
 
         // eg. No subcommand `quil -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
             // In future it will display 'main' subcommand
-            MainCommandListPage();
+            //MainCommandListPage();
             return;
         } 
 
@@ -282,7 +284,7 @@ namespace Project::Open {
     namespace ParsingStages {
 
         Stage currentStage = Main;
-        uint8 bufforIndex = 1; // 0 element is set by Main Stage.
+        uint8 bufforIndex = 0; // 0 element is set by Main Stage.
         char stashedCharacter;
         char* buffor;
 
@@ -307,6 +309,7 @@ namespace Project::Open {
                 } break;
                 default: {
                     buffor[0] = args.current;
+                    ++bufforIndex;
                     //printf("%c", buffor[0]);
                     currentStage = MainCommand;
                 }
@@ -398,7 +401,7 @@ namespace Project::Open {
             currentMainCommand.name[bufforIndex] = '\0';
             buffor[bufforIndex] = '\0';
             //printf("\n");
-            //printf("%s", buffor);
+            //printf("\n%s", buffor);
 
             // CLEAR
             for (uint8 i = 0; i < bufforIndex; ++i) {
