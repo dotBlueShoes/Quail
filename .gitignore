@@ -1,0 +1,15 @@
+# Environmental stuff.
+/build/
+
+# Personal stuff.
+/.ninja/secret.ninja
+*/.vscode/
+/assets/notes/
+
+*.bat
+*.cmd
+
+*.lnk
+*.exe
+*.npp
+*.ninja_log
