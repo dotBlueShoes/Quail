@@ -138,11 +138,42 @@ namespace Project::Open {
         }
     }
 
+    block MainCommandListPage() {
+
+    }
 
     callback Action ( Tokens::ActionArgs& actionArgs ) {
         DEBUG std::cout << "DEBUG Entered action 'Open'\n";
 
         ReadConfigurationFile();
+
+        // eg. No subcommand `quil -o [project_name]`
+        if (actionArgs.argumentsLength == 3) {
+            // In future it will display 'main' subcommand
+            MainCommandListPage();
+            return;
+        } 
+
+        { // MainCommandListPage() // collision allows for shorts which is ideal!
+            const char commandListName[] = "list";
+
+            auto& subcommand = actionArgs.arguments[3];
+            uint8 subcommandLength = 0;
+            uint8 collision = 0;
+
+            // Get Length.
+            for (; subcommand[subcommandLength] != '\0'; ++subcommandLength);
+
+            for (uint8 i = 0; i < subcommandLength; ++i) {
+                collision += subcommand[i] == commandListName[i];
+            }
+
+            //printf("\n%i, %i", collision, subcommandLength);
+            if (collision == subcommandLength) {
+                printf("%s", "list!");
+                return;
+            }
+        }
 
         {
             uint8 commandMainIndex = 0;
@@ -239,7 +270,7 @@ namespace Project::Open {
                     //printf("s");
                 } break;
                 case EOF: { // '-1'
-                    printf("%s", "\n0");
+                    DEBUG printf("%s", "\n0");
                 } break;
                 default: {
                     buffor[0] = args.current;

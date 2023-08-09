@@ -42,13 +42,14 @@ rule debug32bitCompile
   command = $compilerPath -Wall $cppStandard -ferror-limit=$errorLimit $macrosDebug -I $globalIncludePath $srcList -m32 --debug -o $pathBuildDebug32bit
 
 rule run_release_64bit
-  command = $pathBuildRelease64bit
+  command = $pathBuildRelease64bit -o quail lis
   
 rule run_release_32bit
   command = $pathBuildRelease32bit
   
 rule run_debug_64bit
-  command = $pathBuildDebug64bit -o quail main
+  command = $pathBuildDebug64bit -o quail lis
+  #command = $pathBuildDebug64bit -o quail main
   #command = $pathBuildDebug64bit --npp-recreate lol
   #command = $pathBuildDebug64bit -c lol
   
