@@ -130,10 +130,11 @@ namespace Commands::Open {
         }
 
         block DisplayList(
-            IN const vector<SubCommand>& commands
+            IN MainCommand& commandMain
         ) {  
-            for (uint8 i = 0; i < commands.size(); ++i) {
-                printf("\t%s: %s\n", commands[i].name.Pointer(), commands[i].context.Pointer());
+            printf("listing: %s\n", commandMain.name.Pointer());
+            for (uint8 i = 0; i < commandMain.commands.size(); ++i) {
+                printf("\t%s: %s\n", commandMain.commands[i].name.Pointer(), commandMain.commands[i].context.Pointer());
             }
 
             exit(SUCCESSFULL_COMMAND_EXECUTION);
@@ -174,16 +175,16 @@ namespace Commands::Open {
             exit(ExitCode::FAILURE_PROJECT_NAME_NOT_SPECIFIED);
         }
 
-        const char* commandMain = actionArgs.arguments[2];
+        const char* commandMainName = actionArgs.arguments[2];
         uint8 commandMainNameLength = 0;
         uint8 commandMainIndex = 0;
 
-        GetMainCommand(commandMainNameLength, commandMainIndex, commandMain);
-        auto& commands = mainCommands[commandMainIndex].commands;
+        GetMainCommand(commandMainNameLength, commandMainIndex, commandMainName);
+        auto& commandMain = mainCommands[commandMainIndex];
 
         // No subcommand eg. `quail -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
-            Pages::DisplayList(commands);
+            Pages::DisplayList(commandMain);
             return;
         } 
 
@@ -201,7 +202,7 @@ namespace Commands::Open {
             uint8 collision = 0;
             Pages::IsCommandList(collision, commandSubLength, commandSub);
             if (collision == commandSubLength)
-                Pages::DisplayList(commands);
+                Pages::DisplayList(commandMain);
         }
 
         uint8 commandSubIndex = 0;

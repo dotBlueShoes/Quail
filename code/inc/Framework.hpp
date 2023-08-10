@@ -38,9 +38,11 @@ enum ExitCode : uint8 {
 
 
 // TODO
-//  - command contexts have to be 16bit !
-//  - -o [name] help page that displays commands and their contexts
-//  - command piping 
+// - `quail -o` - displays all specified projects.
+// - `quail -o list` - does the same.
+// - `quail -o config` - opens the config file.
+// - variable command type eg. `$project_path: "path"`
+// - pipe type form '$' to '|'
 
 // 1. re-create tools.npp file so it will contain all the files there are in those folders.
 // 2. setup script that will
