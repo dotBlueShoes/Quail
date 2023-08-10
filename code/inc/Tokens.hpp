@@ -73,6 +73,12 @@ namespace Tokens {
 		};
 		
 	}
+
+	getter uint8 IsEnoughArgumentsPassedToValidate(
+		const int32& argumentsLength
+	) {
+		return (argumentsLength > 1);
+	}
 	
 	/// Sample Use:
 	///  : quail -o "project1"

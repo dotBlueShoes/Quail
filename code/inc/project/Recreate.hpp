@@ -1,7 +1,7 @@
 #pragma once
 #include "Framework.hpp"
 
-namespace Project::Recreate {
+namespace Commands::Recreate {
 
 	callback Action ( Tokens::ActionArgs& ) {
         DEBUG std::cout << "Entered action 'Recreate'\n";

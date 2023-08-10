@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace Project::Open {
+namespace Commands::Open {
 
     const uint8 COMMAND_NAME_LENGTH ( 16 );
     const uint8 COMMAND_CONTEXT_LENGTH ( 255 );

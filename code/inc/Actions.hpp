@@ -15,9 +15,9 @@ namespace Tokens::Actions {
 
     const array<Action, 4> definedActions {
         ActionSetup,
-        Project::Recreate::Action,
-        Project::Open::Action,
-        Project::Create::Action
+        Commands::Recreate::Action,
+        Commands::Open::Action,
+        Commands::Create::Action
     };
 
     size actionsCount;

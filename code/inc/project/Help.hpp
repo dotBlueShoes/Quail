@@ -3,7 +3,7 @@
 
 #include "../Tokens.hpp"
 
-namespace Project::Help {
+namespace Commands::Help {
 
 
 	callback Action( Tokens::ActionArgs& ) {

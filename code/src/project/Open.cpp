@@ -1,7 +1,7 @@
 #include "project/Open.hpp"
 
 
-namespace Project::Open {
+namespace Commands::Open {
 
     vector<MainCommand> mainCommands;
 
@@ -25,14 +25,14 @@ namespace Project::Open {
             for (uint8 i = 0; i < valuesLength; ++i) {
                 //collision += (values[i] == (elements[resultIndex].name[i]);
                 auto& element = ((T*)((byte*)(elements) + (typeSize * resultIndex) + elementOffset))[i];
-                collision += (values[i] == element);
+                collision += values[i] == element;
             }
             collision = ((collision - 1) != valuesLength);
         }
 
         if (collision) {
             printf("%s", "Fail No Matching Action!");
-            return;
+            exit(ExitCode::FAILURE_NO_COMMAND_FOR_SPECIFIED_PROJECT);
         }
 
         --resultIndex;
@@ -63,15 +63,10 @@ namespace Project::Open {
         // Open file
         FILE* configurationFile;
         if ((configurationFile = _wfopen(filePath, L"r")) == NULL){
-            printf("Error! opening file");
             // Program exits if the file pointer returns NULL.
-            exit(1);
+            printf("ERROR! File could not be opened file");
+            exit(ExitCode::FAILURE_NO_CONFIG_FILE); 
         }
-
-        // Read files length
-        //fseek(configurationFile, 0L, SEEK_END); // GET TO THE FILE'S END
-        //uint32 fileSize = ftell(configurationFile);
-        //fseek(configurationFile, 0L, SEEK_SET); // GET TO THE FILE's BEGGINING
 
         ParsingStages::StageArgs stageArgs { 0 };
         ParsingStages::buffor = new char[256];
@@ -89,43 +84,84 @@ namespace Project::Open {
         delete[] filePath;
     }
 
-    block MatchCommandSearch ( 
-        IN  const char* const commandName, 
-        OUT uint8& commandMainNameLength,
-        OUT uint8& commandIndex
+    block ExecutePipeCommand(
+        const MainCommand& commandMain,
+        const vector<char*>& commands
     ) {
+        for (auto& command : commands) {
+            uint8 commandLength = 0;
+            uint8 commandSubIndex = 0;
 
-        // SEARCH
-        //  all-compare known length search.
+            // Get Length. TODO: Ideally we should known that from substringing arleady.
+            for (; command[commandLength] != '\0'; ++commandLength);
 
-        // MAIN COMMAND SEARCH
-        //KnownLengthSearch<char>(
-        //    mainCommandIndex, 
-        //    commandMainNameLength, commandMainName,
-        //    mainCommands.size(), (const void**)(mainCommands.data()),
-        //    sizeof(MainCommand), 8
-        //);
+            // TODO: SEARCH ideally should be: 
+            // 1. for multiple results.
+            // 2. up to specified index so we don't check with itself and below it.
+            // 3. allowing shourcuts.
+                    
+            // SUB COMMAND SEARCH
+            KnownLengthSearch<char>(
+                commandSubIndex, 
+                commandLength, command,
+                commandMain.commands.size(), 
+                (const void**)(commandMain.commands.data()),
+                sizeof(SubCommand), 8
+            );
 
-        //DEBUG {
-        //    printf("\nm: %s", mainCommands[mainCommandIndex].name.Pointer());
-        //}
-
-        // SUB COMMAND SEARCH
-        //KnownLengthSearch<char>(
-        //    subCommandIndex, 
-        //    commandSubNameLength, commandSubName,
-        //    mainCommands[mainCommandIndex].commands.size(), (const void**)(mainCommands[mainCommandIndex].commands.data()),
-        //    sizeof(SubCommand), 8
-        //);
-
-        //DEBUG {
-        //    printf("\nn: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].name.Pointer());
-        //    printf("\nc: %s", mainCommands[mainCommandIndex].commands[subCommandIndex].context.Pointer());
-        //}
+            std::system(commandMain.commands[commandSubIndex].context.Pointer());
+        }
     }
 
-    block MainCommandListPage() {
+    namespace Pages {
 
+        /* Collision is equal commandSubLength when true */
+        block IsCommandList (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        ) {
+            const char commandListName[] = "list";
+            collision = 0;
+
+            for (uint8 i = 0; i < commandSubLength; ++i) {
+                collision += commandSub[i] == commandListName[i];
+            }
+        }
+
+        block DisplayList(
+            IN const vector<SubCommand>& commands
+        ) {  
+            for (uint8 i = 0; i < commands.size(); ++i) {
+                printf("\t%s: %s\n", commands[i].name.Pointer(), commands[i].context.Pointer());
+            }
+
+            exit(SUCCESSFULL_COMMAND_EXECUTION);
+        }
+    }
+
+    block GetMainCommand (
+        OUT uint8& commandMainNameLength,
+        OUT uint8& commandMainIndex,
+        IN const char* const commandMain
+    ) {
+            // Get Length.
+            for (; commandMain[commandMainNameLength] != '\0'; ++commandMainNameLength);
+
+            // Check Length.
+            if (commandMainNameLength > COMMAND_NAME_LENGTH) {
+                printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
+                exit(FAILURE_TO_LONG_COMMAND_NAME);
+            }
+
+            // MAIN COMMAND SEARCH
+            KnownLengthSearch<char>(
+                commandMainIndex, 
+                commandMainNameLength, commandMain,
+                mainCommands.size(), 
+                (const void**)(mainCommands.data()),
+                sizeof(MainCommand), 8
+            );
     }
 
     callback Action ( Tokens::ActionArgs& actionArgs ) {
@@ -135,145 +171,81 @@ namespace Project::Open {
 
         if (actionArgs.argumentsLength == 2) {
             printf("%s", "Fail no project_name specified!");
-            return;
+            exit(ExitCode::FAILURE_PROJECT_NAME_NOT_SPECIFIED);
         }
 
-        auto& commandMainName = actionArgs.arguments[2];
+        const char* commandMain = actionArgs.arguments[2];
         uint8 commandMainNameLength = 0;
         uint8 commandMainIndex = 0;
 
-        { // GET MAIN COMMAND
-            // Get Length.
-            for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
+        GetMainCommand(commandMainNameLength, commandMainIndex, commandMain);
+        auto& commands = mainCommands[commandMainIndex].commands;
 
-            // Check Length.
-            if (commandMainNameLength > COMMAND_NAME_LENGTH) {
-                printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
-                return;
-            }
-
-            // MAIN COMMAND SEARCH
-            KnownLengthSearch<char>(
-                commandMainIndex, 
-                commandMainNameLength, commandMainName,
-                mainCommands.size(), 
-                (const void**)(mainCommands.data()),
-                sizeof(MainCommand), 8
-            );
-
-            //printf("\n%i", commandMainIndex);
-        }
-
-        // eg. No subcommand `quil -o [project_name]`
+        // No subcommand eg. `quail -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
-            // In future it will display 'main' subcommand
-            //MainCommandListPage();
+            Pages::DisplayList(commands);
             return;
         } 
 
-        { // MainCommandListPage() // collision allows for shorts which is ideal!
-            const char commandListName[] = "list";
+        auto& commandSub = actionArgs.arguments[3];
+        uint8 commandSubLength = 0;
 
-            auto& subcommand = actionArgs.arguments[3];
-            uint8 subcommandLength = 0;
+        // Get subcommand length.
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wempty-body"
+        for (; commandSub[commandSubLength] != '\0'; ++commandSubLength);
+        #pragma GCC diagnostic pop
+
+        { // Check for `special` subcommands [not-defined-in-config]
+          // currently only "list"
             uint8 collision = 0;
-
-            // Get Length.
-            for (; subcommand[subcommandLength] != '\0'; ++subcommandLength);
-
-            for (uint8 i = 0; i < subcommandLength; ++i) {
-                collision += subcommand[i] == commandListName[i];
-            }
-
-            if (collision == subcommandLength) {
-                //printf("%s", "list!");
-                auto& commands = mainCommands[commandMainIndex].commands;
-                
-                for (uint8 i = 0; i < commands.size(); ++i) {
-                    printf("\t%s: %s\n", commands[i].name.Pointer(), commands[i].context.Pointer());
-                }
-
-                return;
-            }
+            Pages::IsCommandList(collision, commandSubLength, commandSub);
+            if (collision == commandSubLength)
+                Pages::DisplayList(commands);
         }
 
-        {   
-            
-            auto& commandSubName = actionArgs.arguments[3];
-            uint8 commandSubIndex = 0;
-            uint8 commandSubNameLength = 0;
+        uint8 commandSubIndex = 0;
 
-            // Get Length.
-            
-            for (; commandSubName[commandSubNameLength] != '\0'; ++commandSubNameLength);
+        // SUB COMMAND SEARCH
+        KnownLengthSearch<char>(
+            commandSubIndex, 
+            commandSubLength, commandSub,
+            mainCommands[commandMainIndex].commands.size(), 
+            (const void**)(mainCommands[commandMainIndex].commands.data()),
+            sizeof(SubCommand), 8
+        );
 
-            // SUB COMMAND SEARCH
-            KnownLengthSearch<char>(
-                commandSubIndex, 
-                commandSubNameLength, commandSubName,
-                mainCommands[commandMainIndex].commands.size(), 
-                (const void**)(mainCommands[commandMainIndex].commands.data()),
-                sizeof(SubCommand), 8
-            );
+        auto& commandAction = mainCommands[commandMainIndex].commands[commandSubIndex];
 
-            // Execute the command
-            auto& commandMain = mainCommands[commandMainIndex];
-            auto& commandAction = commandMain.commands[commandSubIndex];
+        switch (commandAction.type) {
+            case Normal: {
+                DEBUG printf("%s", "NORMAL COMMAND");
+                std::system(commandAction.context.Pointer()); // Execute the command
+            } break;
 
-            switch (commandAction.type) {
-                case Normal: {
-                    DEBUG printf("%s", "NORMAL COMMAND");
-                    std::system(commandAction.context.Pointer());
-                } break;
+            case Pipe: {
+                DEBUG printf("%s", "PIPE COMMAND");
 
-                case Pipe: {
-                    DEBUG printf("%s", "PIPE COMMAND");
+                const auto& data = commandAction.context.Pointer();
+                vector<char*> commandNames;
 
-                    const auto& data = commandAction.context.Pointer();
-                    vector<char*> commandNames;
+                { // Split to substrings.
+                    const char* const delimeter = ",";
+                    char *substring = strtok(data, delimeter);
 
-                    { // Split to substrings.
-                        const char* const delimeter = ",";
-                        char *substring = strtok(data, delimeter);
-
-                        do {
-                            commandNames.push_back(substring);
-                            substring = strtok(NULL, delimeter);
-                        } while (substring != nullptr);
-                    }
-
-                    for (auto& commandName : commandNames) {
-                        //printf("\n%s", commandName);
-
-                        uint8 commandNameLength = 0;
-                        uint8 commandSubIndex = 0;
-
-                        // Get Length. TODO: Ideally we should known that from substringing arleady.
-                        for (; commandName[commandNameLength] != '\0'; ++commandNameLength);
-
-                        // TODO: SEARCH ideally should be: 
-                        // 1. for multiple results.
-                        // 2. up to specified index so we don't check with itself and below it.
-                        // 3. allowing shourcuts.
-                        
-                        // SUB COMMAND SEARCH
-                        KnownLengthSearch<char>(
-                            commandSubIndex, 
-                            commandNameLength, commandName,
-                            commandMain.commands.size(), 
-                            (const void**)(commandMain.commands.data()),
-                            sizeof(SubCommand), 8
-                        );
-
-                        //printf("\n%s", commandMain.commands[commandSubIndex].context.Pointer());
-                        std::system(commandMain.commands[commandSubIndex].context.Pointer());
-                    }
-
-                } break;
-
-                default: {
-                    DEBUG printf("%s", "ERROR: UNKNOWN TYPE SET");
+                    do {
+                        commandNames.push_back(substring);
+                        substring = strtok(NULL, delimeter);
+                    } while (substring != nullptr);
                 }
+
+                ExecutePipeCommand(mainCommands[commandMainIndex], commandNames); // Execute the command
+
+            } break;
+
+            default: {
+                DEBUG printf("%s", "ERROR: UNKNOWN TYPE SET");
+                exit(FAILURE_UNKNOWN_COMMAND_TYPE);
             }
             
         }
