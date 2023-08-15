@@ -25,19 +25,19 @@ namespace Commands::Open {
         CommandContext context; // 128 bytes + 8 bytes
     };
 
-    //struct PipedCommand {
-    //    CommandName name;
-    //    vector<CommandContext> commands; 
-    //};
-
     struct MainCommand {
         CommandName name;
         vector<SubCommand> commands; // the size of that thing could get read and optimized i guess.
     };
 
-    
-    //const array<wchar, 26> dataFilePath = LR"(D:\Storage\Projects\.quail)";
-    const array<wchar, 34> dataFilePath = LR"(D:\ProgramFiles\dotBlueShoes\quail)";
+    //#if DEF_DEBUG
+    // IT USES LOCAL_PATH ! I EITHER SAVE MY PATH IN REGISTRY OR I GET IT THIS WAY ???
+    // https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+    const array<wchar, 35> dataFilePath = LR"(D:\ProgramFiles\dotBlueShoes\quail\)";
+    //#elif DEF_RELEASE
+    //const array<wchar, 0> dataFilePath = LR"()";
+    //#endif
+
     const array<wchar, 16> fileName = LR"(project_data.txt)";
 
     const array<char, 6> commandConfigName = "config";

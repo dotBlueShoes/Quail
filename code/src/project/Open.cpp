@@ -13,9 +13,9 @@ namespace Commands::Open {
 
         // Constructing Full FilePath
         //  In future we'll likely give an option to change their placement and name.
-
+        // ... maybe not tho ...
         getter uint64 GetFilePathLength() {
-            return dataFilePath.Length() + fileName.Length() + 2;
+            return dataFilePath.Length() + fileName.Length() + 1;
         }
 
         block CreateFilePath (
@@ -27,13 +27,14 @@ namespace Commands::Open {
             for (; index < dataFilePath.Length(); ++index)
                 filePath[index] = dataFilePath[index];
 
-            filePath[index] = L'/';
-            ++index;
+            //filePath[index] = L'/';
+            //++index;
 
             for (; i < fileName.Length(); ++i)
                 filePath[index + i] = fileName[i];
 
             filePath[index + i] = '\0';
+            //printf("%ls", filePath);
         }
 
         block ReadConfigurationFile() {
@@ -136,6 +137,7 @@ namespace Commands::Open {
             wchar* filePath = new wchar[IO::GetFilePathLength()];
             IO::CreateFilePath(filePath);
 
+            // std::system replacement because potensial wide-character ! 
             _wsystem( filePath );
 
             delete[] filePath;

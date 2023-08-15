@@ -5,8 +5,10 @@
 #define getter [[nodiscard]] __forceinline
 
 #ifdef DEBUG_LEVEL
-#define DEBUG if constexpr(DEBUG_LEVEL > 0)
-#define RELEASE if constexpr(DEBUG_LEVEL == 0)
+#define DEF_DEBUG DEBUG_LEVEL > 0
+#define DEF_RELEASE DEBUG_LEVEL == 0
+#define DEBUG if constexpr ( DEF_DEBUG )
+#define RELEASE if constexpr ( DEF_RELEASE )
 #endif
 
 using size = size_t;
