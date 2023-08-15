@@ -19,8 +19,9 @@ using std::ofstream;
 using std::vector;
 using std::string;
 
-#include "BaseTypes.hpp"
-#include "Array.hpp"
+#include "lib/BaseTypes.hpp"
+#include "lib/Array.hpp"
+#include "lib/Search.hpp"
 using namespace mst::array_n;
 
 // RETURN VALUES
