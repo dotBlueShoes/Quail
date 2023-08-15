@@ -95,15 +95,6 @@ namespace Commands::Open {
     } 
 
     namespace Pages {
-        block IsCommandList (
-            OUT uint8& collision,
-            IN const uint8& commandSubLength,
-            IN const char* const commandSub
-        );
-
-        block DisplayList(
-            IN MainCommand& commandMain
-        );
 
         block IsCommandConfig (
             OUT uint8& collision,
@@ -111,9 +102,26 @@ namespace Commands::Open {
             IN const char* const commandSub
         );
 
-        block DisplayList(
+        block DisplayConfig ();
+
+        block IsCommandListMainCommands (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        );
+
+        block DisplayListMainCommands();
+
+        block IsCommandListSubCommands (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        );
+
+        block DisplayListSubCommands(
             IN MainCommand& commandMain
         );
+
     }
     
     callback Action ( Tokens::ActionArgs& );

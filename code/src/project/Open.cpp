@@ -99,28 +99,6 @@ namespace Commands::Open {
 
     namespace Pages {
 
-        /* Collision is equal commandSubLength when true */
-        block IsCommandList (
-            OUT uint8& collision,
-            IN const uint8& commandSubLength,
-            IN const char* const commandSub
-        ) {
-            for (uint8 i = 0; i < commandSubLength; ++i) {
-                collision += commandSub[i] == commandListName[i];
-            }
-        }
-
-        block DisplayList(
-            IN MainCommand& commandMain
-        ) {  
-            printf("listing: %s\n", commandMain.name.Pointer());
-            for (uint8 i = 0; i < commandMain.commands.size(); ++i) {
-                printf("\t%s: %s\n", commandMain.commands[i].name.Pointer(), commandMain.commands[i].context.Pointer());
-            }
-
-            exit(SUCCESSFULL_COMMAND_EXECUTION);
-        }
-
         block IsCommandConfig (
             OUT uint8& collision,
             IN const uint8& commandSubLength,
@@ -131,9 +109,7 @@ namespace Commands::Open {
             }
         }
 
-        block DisplayConfig(
-            IN MainCommand& commandMain
-        ) {  
+        block DisplayConfig() {  
             wchar* filePath = new wchar[IO::GetFilePathLength()];
             IO::CreateFilePath(filePath);
 
@@ -144,6 +120,53 @@ namespace Commands::Open {
 
             exit(SUCCESSFULL_COMMAND_EXECUTION);
         }
+
+        block IsCommandListMainCommands (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        ) {
+            for (uint8 i = 0; i < commandSubLength; ++i) {
+                collision += commandSub[i] == commandListName[i];
+            }
+        }
+
+        block DisplayListMainCommands() { 
+            printf("listing: %s\n", "Commands");
+            for (uint8 i = 0; i < mainCommands.size(); ++i) {
+                auto& currentComamnd = mainCommands[i];
+                printf("\t%s\n", currentComamnd.name.Pointer());
+
+                //for (uint8 j = 0; j < currentComamnd.commands.size(); ++j) {
+                //    printf("\t%s: %s\n", currentComamnd.commands[j].name.Pointer(), currentComamnd.commands[j].context.Pointer());
+                //}
+            }
+
+            exit(SUCCESSFULL_COMMAND_EXECUTION);
+        }
+
+        /* Collision is equal commandSubLength when true */
+        block IsCommandListSubcommands (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        ) {
+            for (uint8 i = 0; i < commandSubLength; ++i) {
+                collision += commandSub[i] == commandListName[i];
+            }
+        }
+
+        block DisplayListSubcommands(
+            IN MainCommand& commandMain
+        ) {  
+            printf("listing: %s\n", commandMain.name.Pointer());
+            for (uint8 i = 0; i < commandMain.commands.size(); ++i) {
+                printf("\t%s: %s\n", commandMain.commands[i].name.Pointer(), commandMain.commands[i].context.Pointer());
+            }
+
+            exit(SUCCESSFULL_COMMAND_EXECUTION);
+        }
+
     }
 
     block GetMainCommand (
@@ -151,15 +174,6 @@ namespace Commands::Open {
         OUT uint8& commandMainIndex,
         IN const char* const commandMain
     ) {
-            // Get Length.
-            for (; commandMain[commandMainNameLength] != '\0'; ++commandMainNameLength);
-
-            // Check Length.
-            if (commandMainNameLength > COMMAND_NAME_LENGTH) {
-                printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
-                exit(FAILURE_TO_LONG_COMMAND_NAME);
-            }
-
             // MAIN COMMAND SEARCH
             Search::KnownLength<char>(
                 commandMainIndex, 
@@ -176,20 +190,45 @@ namespace Commands::Open {
         IO::ReadConfigurationFile();
 
         if (actionArgs.argumentsLength == 2) {
-            printf("%s", "Fail no project_name specified!");
-            exit(ExitCode::FAILURE_PROJECT_NAME_NOT_SPECIFIED);
+            Pages::DisplayListMainCommands();
+            //printf("%s", "Fail no project_name specified!");
+            //exit(ExitCode::FAILURE_PROJECT_NAME_NOT_SPECIFIED);
         }
 
         const char* commandMainName = actionArgs.arguments[2];
         uint8 commandMainNameLength = 0;
         uint8 commandMainIndex = 0;
 
+        // Get Length.
+        for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
+
+        // Check Length.
+        if (commandMainNameLength > COMMAND_NAME_LENGTH) {
+            printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
+            exit(FAILURE_TO_LONG_COMMAND_NAME);
+        }
+
+        { // Check for `special` maincommands [not-defined-in-config]
+            using namespace Pages;
+            uint8 collision = 0;
+
+            IsCommandConfig(collision, commandMainNameLength, commandMainName);
+            if (collision == commandMainNameLength)
+                DisplayConfig();
+
+            collision = 0;
+
+            IsCommandListMainCommands(collision, commandMainNameLength, commandMainName);
+            if (collision == commandMainNameLength)
+                DisplayListMainCommands();
+        }
+
         GetMainCommand(commandMainNameLength, commandMainIndex, commandMainName);
         auto& commandMain = mainCommands[commandMainIndex];
 
         // No subcommand eg. `quail -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
-            Pages::DisplayList(commandMain);
+            Pages::DisplayListSubcommands(commandMain);
             return;
         } 
 
@@ -207,15 +246,9 @@ namespace Commands::Open {
             using namespace Pages;
             uint8 collision = 0;
 
-            IsCommandList(collision, commandSubLength, commandSub);
+            IsCommandListSubcommands(collision, commandSubLength, commandSub);
             if (collision == commandSubLength)
-                DisplayList(commandMain);
-
-            collision = 0;
-
-            IsCommandConfig(collision, commandSubLength, commandSub);
-            if (collision == commandSubLength)
-                DisplayConfig(commandMain);
+                DisplayListSubcommands(commandMain);
         }
 
         uint8 commandSubIndex = 0;
