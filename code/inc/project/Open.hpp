@@ -40,6 +40,9 @@ namespace Commands::Open {
     const array<wchar, 34> dataFilePath = LR"(D:\ProgramFiles\dotBlueShoes\quail)";
     const array<wchar, 16> fileName = LR"(project_data.txt)";
 
+    const array<char, 6> commandConfigName = "config";
+    const array<char, 4> commandListName = "list";
+
     extern vector<MainCommand> mainCommands;
 
     namespace ParsingStages {
@@ -86,7 +89,33 @@ namespace Commands::Open {
     // 4. save only the part without it (as mainCommand).
     //  5. read lines by ' ',command_name,"=",command - loop till '}' is read.
 
-    block ReadConfigurationFile();
+    namespace IO {
+        block CreateFilePath( IN wchar* filePath );
+        block ReadConfigurationFile();
+    } 
+
+    namespace Pages {
+        block IsCommandList (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        );
+
+        block DisplayList(
+            IN MainCommand& commandMain
+        );
+
+        block IsCommandConfig (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        );
+
+        block DisplayList(
+            IN MainCommand& commandMain
+        );
+    }
+    
     callback Action ( Tokens::ActionArgs& );
 
 }

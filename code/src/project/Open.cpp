@@ -8,14 +8,19 @@ namespace Commands::Open {
     SubCommand currentSubCommand { { '\0' }, CommandType::Normal, { '\0' } };
     MainCommand currentMainCommand { { '\0' }, {  } };
 
-    
-    block ReadConfigurationFile() {
+
+    namespace IO {
 
         // Constructing Full FilePath
         //  In future we'll likely give an option to change their placement and name.
-        wchar* filePath = new wchar[dataFilePath.Length() + fileName.Length() + 2];
-        
-        {
+
+        getter uint64 GetFilePathLength() {
+            return dataFilePath.Length() + fileName.Length() + 2;
+        }
+
+        block CreateFilePath (
+            IN wchar* filePath
+        ) {
             uint8 index = 0;
             uint8 i = 0;
 
@@ -31,29 +36,36 @@ namespace Commands::Open {
             filePath[index + i] = '\0';
         }
 
-        // Open file
-        FILE* configurationFile;
-        if ((configurationFile = _wfopen(filePath, L"r")) == NULL){
-            // Program exits if the file pointer returns NULL.
-            printf("ERROR! File could not be opened file");
-            exit(ExitCode::FAILURE_NO_CONFIG_FILE); 
+        block ReadConfigurationFile() {
+
+            wchar* filePath = new wchar[GetFilePathLength()];
+            CreateFilePath(filePath);
+
+            // Open file
+            FILE* configurationFile;
+            if ((configurationFile = _wfopen(filePath, L"r")) == NULL){
+                // Program exits if the file pointer returns NULL.
+                printf("ERROR! File could not be opened file");
+                exit(ExitCode::FAILURE_NO_CONFIG_FILE); 
+            }
+
+            ParsingStages::StageArgs stageArgs { 0 };
+            ParsingStages::buffor = new char[256];
+
+            // The actuall read.
+            while (stageArgs.current != EOF) {
+                stageArgs.last = stageArgs.current;
+                stageArgs.current = getc(configurationFile);
+                ParsingStages::currentStage(stageArgs);
+            }
+
+            fclose(configurationFile);
+
+            delete[] ParsingStages::buffor;
+            delete[] filePath;
         }
-
-        ParsingStages::StageArgs stageArgs { 0 };
-        ParsingStages::buffor = new char[256];
-
-        // The actuall read.
-        while (stageArgs.current != EOF) {
-            stageArgs.last = stageArgs.current;
-            stageArgs.current = getc(configurationFile);
-            ParsingStages::currentStage(stageArgs);
-        }
-
-        fclose(configurationFile);
-
-        delete[] ParsingStages::buffor;
-        delete[] filePath;
     }
+    
 
     block ExecutePipeCommand(
         const MainCommand& commandMain,
@@ -92,9 +104,6 @@ namespace Commands::Open {
             IN const uint8& commandSubLength,
             IN const char* const commandSub
         ) {
-            const char commandListName[] = "list";
-            collision = 0;
-
             for (uint8 i = 0; i < commandSubLength; ++i) {
                 collision += commandSub[i] == commandListName[i];
             }
@@ -107,6 +116,29 @@ namespace Commands::Open {
             for (uint8 i = 0; i < commandMain.commands.size(); ++i) {
                 printf("\t%s: %s\n", commandMain.commands[i].name.Pointer(), commandMain.commands[i].context.Pointer());
             }
+
+            exit(SUCCESSFULL_COMMAND_EXECUTION);
+        }
+
+        block IsCommandConfig (
+            OUT uint8& collision,
+            IN const uint8& commandSubLength,
+            IN const char* const commandSub
+        ) {
+            for (uint8 i = 0; i < commandSubLength; ++i) {
+                collision += commandSub[i] == commandConfigName[i];
+            }
+        }
+
+        block DisplayConfig(
+            IN MainCommand& commandMain
+        ) {  
+            wchar* filePath = new wchar[IO::GetFilePathLength()];
+            IO::CreateFilePath(filePath);
+
+            _wsystem( filePath );
+
+            delete[] filePath;
 
             exit(SUCCESSFULL_COMMAND_EXECUTION);
         }
@@ -139,7 +171,7 @@ namespace Commands::Open {
     callback Action ( Tokens::ActionArgs& actionArgs ) {
         DEBUG std::cout << "DEBUG Entered action 'Open'\n";
 
-        ReadConfigurationFile();
+        IO::ReadConfigurationFile();
 
         if (actionArgs.argumentsLength == 2) {
             printf("%s", "Fail no project_name specified!");
@@ -170,10 +202,18 @@ namespace Commands::Open {
 
         { // Check for `special` subcommands [not-defined-in-config]
           // currently only "list"
+            using namespace Pages;
             uint8 collision = 0;
-            Pages::IsCommandList(collision, commandSubLength, commandSub);
+
+            IsCommandList(collision, commandSubLength, commandSub);
             if (collision == commandSubLength)
-                Pages::DisplayList(commandMain);
+                DisplayList(commandMain);
+
+            collision = 0;
+
+            IsCommandConfig(collision, commandSubLength, commandSub);
+            if (collision == commandSubLength)
+                DisplayConfig(commandMain);
         }
 
         uint8 commandSubIndex = 0;
