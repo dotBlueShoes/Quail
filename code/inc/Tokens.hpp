@@ -46,8 +46,8 @@ namespace Tokens {
 		Command { create.Pointer(),	  create.Length() 	}
 	};
 	
-	const array<CommandBuffor, 19> descriptionSetup 	{ "Does that and that." };
-	const array<CommandBuffor, 19> descriptionRecreate 	{ "Does this and that." };
+	const array<CommandBuffor, 19> descriptionSetup 	{ "Does nothing" };
+	const array<CommandBuffor, 19> descriptionRecreate 	{ "Does nothing" };
 	const array<CommandBuffor, 25> descriptionOpen 		{ "Opens configured project." };
 	const array<CommandBuffor, 43> descriptionCreate 	{ "Creates new project and it's configuration." };
 	
@@ -79,14 +79,5 @@ namespace Tokens {
 	) {
 		return (argumentsLength > 1);
 	}
-	
-	/// Sample Use:
-	///  : quail -o "project1"
-	///  : quail -c "nazwa" -t "template"
-	
-	/// Theres a main command like -o & -c
-	///  and there are subcommands which work with main command.
-	///  - there can be same names for subcommands for different commands
-	///  - [a subcommand can be specified first ??? ] // no.
 	
 }

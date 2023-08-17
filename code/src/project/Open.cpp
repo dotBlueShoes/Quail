@@ -5,6 +5,10 @@ namespace Commands::Open {
 
     vector<MainCommand> mainCommands;
 
+    array<char, 35> debugDataFilePath = R"(D:\ProgramFiles\dotBlueShoes\quail\)";
+    char* dataFilePath = nullptr;
+    uint64 dataFilePathLength = 0;
+
     SubCommand currentSubCommand { { '\0' }, CommandType::Normal, { '\0' } };
     MainCommand currentMainCommand { { '\0' }, {  } };
 
@@ -15,7 +19,7 @@ namespace Commands::Open {
         //  In future we'll likely give an option to change their placement and name.
         // ... maybe not tho ...
         getter uint64 GetFilePathLength() {
-            return dataFilePath.Length() + fileName.Length() + 1;
+            return dataFilePathLength + fileName.Length() + 1;
         }
 
         block CreateFilePath (
@@ -24,7 +28,7 @@ namespace Commands::Open {
             uint8 index = 0;
             uint8 i = 0;
 
-            for (; index < dataFilePath.Length(); ++index)
+            for (; index < dataFilePathLength; ++index)
                 filePath[index] = dataFilePath[index];
 
             //filePath[index] = L'/';
@@ -185,22 +189,18 @@ namespace Commands::Open {
     }
 
     callback Action ( Tokens::ActionArgs& actionArgs ) {
-        DEBUG std::cout << "DEBUG Entered action 'Open'\n";
+        DEBUG printf("DEBUG Entered action 'Open'\n");
 
-        IO::ReadConfigurationFile();
+        Initialize();                   // Prep buffors.
+        IO::ReadConfigurationFile();    // Get data from the config file.
 
-        if (actionArgs.argumentsLength == 2) {
-            Pages::DisplayListMainCommands();
-            //printf("%s", "Fail no project_name specified!");
-            //exit(ExitCode::FAILURE_PROJECT_NAME_NOT_SPECIFIED);
-        }
+        if (actionArgs.argumentsLength == 2)  // Was Project Comamnd specified? 
+            Pages::DisplayListMainCommands(); // No - Display all defined in config.
 
-        const char* commandMainName = actionArgs.arguments[2];
+        const char* commandMainName = actionArgs.arguments[2]; 
         uint8 commandMainNameLength = 0;
-        uint8 commandMainIndex = 0;
-
-        // Get Length.
-        for (; commandMainName[commandMainNameLength] != '\0'; ++commandMainNameLength);
+        
+        commandMainNameLength = strlen(commandMainName); // Get Length.
 
         // Check Length.
         if (commandMainNameLength > COMMAND_NAME_LENGTH) {
@@ -222,6 +222,8 @@ namespace Commands::Open {
             if (collision == commandMainNameLength)
                 DisplayListMainCommands();
         }
+
+        uint8 commandMainIndex = 0;
 
         GetMainCommand(commandMainNameLength, commandMainIndex, commandMainName);
         auto& commandMain = mainCommands[commandMainIndex];

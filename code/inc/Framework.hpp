@@ -39,9 +39,6 @@ enum ExitCode : uint8 {
 
 
 // TODO
-// - `quail -o` - displays all specified projects.
-// - `quail -o list` - does the same.
-// - `quail -o config` - opens the config file.
 // - variable command type eg. `$project_path: "path"`
 // - pipe type form '$' to '|'
 

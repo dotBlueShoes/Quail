@@ -8,15 +8,16 @@
 
 namespace Commands::Open {
 
-    const uint8 COMMAND_NAME_LENGTH ( 16 );
     const uint8 COMMAND_CONTEXT_LENGTH ( 255 );
+    const uint8 COMMAND_NAME_LENGTH ( 16 );
 
-    using CommandName = array<char, COMMAND_NAME_LENGTH>;
     using CommandContext = array<char, COMMAND_CONTEXT_LENGTH>;
+    using CommandName = array<char, COMMAND_NAME_LENGTH>;
 
     enum CommandType : uint8 {
         Normal = 0,
         Pipe = 1,
+        Variable = 2,
     };
 
     struct SubCommand {
@@ -30,18 +31,13 @@ namespace Commands::Open {
         vector<SubCommand> commands; // the size of that thing could get read and optimized i guess.
     };
 
-    //#if DEF_DEBUG
-    // IT USES LOCAL_PATH ! I EITHER SAVE MY PATH IN REGISTRY OR I GET IT THIS WAY ???
-    // https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-    const array<wchar, 35> dataFilePath = LR"(D:\ProgramFiles\dotBlueShoes\quail\)";
-    //#elif DEF_RELEASE
-    //const array<wchar, 0> dataFilePath = LR"()";
-    //#endif
-
-    const array<wchar, 16> fileName = LR"(project_data.txt)";
-
+    const array<char, 16> fileName = R"(project_data.txt)";
     const array<char, 6> commandConfigName = "config";
     const array<char, 4> commandListName = "list";
+
+    extern array<char, 35> debugDataFilePath;
+    extern uint64 dataFilePathLength;
+    extern char* dataFilePath;
 
     extern vector<MainCommand> mainCommands;
 
@@ -122,6 +118,26 @@ namespace Commands::Open {
             IN MainCommand& commandMain
         );
 
+    }
+
+    block Initialize() {
+
+        #if DEF_DEBUG
+
+        dataFilePath = debugDataFilePath.Pointer();
+        dataFilePathLength = 35;
+
+        #elif DEF_RELEASE
+
+        // Get exe path.
+        _get_pgmptr(&dataFilePath); // wchar _get_pgmptr(); // char _get_wpgmptr(&dataFilePath);
+        dataFilePathLength = strlen(dataFilePath);// wchar wcslen(dataFilePath);
+
+        // Turncate leaving characters after '\0' sign.
+        dataFilePathLength -= 9; // Quail.exe
+        dataFilePath[dataFilePathLength] = '\0';
+
+        #endif
     }
     
     callback Action ( Tokens::ActionArgs& );
