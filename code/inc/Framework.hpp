@@ -39,8 +39,11 @@ enum ExitCode : uint8 {
 
 
 // TODO
-// - variable command type eg. `$project_path: "path"`
+// - create template
+// - add command
+// - proper description for top commands
 // - pipe type form '$' to '|'
+// - variable command type eg. `$project_path: "path"`
 
 // 1. re-create tools.npp file so it will contain all the files there are in those folders.
 // 2. setup script that will
