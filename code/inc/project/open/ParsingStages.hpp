@@ -3,6 +3,12 @@
 
 #include "Types.hpp"
 
+    // 1. Open file.
+    // 2. Skip lines with '#' or '\n' as first character.
+    // 3. When read different sign read till " {" is read.
+    // 4. Save only the part without it (as mainCommand).
+    // 5. Read lines by ' ',command_name,"=",command - loop till '}' is read.
+
 // Following switch statement should change as
 //  we're reading different segments...
 // [ STATE 1 ]

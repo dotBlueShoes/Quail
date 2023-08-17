@@ -18,12 +18,6 @@ namespace Commands::Open {
     extern uint64 dataFilePathLength;
     extern char* dataFilePath;
 
-    // 1.open file.
-    // 2.skip lines with '#' or '\n' as first character.
-    // 3. when read different sign read till " {" is read.
-    // 4. save only the part without it (as mainCommand).
-    //  5. read lines by ' ',command_name,"=",command - loop till '}' is read.
-
     namespace IO {
         block CreateFilePath( IN wchar* filePath );
         block ReadConfigurationFile();
@@ -59,25 +53,7 @@ namespace Commands::Open {
 
     }
 
-    block Initialize() {
-
-        #if DEF_DEBUG
-
-        dataFilePath = debugDataFilePath.Pointer();
-        dataFilePathLength = 35;
-
-        #elif DEF_RELEASE
-
-        // Get exe path.
-        _get_pgmptr(&dataFilePath); // wchar _get_pgmptr(); // char _get_wpgmptr(&dataFilePath);
-        dataFilePathLength = strlen(dataFilePath);// wchar wcslen(dataFilePath);
-
-        // Turncate leaving characters after '\0' sign.
-        dataFilePathLength -= 9; // Quail.exe
-        dataFilePath[dataFilePathLength] = '\0';
-
-        #endif
-    }
+    block Initialize();
     
     callback Action ( Tokens::ActionArgs& );
 

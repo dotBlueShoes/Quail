@@ -4,8 +4,28 @@
 namespace Commands::Open {
 
     array<char, 35> debugDataFilePath = STRING_DATA_FILE_PATH_DEBUG;
-    char* dataFilePath = nullptr;
     uint64 dataFilePathLength = 0;
+    char* dataFilePath = nullptr;
+
+    block Initialize() {
+
+        #if DEF_DEBUG
+
+        dataFilePath = debugDataFilePath.Pointer();
+        dataFilePathLength = 35;
+
+        #elif DEF_RELEASE
+
+        // Get exe path.
+        _get_pgmptr(&dataFilePath); // wchar _get_pgmptr(); // char _get_wpgmptr(&dataFilePath);
+        dataFilePathLength = strlen(dataFilePath);// wchar wcslen(dataFilePath);
+
+        // Turncate leaving characters after '\0' sign.
+        dataFilePathLength -= 9; // Quail.exe
+        dataFilePath[dataFilePathLength] = '\0';
+
+        #endif
+    }
 
     namespace IO {
 
@@ -182,6 +202,9 @@ namespace Commands::Open {
             );
     }
 
+
+    
+
     callback Action ( Tokens::ActionArgs& actionArgs ) {
         DEBUG printf("DEBUG Entered action 'Open'\n");
 
@@ -196,13 +219,12 @@ namespace Commands::Open {
         
         commandMainNameLength = strlen(commandMainName); // Get Length.
 
-        // Check Length.
-        if (commandMainNameLength > COMMAND_NAME_LENGTH) {
-            printf("%s", "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!");
+        if (commandMainNameLength > COMMAND_NAME_LENGTH) { // Check Length.
+            printf("%s", STRING_FAILURE_TO_LONG_COMMAND_NAME);
             exit(FAILURE_TO_LONG_COMMAND_NAME);
         }
 
-        { // Check for `special` maincommands [not-defined-in-config]
+        { // Check for `special` maincommands [not-defined-in-config] { list, config }
             using namespace Pages;
             uint8 collision = 0;
 
@@ -217,10 +239,9 @@ namespace Commands::Open {
                 DisplayListMainCommands();
         }
 
-        uint8 commandMainIndex = 0;
-
+        uint8 commandMainIndex = 0; // Position of matched MainCommand eg. project_name. 
         GetMainCommand(commandMainNameLength, commandMainIndex, commandMainName);
-        auto& commandMain = ParsingStages::mainCommands[commandMainIndex];
+        auto& commandMain = ParsingStages::mainCommands[commandMainIndex]; // Matched MainCommand.
 
         // No subcommand eg. `quail -o [project_name]`
         if (actionArgs.argumentsLength == 3) {
@@ -231,14 +252,13 @@ namespace Commands::Open {
         auto& commandSub = actionArgs.arguments[3];
         uint8 commandSubLength = 0;
 
-        // Get subcommand length.
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wempty-body"
-        for (; commandSub[commandSubLength] != '\0'; ++commandSubLength);
-        #pragma GCC diagnostic pop
+        
+        //#pragma GCC diagnostic push
+        //#pragma GCC diagnostic ignored "-Wempty-body"
+        commandSubLength = strlen(commandSub); // Get subcommand length.
+        //#pragma GCC diagnostic pop
 
-        { // Check for `special` subcommands [not-defined-in-config]
-          // currently only "list"
+        { // Check for `special` subcommands [not-defined-in-config] { list }.
             using namespace Pages;
             uint8 collision = 0;
 
@@ -253,12 +273,12 @@ namespace Commands::Open {
         Search::KnownLength<char>(
             commandSubIndex, 
             commandSubLength, commandSub,
-            ParsingStages::mainCommands[commandMainIndex].commands.size(), 
-            (const void**)(ParsingStages::mainCommands[commandMainIndex].commands.data()),
+            commandMain.commands.size(), 
+            (const void**)(commandMain.commands.data()),
             sizeof(SubCommand), 8
         );
 
-        auto& commandAction = ParsingStages::mainCommands[commandMainIndex].commands[commandSubIndex];
+        auto& commandAction = commandMain.commands[commandSubIndex];
 
         switch (commandAction.type) {
             case Normal: {
@@ -282,7 +302,7 @@ namespace Commands::Open {
                     } while (substring != nullptr);
                 }
 
-                ExecutePipeCommand(ParsingStages::mainCommands[commandMainIndex], commandNames); // Execute the command
+                ExecutePipeCommand(commandMain, commandNames); // Execute the command
 
             } break;
 
