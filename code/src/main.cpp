@@ -2,6 +2,8 @@
 
 #include "project/Help.hpp"
 #include "Validation.hpp"
+
+#include "lib/Executable.hpp"
 	
 int32 main (
 	const int32 argumentsLength, 
@@ -31,7 +33,10 @@ int32 main (
 	//  put command and it's parameters onto a queue.
 
 	if (IsEnoughArgumentsPassedToValidate(argumentsLength)) {
+
+		Executable::InitializeStrings();	// Prep buffors.
 		Actions::Initialize();
+
 		uint8 state = Validation::Main(arguments);
 
 		if (state == Validation::success) {

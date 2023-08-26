@@ -4,9 +4,12 @@ projectTitle = Quail
 codeFolder = code
 
 srcList = $
+ $codeFolder\src\lib\Executable.cpp $
  $codeFolder\src\main.cpp $
  $codeFolder\src\project\Open.cpp $
  $codeFolder\src\project\open\ParsingStages.cpp
+ 
+ 
 
 globalIncludePath = $codeFolder\inc
 buildDir = build

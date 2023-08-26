@@ -4,7 +4,6 @@
 namespace Commands::Open { 
 
     #define STRING_FAILURE_TO_LONG_COMMAND_NAME "Fail commandMainNameLength cannot be more then COMMAND_NAME_LENGTH characters!"
-    #define STRING_DATA_FILE_PATH_DEBUG R"(D:\ProgramFiles\dotBlueShoes\quail\)"
 
     const uint8 COMMAND_CONTEXT_LENGTH ( 255 );
     const uint8 COMMAND_NAME_LENGTH ( 16 );

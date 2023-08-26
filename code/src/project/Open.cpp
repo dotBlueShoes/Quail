@@ -1,39 +1,15 @@
 #include "project/Open.hpp"
 
+#include "lib/Executable.hpp"
 
 namespace Commands::Open {
-
-    array<char, 35> debugDataFilePath = STRING_DATA_FILE_PATH_DEBUG;
-    uint64 dataFilePathLength = 0;
-    char* dataFilePath = nullptr;
-
-    block Initialize() {
-
-        #if DEF_DEBUG
-
-        dataFilePath = debugDataFilePath.Pointer();
-        dataFilePathLength = 35;
-
-        #elif DEF_RELEASE
-
-        // Get exe path.
-        _get_pgmptr(&dataFilePath); // wchar _get_pgmptr(); // char _get_wpgmptr(&dataFilePath);
-        dataFilePathLength = strlen(dataFilePath);// wchar wcslen(dataFilePath);
-
-        // Turncate leaving characters after '\0' sign.
-        dataFilePathLength -= 9; // Quail.exe
-        dataFilePath[dataFilePathLength] = '\0';
-
-        #endif
-    }
 
     namespace IO {
 
         // Constructing Full FilePath
         //  In future we'll likely give an option to change their placement and name.
-        // ... maybe not tho ...
         getter uint64 GetFilePathLength() {
-            return dataFilePathLength + fileName.Length() + 1;
+            return Executable::dataFilePathLength + fileName.Length() + 1;
         }
 
         block CreateFilePath (
@@ -42,17 +18,13 @@ namespace Commands::Open {
             uint8 index = 0;
             uint8 i = 0;
 
-            for (; index < dataFilePathLength; ++index)
-                filePath[index] = dataFilePath[index];
-
-            //filePath[index] = L'/';
-            //++index;
+            for (; index < Executable::dataFilePathLength; ++index)
+                filePath[index] = Executable::dataFilePath[index];
 
             for (; i < fileName.Length(); ++i)
                 filePath[index + i] = fileName[i];
 
             filePath[index + i] = '\0';
-            //printf("%ls", filePath);
         }
 
         block ReadConfigurationFile() {
@@ -203,12 +175,9 @@ namespace Commands::Open {
     }
 
 
-    
-
     callback Action ( Tokens::ActionArgs& actionArgs ) {
         DEBUG printf("DEBUG Entered action 'Open'\n");
 
-        Initialize();                   // Prep buffors.
         IO::ReadConfigurationFile();    // Get data from the config file.
 
         if (actionArgs.argumentsLength == 2)  // Was Project Comamnd specified? 

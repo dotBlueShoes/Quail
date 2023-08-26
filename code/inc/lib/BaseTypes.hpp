@@ -1,5 +1,7 @@
 #pragma once
 
+#include <inttypes.h>
+
 #define callback void
 #define block __forceinline void
 #define getter [[nodiscard]] __forceinline

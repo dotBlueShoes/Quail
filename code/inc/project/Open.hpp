@@ -14,10 +14,6 @@ namespace Commands::Open {
     const array<char, 6> commandConfigName = "config";
     const array<char, 4> commandListName = "list";
 
-    extern array<char, 35> debugDataFilePath;
-    extern uint64 dataFilePathLength;
-    extern char* dataFilePath;
-
     namespace IO {
         block CreateFilePath( IN wchar* filePath );
         block ReadConfigurationFile();
