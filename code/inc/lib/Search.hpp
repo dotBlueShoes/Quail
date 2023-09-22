@@ -28,7 +28,7 @@ namespace Search {
         }
 
         if (collision) {
-            printf("%s", "Fail No Matching Action!");
+            printf("\n%s", "SEARCH::KnownLength. Fail no match!");
             exit(ExitCode::FAILURE_NO_COMMAND_FOR_SPECIFIED_PROJECT);
         }
 

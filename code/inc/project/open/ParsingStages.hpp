@@ -37,8 +37,11 @@ namespace Commands::Open::ParsingStages {
     block MainCommandSpace ( const StageArgs& );
     block MainCommandEnd ( const StageArgs& );
     block SubCommandEntry ( const StageArgs& );
-    block SubCommand ( const StageArgs& );
+    block SubCommandName ( const StageArgs& );
     block SubCommandContext ( const StageArgs& );
+    block SubCommandReplace ( const StageArgs& );
+    block VariableName ( const StageArgs& );
+    block VariableContext ( const StageArgs& );
 
     extern Stage currentStage;
     extern uint8 bufforIndex;

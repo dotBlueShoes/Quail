@@ -11,6 +11,9 @@ namespace Commands::Open::ParsingStages {
         char stashedCharacter;
         char* buffor;
 
+        CommandName currentVariable;
+        uint8 currentVariableIndex = 0;
+
         block Main (
             const StageArgs& args
         ) {
@@ -121,6 +124,7 @@ namespace Commands::Open::ParsingStages {
         ) {
             // ACQUIRE
             currentMainCommand.commands.clear();
+            currentMainCommand.variables.clear();
             currentMainCommand.name[bufforIndex] = '\0';
             buffor[bufforIndex] = '\0';
             //printf("\n");
@@ -152,10 +156,16 @@ namespace Commands::Open::ParsingStages {
                 } break;
 
                 // PIPE COMMAND
-                case '$': {
+                case SIGN_PIPE: {
                     currentSubCommand.type = CommandType::Pipe;
-                    currentStage = SubCommand;
+                    currentStage = SubCommandName;
                     //printf("\nc:%c\n", args.current);
+                } break;
+
+                case SIGN_VAR: {
+                    //printf("Variable!");
+                    currentSubCommand.type = CommandType::Pipe;
+                    currentStage = VariableName;
                 } break;
 
                 default: {
@@ -164,12 +174,84 @@ namespace Commands::Open::ParsingStages {
                     ++bufforIndex;
 
                     currentSubCommand.type = CommandType::Normal;
-                    currentStage = SubCommand;
+                    currentStage = SubCommandName;
                 }
             }
         }
 
-        block SubCommand (
+        block VariableName(
+            const StageArgs& args
+        ) {
+            switch (args.current) {
+
+                case '=': {
+                    // ACQUIRE
+                    //printf("%c", '\n');
+                    buffor[bufforIndex] = '\0';
+                    currentSubCommand.name[bufforIndex] = '\0';
+
+                    // CLEAR
+                    for (uint8 i = 0; i < bufforIndex; ++i) {
+                        currentSubCommand.name[i] = buffor[i];
+                        buffor[i] = 0;
+                    }
+                    bufforIndex = 0;
+
+                    currentStage = VariableContext;
+                } break;
+
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\0':
+                case '}': {
+                    printf("%s", "Syntax Error expected '=' sign!");
+                } break;
+
+                default: {
+                    buffor[bufforIndex] = args.current;
+                    ++bufforIndex;
+                }
+            }
+        }
+
+        block VariableContext(
+            const StageArgs& args
+        ) {
+            switch (args.current) {
+
+                case '\0': {
+                    printf("%s", "Syntax Error! '\0' cannot be placed inside variables!");
+                } break;
+
+                case '\n': {
+                    // ACQUIRE
+                    buffor[bufforIndex] = '\0';
+                    //printf("\n");
+                    //printf("%s", buffor);
+
+                    currentSubCommand.context[bufforIndex] = '\0';
+
+                    // CLEAR
+                    for (uint8 i = 0; i < bufforIndex; ++i) {
+                        currentSubCommand.context[i] = buffor[i];
+                        buffor[i] = 0;
+                    }
+                    bufforIndex = 0;
+
+                    //printf("%s", currentSubCommand.context.Pointer());
+                    currentMainCommand.variables.push_back(currentSubCommand);
+                    currentStage = SubCommandEntry;
+                } break;
+
+                default: {
+                    buffor[bufforIndex] = args.current;
+                    ++bufforIndex;
+                }
+            }
+        }
+
+        block SubCommandName (
             const StageArgs& args
         ) {
             switch (args.current) {
@@ -179,7 +261,7 @@ namespace Commands::Open::ParsingStages {
                 case '\n':
                 case '\0':
                 case '}': {
-                    printf("%s", "Syntax Error!");
+                    printf("%s", "Syntax Error expected '=' sign!");
                 } break;
 
                 case '=': {
@@ -212,6 +294,12 @@ namespace Commands::Open::ParsingStages {
             const StageArgs& args
         ) {
             switch (args.current) {
+
+                case SIGN_REPLACE_START: {
+                    //printf("replace start");
+                    currentStage = SubCommandReplace;
+                } break;
+
                 case '\n': {
                     // ACQUIRE
                     buffor[bufforIndex] = '\0';
@@ -231,9 +319,72 @@ namespace Commands::Open::ParsingStages {
                     currentMainCommand.commands.push_back(currentSubCommand);
                     currentStage = SubCommandEntry;
                 } break;
+
                 default: {
                     buffor[bufforIndex] = args.current;
                     ++bufforIndex;
+                }
+            }
+        }
+
+        block SubCommandReplace (
+            const StageArgs& args
+        ) {
+            switch (args.current) {
+                case SIGN_REPLACE_END: {
+                    //printf("\nreplace end");
+
+                    // ACQUIRE
+                    currentVariable[currentVariableIndex] = '\0';
+                    //printf("\nvar:%s", currentVariable.Pointer());
+
+                    //printf("\n");
+					//for (auto& variable : currentMainCommand.variables) {
+					//	printf("\n%s", variable.name.Pointer());
+					//}
+					//printf("\n%s", currentVariable.Pointer());
+
+                    // FIND
+                    uint8 foundIndex = NOT_FOUND;
+                    Search::KnownLength<char>(
+                        foundIndex,             								// OUT index in array
+                        currentVariableIndex,									// IN length of 1 comperable
+                        currentVariable.Pointer(),   							// IN data of 1 comperable
+						currentMainCommand.variables.size(),					// IN array length of 2 comperables
+						(const void**)(currentMainCommand.variables.data()),	// IN array data of 2 comperables
+						sizeof(SubCommand), SUB_COMMAND_OFFSET									// Struct offset
+                    );
+
+					//1 // THIS WONT EVER TRIGGER DUE to KnownLength construction!
+					//1 if (foundIndex == NOT_FOUND) {
+					//1 	printf("%s", "Replace sign '@' detected but variable '$' was not found in the hierarchy!");
+					//1 	currentStage = SubCommandContext;
+					//1 }
+
+					auto& replaceValue = currentMainCommand.variables[foundIndex].context;
+					uint8 replaceLength = 0;
+
+					// Get Variable Context Length.
+            		for (; replaceValue[replaceLength] != '\0'; ++replaceLength);
+
+					// EMPLACE FOUNDED STRING
+					for (uint8 i = 0; i < replaceLength; ++i) {
+                        buffor[bufforIndex + i] = currentMainCommand.variables[foundIndex].context[i];
+                    }
+					bufforIndex += replaceLength;
+
+					// CLEAR
+					currentVariableIndex = 0;
+                    
+                    // RETURN
+                    currentStage = SubCommandContext;
+                } break;
+
+                default: {
+                    currentVariable[currentVariableIndex] = args.current;
+                    ++currentVariableIndex;
+
+                    //printf("%c", args.current);
                 }
             }
         }

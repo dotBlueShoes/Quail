@@ -80,7 +80,7 @@ namespace Commands::Open {
                 commandLength, command,
                 commandMain.commands.size(), 
                 (const void**)(commandMain.commands.data()),
-                sizeof(SubCommand), 8
+                sizeof(SubCommand), SUB_COMMAND_OFFSET
             );
 
             std::system(commandMain.commands[commandSubIndex].context.Pointer());
@@ -170,7 +170,7 @@ namespace Commands::Open {
                 commandMainNameLength, commandMain,
                 ParsingStages::mainCommands.size(), 
                 (const void**)(ParsingStages::mainCommands.data()),
-                sizeof(MainCommand), 8
+                sizeof(MainCommand), SUB_COMMAND_OFFSET
             );
     }
 
@@ -244,7 +244,7 @@ namespace Commands::Open {
             commandSubLength, commandSub,
             commandMain.commands.size(), 
             (const void**)(commandMain.commands.data()),
-            sizeof(SubCommand), 8
+            sizeof(SubCommand), SUB_COMMAND_OFFSET
         );
 
         auto& commandAction = commandMain.commands[commandSubIndex];
