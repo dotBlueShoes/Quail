@@ -146,12 +146,29 @@ namespace Commands::Open {
             }
         }
 
+        //constexpr auto GetReverseSpaceCount(const int& index) {
+        //    const uint8 count = 16 - index;
+        //    char output[16] { 0 };
+        //
+        //    for (uint8 i = 0; i < count; ++i) {
+        //        output[i] = SIGN_SPACE;
+        //    }
+        //
+        //    return output;
+        //}
+
         block DisplayListSubcommands(
             IN MainCommand& commandMain
         ) {  
+            uint8 nameLength; 
+
             printf("listing: %s\n", commandMain.name.Pointer());
             for (uint8 i = 0; i < commandMain.commands.size(); ++i) {
-                printf("\t%s: %s\n", commandMain.commands[i].name.Pointer(), commandMain.commands[i].context.Pointer());
+                auto& context = commandMain.commands[i].context;
+                auto& name = commandMain.commands[i].name;
+
+                nameLength = strlen(name.Pointer());
+                printf("\t%s:%s%s\n", name.Pointer(), OFFSET_LOOKUP_TABLE[nameLength], context.Pointer());
             }
 
             exit(SUCCESSFULL_COMMAND_EXECUTION);
