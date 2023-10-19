@@ -1,55 +1,58 @@
-#include "Framework.hpp"
+#include "lib/Framework.hpp"
+#include "lib/Search.hpp"
 
-#include "project/Help.hpp"
-#include "Validation.hpp"
+void NoMatchError () {
+	printf ("\n%s", "SEARCH::KnownLength. Fail no match!");
+    exit (ExitCode::FAILURE_NO_COMMAND_FOR_SPECIFIED_PROJECT);
+}
 
-#include "lib/Executable.hpp"
-	
+SUCCESS (return == ExitCode::SUCCESSFULL_COMMAND_EXECUTION)
 int32 main (
-	const int32 argumentsLength, 
-	const char** arguments
+	IN const int32 argumentsCount, 
+	INREADS (argumentsCount) const char** arguments
 ) {
-	
-	DEBUG printf("DEBUG Entered program in DEBUG mode!\n");
 
-	// REDO
-	//  I will be supporting multiple main-commands followed by their subcommands
-	//   The top system needs to be restructured so it will allow me to stop the execution
-	//   once we encounter an error durring processing of a command.
+	DEBUG printf ("DEBUG Entered program in DEBUG mode!\n");
 
-	// 0 arg - from where the program was called
-	// 1 arg - action command		[-o]
-	// 2 arg - action command param	[project_name/special]
-	// 3 arg - subcommand			[command_name/special]
+	//Search::ByIncludesFirstMatch();
 
-	// 0 arg - from where the program was called
-	// 1 arg - action command		[-c]
-	// 2 arg - action command param	[type/special]
-	// 3 arg - subcommand			[template_name/special]
+	array<char, 5> searchedFor { 'a', 'b', 'c', 'd', 'e' };
+	array<array<char, 5>, 6> searchedData {
+		array<char, 5> { 'f', 'b', 'c', 'd', 'e' },
+		array<char, 5> { 'b', 'b', 'c', 'd', 'e' },
+		array<char, 5> { 'c', 'b', 'c', 'd', 'e' },
+		array<char, 5> { 'g', 'b', 'c', 'd', 'e' },
+		array<char, 5> { 'd', 'b', 'c', 'd', 'e' },
+		array<char, 5> { 'e', 'b', 'c', 'd', 'e' },
+	};
 
-	using namespace Tokens;
+	char searchedDataOther[6][5] {
+		{ 'b', 'b', 'c', 'd', 'e' },
+		{ 'a', 'b', 'c', 'd', 'e' },
+		{ 'c', 'b', 'c', 'd', 'e' },
+		{ 'd', 'b', 'c', 'd', 'e' },
+		{ 'a', 'b', 'c', 'd', 'e' },
+		{ 'b', 'b', 'c', 'd', 'e' }
+	};
 
-	// Validation should
-	//  put command and it's parameters onto a queue.
 
-	if (IsEnoughArgumentsPassedToValidate(argumentsLength)) {
+	//const auto firstElement = (const char**)searchedData.data();
+	uint8 result = 0;
 
-		Executable::InitializeStrings();	// Prep buffors.
-		Actions::Initialize();
+	auto lambda = []() { printf("\n%s", "SEARCH::KnownLength. Fail no match!"); };
 
-		uint8 state = Validation::Main(arguments);
+	Search::Array::ByPFM <char, uint8> (
+		lambda,
+		result,
+		searchedFor.size(),
+		searchedFor.data(),
+		searchedData.size(),
+		//(Any*)searchedDataOther
+		(Any*)searchedData.data(),
+		sizeof(array<char, 5>), 0
+	);
 
-		if (state == Validation::success) {
-			ActionArgs actionArguments { argumentsLength, arguments };
-			Actions::actions[0]( actionArguments );
-			return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
-		} 
+	printf ("Result:%i\n", result);
 
-		Actions::Destroy();
-		Commands::Help::Display();
-		return ExitCode::FAILURE_MAIN_VALIDATION;
-	} 
-		
-	Commands::Help::Display();
-	return ExitCode::FAILURE_ARGUMENT_COUNT;
+	return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 }

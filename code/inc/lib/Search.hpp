@@ -1,38 +1,51 @@
-#pragma once
-
-#include "BaseTypes.hpp"
-#include "Array.hpp"
+#include "Framework.hpp"
 
 namespace Search {
 
-    template <class T>
-    block KnownLength(
-        OUT uint8& resultIndex,             // If found resultIndex points to found element if not stays unchainged.
-        IN  const uint8& valuesLength,      // Length of string data we're compering/.
-        IN  const T* values,                // String data we're compering.
-        IN  const uint8& elementsLength,    // Length of elements to compare to.
-        IN  const void** elements,          // Array on which we're compering.
-        IN  const size& typeSize = 0,       // For variable in possible Struct position in bytes. 
-        IN  const size& elementOffset = 0   // For variable in possible Struct position in bytes. 
-        /* missing lambda for collision failed execution */
-    ) {
-        uint8 collision = 1;
+	using PTRVOID = void (*)();
 
-        for (; resultIndex < elementsLength * collision; ++resultIndex) {
-            for (uint8 i = 0; i < valuesLength; ++i) {
-                //collision += (values[i] == (elements[resultIndex].name[i]);
-                auto& element = ((T*)((byte*)(elements) + (typeSize * resultIndex) + elementOffset))[i];
-                collision += values[i] == element;
-            }
-            collision = ((collision - 1) != valuesLength);
-        }
+	namespace Array {
 
-        if (collision) {
-            printf("\n%s", "SEARCH::KnownLength. Fail no match!");
-            exit(ExitCode::FAILURE_NO_COMMAND_FOR_SPECIFIED_PROJECT);
-        }
+		/// Example "sample" in string "sample_foobar" returns true.
+		/// Example "sample" in string "sample" returns true.
+		/// By Part First Match
 
-        --resultIndex;
-    }
+		template <typename T, typename IntegerType, typename NoMatchCallable>
+		void ByPFM (
+			IN	NoMatchCallable&& noMatchCallable,
+			OUT	IntegerType& resultIndex,
+			IN  const IntegerType& comparableToCount,
+			IN	const T* comparableTo,
+			IN	const IntegerType& comparableFromCount,
+			IN	const Any* comparableFrom,
+			IN  const size& structSize = 1,
+			IN  const size& structOffset = 0
+		) {
+			IntegerType collision = 1;
+
+        	for (; resultIndex < comparableFromCount * collision; ++resultIndex) {
+            	for (IntegerType i = 0; i < comparableToCount; ++i) {
+            	    auto& element = ((T*)((byte*)(comparableFrom) + (structSize * resultIndex) + structOffset))[i];
+            	    collision += comparableTo[i] == element;
+            	}
+            	collision = ((collision - 1) != comparableToCount);
+        	}
+
+        	if (collision) noMatchCallable();
+
+        	--resultIndex;
+		}
+
+		/// Example "sample" in string "sample_foobar" returns true.
+		/// Example "sample" in string "sample" returns true.
+		/// By Full First Match
+
+		uint32 ByPFM () {
+			return 5;
+		}
+
+	}
+
+	
 
 }

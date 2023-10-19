@@ -3,7 +3,7 @@
 #include <inttypes.h>
 
 #define callback void
-#define block __forceinline void
+#define block __forceinline
 #define getter [[nodiscard]] __forceinline
 
 #ifdef DEBUG_LEVEL
@@ -12,6 +12,18 @@
 #define DEBUG if constexpr ( DEF_DEBUG )
 #define RELEASE if constexpr ( DEF_RELEASE )
 #endif
+
+// SAL
+#define SUCCESS _Success_
+#define INOUT _Inout_
+#define INREADS _In_reads_
+#define OUTWRITES _Out_writes_ 
+
+// Templates
+//template <typename T>
+//using BeInt = std::enable_if_t<std::is_integral_v<T>>;
+
+using Any = const void*;
 
 using size = size_t;
 using wchar = wchar_t;
@@ -30,9 +42,3 @@ using flag8 = uint8_t;
 using flag16 = uint16_t;
 using flag32 = uint32_t;
 using flag64 = uint64_t;
-
-
-template <class T>
-struct pair {
-	T x, y;
-};
