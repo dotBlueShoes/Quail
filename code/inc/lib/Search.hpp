@@ -2,7 +2,7 @@
 
 namespace Search {
 
-	using PTRVOID = void (*)();
+	const char* STRING_SEARCH_ARRAY_BYPFM_ERROR = "Array Search BYPFM No match failure!";
 
 	namespace Array {
 
@@ -12,14 +12,14 @@ namespace Search {
 
 		template <typename T, typename IntegerType, typename NoMatchCallable>
 		void ByPFM (
-			IN	NoMatchCallable&& noMatchCallable,
-			OUT	IntegerType& resultIndex,
-			IN  const IntegerType& comparableToCount,
-			IN	const T* comparableTo,
-			IN	const IntegerType& comparableFromCount,
-			IN	const Any* comparableFrom,
-			IN  const size& structSize = 1,
-			IN  const size& structOffset = 0
+			IN		NoMatchCallable&& noMatchCallable,
+			OUT		IntegerType& resultIndex,
+			IN  	const IntegerType& comparableToCount,
+			IN		const T* comparableTo,
+			IN		const IntegerType& comparableFromCount,
+			IN		const Any* comparableFrom,
+			INOPT	const size& structSize		= 1,
+			INOPT	const size& structOffset	= 0
 		) {
 			IntegerType collision = 1;
 

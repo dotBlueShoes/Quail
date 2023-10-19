@@ -24,6 +24,12 @@ using std::pair;
 
 #include "BaseTypes.hpp"
 
+namespace strings {
+
+	const char* STRING_DEBUG_MODE_INO = "Entered program in DEBUG mode.";
+	
+}
+
 enum ExitCode : int32 {
 
 	SUCCESSFULL_COMMAND_EXECUTION				= 0,

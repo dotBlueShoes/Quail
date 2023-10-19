@@ -15,8 +15,10 @@
 
 // SAL
 #define SUCCESS _Success_
+#define INOPT _In_opt_
 #define INOUT _Inout_
 #define INREADS _In_reads_
+#define OUTOPT _Out_opt_
 #define OUTWRITES _Out_writes_ 
 
 // Templates

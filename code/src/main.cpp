@@ -1,10 +1,17 @@
 #include "lib/Framework.hpp"
 #include "lib/Search.hpp"
 
-void NoMatchError () {
-	printf ("\n%s", "SEARCH::KnownLength. Fail no match!");
-    exit (ExitCode::FAILURE_NO_COMMAND_FOR_SPECIFIED_PROJECT);
-}
+using MyString = array<char, 5>;
+
+MyString searchedFor { 'a', 'b', 'c', 'd', 'e' };
+array<MyString, 6> searchedData {
+	MyString { 'f', 'b', 'c', 'd', 'e' },
+	MyString { 'b', 'b', 'c', 'd', 'e' },
+	MyString { 'a', 'b', 'c', 'd', 'e' },
+	MyString { 'g', 'b', 'c', 'd', 'e' },
+	MyString { 'd', 'b', 'c', 'd', 'e' },
+	MyString { 'e', 'b', 'c', 'd', 'e' },
+};
 
 SUCCESS (return == ExitCode::SUCCESSFULL_COMMAND_EXECUTION)
 int32 main (
@@ -12,47 +19,25 @@ int32 main (
 	INREADS (argumentsCount) const char** arguments
 ) {
 
-	DEBUG printf ("DEBUG Entered program in DEBUG mode!\n");
+	DEBUG printf ("%s\n", strings::STRING_DEBUG_MODE_INO);
 
-	//Search::ByIncludesFirstMatch();
+	{ // Search Example
+		auto onNoMatchFound = []() { 
+			printf ("%s\n", Search::STRING_SEARCH_ARRAY_BYPFM_ERROR);
+			exit(ExitCode::FAILURE_UNKNOWN_COMMAND_TYPE);
+		};
 
-	array<char, 5> searchedFor { 'a', 'b', 'c', 'd', 'e' };
-	array<array<char, 5>, 6> searchedData {
-		array<char, 5> { 'f', 'b', 'c', 'd', 'e' },
-		array<char, 5> { 'b', 'b', 'c', 'd', 'e' },
-		array<char, 5> { 'c', 'b', 'c', 'd', 'e' },
-		array<char, 5> { 'g', 'b', 'c', 'd', 'e' },
-		array<char, 5> { 'd', 'b', 'c', 'd', 'e' },
-		array<char, 5> { 'e', 'b', 'c', 'd', 'e' },
-	};
+		uint16 result (0);
 
-	char searchedDataOther[6][5] {
-		{ 'b', 'b', 'c', 'd', 'e' },
-		{ 'a', 'b', 'c', 'd', 'e' },
-		{ 'c', 'b', 'c', 'd', 'e' },
-		{ 'd', 'b', 'c', 'd', 'e' },
-		{ 'a', 'b', 'c', 'd', 'e' },
-		{ 'b', 'b', 'c', 'd', 'e' }
-	};
+		Search::Array::ByPFM <char, uint16> (
+			onNoMatchFound, result,
+			searchedFor.size(), searchedFor.data(),
+			searchedData.size(), (Any*)searchedData.data(),
+			sizeof(MyString)
+		);
 
-
-	//const auto firstElement = (const char**)searchedData.data();
-	uint8 result = 0;
-
-	auto lambda = []() { printf("\n%s", "SEARCH::KnownLength. Fail no match!"); };
-
-	Search::Array::ByPFM <char, uint8> (
-		lambda,
-		result,
-		searchedFor.size(),
-		searchedFor.data(),
-		searchedData.size(),
-		//(Any*)searchedDataOther
-		(Any*)searchedData.data(),
-		sizeof(array<char, 5>), 0
-	);
-
-	printf ("Result:%i\n", result);
+		printf ("Result: %i\n", result);
+	}
 
 	return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 }
