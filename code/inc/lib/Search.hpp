@@ -12,14 +12,14 @@ namespace Search {
 
 		template <typename T, typename IntegerType, typename NoMatchCallable>
 		void ByPFM (
-			IN		NoMatchCallable&& noMatchCallable,
-			OUT		IntegerType& resultIndex,
-			IN  	const IntegerType& comparableToCount,
-			IN		const T* comparableTo,
-			IN		const IntegerType& comparableFromCount,
-			IN		const Any* comparableFrom,
-			INOPT	const size& structSize		= 1,
-			INOPT	const size& structOffset	= 0
+			IN								NoMatchCallable&& 	NoMatchCallableFunc,// Execute at no match.
+			OUT								IntegerType& 		resultIndex,		// If found resultIndex points to found element if not stays unchainged.
+			IN  							const IntegerType& 	comparableToCount,	// Length of array data we're compering to.
+			INREADS (comparableToCount) 	const T* 			comparableTo,		// Data we're compering to.
+			IN								const IntegerType& 	comparableFromCount,// Length of elements to compare from.
+			INREADS (comparableFromCount) 	const any* 			comparableFrom,		// Array on which we're compering from.
+			INOPT							const size& 		structSize = 1,		// For variable in possible Struct position in bytes. 
+			INOPT							const size& 		structOffset = 0	// For variable in possible Struct position in bytes. 
 		) {
 			IntegerType collision = 1;
 
@@ -31,17 +31,9 @@ namespace Search {
             	collision = ((collision - 1) != comparableToCount);
         	}
 
-        	if (collision) noMatchCallable();
+        	if (collision) NoMatchCallableFunc();
 
         	--resultIndex;
-		}
-
-		/// Example "sample" in string "sample_foobar" returns true.
-		/// Example "sample" in string "sample" returns true.
-		/// By Full First Match
-
-		uint32 ByPFM () {
-			return 5;
 		}
 
 	}
