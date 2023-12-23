@@ -4,9 +4,11 @@
 #include "lib/Buffor.hpp"
 #include "lib/Pointer.hpp"
 
-buffor<uint8> memoryBlockA;
-buffor<uint8> memoryBlockB;
-buffor<uint8> memoryBlockC;
+using mst::buffor;
+
+extern buffor<uint8> memoryBlockA;
+extern buffor<uint8> memoryBlockB;
+extern buffor<uint8> memoryBlockC;
 
 //ptr<uint8> memoryBlockA;
 //ptr<uint8> memoryBlockB;

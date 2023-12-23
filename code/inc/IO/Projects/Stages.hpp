@@ -1,6 +1,8 @@
 #pragma once
 #include "lib/Framework.hpp"
 
+#include "Types.hpp"
+
 namespace IO::Projects::Stages {
 
 	// Think about other files !
@@ -21,9 +23,30 @@ namespace IO::Projects::Stages {
 	// Next byte is the offset to get to the third command
 	// ... second command ...
 
-	// Function Type Declaration
+	void Initialize();
 
 	// Function Stages
-	void Current() {} // = MainBeginStage / BeginStage // Main for main file as it holds links to other files.
+
+	StageProc MainBeginStage(const StageParams& stage);
+	StageProc BeginStage(const StageParams& stage);
+	StageProc Comment(const StageParams& stage);
+	
+
+	extern Stage Current; // = MainBeginStage / BeginStage // Main for main file as it holds links to other files.
+
+}
+
+namespace IO::Projects::Stages::File {
+
+	StageProc Begin(const StageParams& stage);
+	StageProc Assign(const StageParams& stage);
+	StageProc Context(const StageParams& stage);
+
+}
+
+
+namespace IO::Projects::Stages::Command {
+
+	StageProc Begin(const StageParams& stage);
 
 }

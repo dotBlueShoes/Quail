@@ -2,6 +2,8 @@
 
 #include "BaseTypes.hpp"
 
+#include <stdlib.h> // malloc, alloc, calloc, free
+
 namespace mst {
 
 	template <class T>

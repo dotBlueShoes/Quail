@@ -42,10 +42,13 @@ using mst::ptr;
 
 namespace strings {
 
-	const char* STRING_DEBUG_MODE_INFO = "Entered program in DEBUG mode.";
+	constexpr const char* STRING_DEBUG_MODE_INFO = "Entered program in DEBUG mode.";
 
-	const char* STRING_FAILURE_NO_CONFIG_FILE = "FAILURE no config file!";
-	const char* STRING_FAILURE_BUFFOR_TO_SMALL = "FAILURE buffor to small!";
+	constexpr const char* STRING_FAILURE_NO_CONFIG_FILE = "FAILURE no config file!";
+	constexpr const char* STRING_FAILURE_BUFFOR_TO_SMALL = "FAILURE buffor to small!";
+	//#define STRING_DEBUG_MODE_INFO "Entered program in DEBUG mode."
+	//#define STRING_FAILURE_NO_CONFIG_FILE "FAILURE no config file!"
+	//#define STRING_FAILURE_BUFFOR_TO_SMALL "FAILURE buffor to small!"
 	
 }
 

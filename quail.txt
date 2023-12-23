@@ -1,0 +1,12 @@
+$name=Quail
+$project_name=quail
+$project_dir=D:\Storage\Projects\Quail
+
+terminal=wt -w 1 nt --title @name@ -d "@project_dir@"
+directory=explorer.exe "@project_dir@"
+npp=start "" "@project_dir@\@project_name@.npp"
+vsc=start "" "@project_dir@\@project_name@_vsc.lnk"
+github=github "@project_dir@"
+
+|alpha=vsc,directory
+|main=terminal,directory,vsc

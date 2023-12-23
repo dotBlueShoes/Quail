@@ -27,7 +27,8 @@ int32 main (
 	DEBUG printf ("%s\n", strings::STRING_DEBUG_MODE_INFO);
 
 	// Initialize Buffers with program start. They'll automaticlly deallocate.
-	memoryBlockA.INITIALIZE(4098);
+	//memoryBlockA.INITIALIZE(4096);
+	memoryBlockA.INITIALIZE(1024);
 	memoryBlockB.INITIALIZE(512);
 	
 	IO::GetProjectsData();

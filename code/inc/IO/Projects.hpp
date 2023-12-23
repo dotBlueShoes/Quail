@@ -5,6 +5,7 @@
 #include "Buffors.hpp"
 
 #include "Projects/Stages.hpp"
+#include "Projects/Parse.hpp"
 
 namespace IO {
 
@@ -34,13 +35,30 @@ namespace IO {
 			// 	exit (ExitCode::FAILURE_BUFFOR_TO_SMALL);
 			// }
 
+			namespace IPS = IO::Projects::Stages;
 
-			int32 character = EOF;
+			printf("%s", "START\n");
+
+			IPS::StageParams stageParams { EOF, 0 };
+			IPS::Current = IPS::MainBeginStage;
+			IPS::Initialize();
+
 			do { // The actuall read operation.
-				character = fgetc (fileConfiguration);
-				IO::Projects::Stages::Current();
+				stageParams.current = fgetc (fileConfiguration);
 				// Call to stages extended
-			} while (character != EOF);
+				IPS::Current(stageParams);
+				//printf("%c", stageParams.current);
+				//printf("%c", '\n');
+			} while (stageParams.current != EOF);
+
+			printf("%s", "DISPLAY\n");
+
+			// DISPLAY COLLECTED DATA.
+			namespace IPP = IO::Projects::Parse;
+			IPP::DisplayFiles();
+
+			printf("%s", "END\n");
+
 		}
 
 	};
@@ -58,12 +76,17 @@ namespace IO {
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			int32 character = EOF;
+			namespace IPS = IO::Projects::Stages;
+
+			IPS::StageParams stageParams { EOF, 0 };
+			IPS::Current = IPS::BeginStage;
+			IPS::Initialize();
+
 			do { // The actuall read operation.
-				character = fgetc (fileConfiguration);
-				IO::Projects::Stages::Current();
+				stageParams.current = fgetc (fileConfiguration);
 				// Call to stages
-			} while (character != EOF);
+				IPS::Current(stageParams);
+			} while (stageParams.current != EOF);
 		}
 
 	}
