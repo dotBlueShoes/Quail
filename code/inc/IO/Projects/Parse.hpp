@@ -6,37 +6,48 @@
 
 namespace IO::Projects::Parse {
 
-	//ptr<uint8> projectsBuffor = ptr<uint8>(memoryBlockA, sizeof(size) /* offset */ );
-
-
 	block DisplayFiles() {
-		const uint8& filesCount = memoryBlockA.data[0];
-		uint8& nameCount = memoryBlockA.data[1];
-		uint8& contextCount = memoryBlockA.data[2];
 
-		printf("FC: %" PRIu8 "\n", filesCount);
-		printf("NC: %" PRIu8 "\n", nameCount);
-		printf("CC: %" PRIu8 "\n", contextCount);
+		const array<char, 18> LABEL { "Project Filepaths\n" };
 
+		const uint8 SPACE_SIZE_FILES_COUNT = 1;
 		const uint8 SPACE_SIZE_CONTEXT = 1;
 		const uint8 SPACE_SIZE_NAME = 1;
 
-		uint8 nextFileIndex = 1;
 
-		// TODO:
-		//  For now only for the fisrt command file is being saved in buffor properly.
-		//  Inside Stages.cpp make it safe on different indexes so that nameCount, contextCount would work.
+		const uint8& filesCount = memoryBlockA.data[0];
 		
-		//for (uint8 i = 0; i < filesCount; ++i) {
-			nextFileIndex += nameCount + contextCount;
-			nameCount = memoryBlockA.data[nextFileIndex];
-			nextFileIndex += SPACE_SIZE_NAME;
-			contextCount = memoryBlockA.data[nextFileIndex];
-			nextFileIndex += SPACE_SIZE_CONTEXT;
-		//}
 
-		printf("NC: %" PRIu8 "\n", nameCount);
-		printf("CC: %" PRIu8 "\n", contextCount);
+		uint8 nextIndex = SPACE_SIZE_FILES_COUNT;
+		uint8 nameCount, contextCount;
+
+
+		// DISPLAY LABEL
+		fwrite(LABEL.Pointer(), sizeof(char), 18, stdout);
+
+
+		for (uint8 i = 0; i < filesCount; ++i) {
+
+			// GET PROJECT_NAME
+			nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+
+			// GET PROJECT_PATH
+			contextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			// DISPLAY FILES
+			fwrite(" ", sizeof(char), 1, stdout);
+			fwrite(memoryBlockA.data + nextIndex, sizeof(char), nameCount, stdout);
+			fwrite("\t: ", sizeof(char), 3, stdout);
+			fwrite(memoryBlockA.data + nextIndex + nameCount, sizeof(char), contextCount, stdout);
+			fwrite("\n", sizeof(char), 1, stdout);
+
+			// MOVE TO THE BEGINING OF NEXT PROJECT
+			nextIndex += nameCount + contextCount;
+
+		}
+		
 	}
 
 }

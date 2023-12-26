@@ -37,7 +37,7 @@ namespace IO {
 
 			namespace IPS = IO::Projects::Stages;
 
-			printf("%s", "START\n");
+			//printf("%s", "START\n");
 
 			IPS::StageParams stageParams { EOF, 0 };
 			IPS::Current = IPS::MainBeginStage;
@@ -51,13 +51,13 @@ namespace IO {
 				//printf("%c", '\n');
 			} while (stageParams.current != EOF);
 
-			printf("%s", "DISPLAY\n");
+			//printf("%s", "DISPLAY\n");
 
 			// DISPLAY COLLECTED DATA.
 			namespace IPP = IO::Projects::Parse;
 			IPP::DisplayFiles();
 
-			printf("%s", "END\n");
+			//printf("%s", "END\n");
 
 		}
 

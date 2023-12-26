@@ -39,11 +39,11 @@ namespace IO::Projects::Stages {
 
 			case EOF: {
 				// ERROR FILE IS EMPTY!
-				printf("%s", "ERROR\n");
+				printf("%s%s", "ERROR:", "1\n");
 			} break;
 
 			default: {
-				printf("%s", "CALL\n");
+				//printf("%s", "CALL\n");
 				//projectsBuffor[bufforIndex] = stage.current;
 				memoryBlockA.data[bufforIndex] = stage.current;
 				++bufforIndex; ++lengthTemp;
@@ -68,7 +68,7 @@ namespace IO::Projects::Stages {
 
 			case EOF: {
 				// ERROR FILE IS EMPTY!
-				printf("%s", "ERROR\n");
+				printf("%s%s", "ERROR:", "2\n");
 			} break;
 
 			default: {
@@ -91,11 +91,7 @@ namespace IO::Projects::Stages {
                 Current = Next;
             } break;
 			
-			case EOF: {
-				// ERROR FILE IS EMPTY!
-				printf("%s", "ERROR\n");
-			} break;
-
+			case EOF:
 			default: {
 				//printf("%c", stage.current);
 			}
@@ -117,7 +113,7 @@ namespace IO::Projects::Stages::File {
             case SECTION_END:
 			case COMMENT: {
 				// ERROR FILE IS ILL-FORMED!
-				printf("%s", "ERROR\n");
+				printf("%s%s", "ERROR:", "4\n");
 			} break;
 
 			case NEW_LINE:
@@ -152,7 +148,7 @@ namespace IO::Projects::Stages::File {
 
 			case EOF: {
 				// ERROR FILE IS ILL-FORMED!
-				printf("%s", "ERROR\n");
+				printf("%s%s", "ERROR:", "5\n");
 			} break;
 
 			default: {
@@ -176,25 +172,27 @@ namespace IO::Projects::Stages::File {
 			} break;
 
 			case NEW_LINE: {
-				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp; // SET ON PREVIOUS INDEX
 				lengthTemp = 0; // RESET
 
-				// RESERVE SPACE FOR NEW COMMANDS
+				// RESERVE SPACE (INDEXES) FOR NEW COMMANDS (THEIR SIZE VALUES)
 				bufforSizeNameIndex = bufforIndex;
 				++bufforIndex;
 				bufforSizeContextIndex = bufforIndex;
 				++bufforIndex;
 
+				//printf("AA: %" PRIu64 " %" PRIu64 "\n", bufforSizeNameIndex, bufforSizeContextIndex);
+
 				// Increase the number of files.
 				++memoryBlockA.data[bufforFilesCountIndex];
 
 				Current = MainBeginStage; // Look for another
-			}
+			} break;
 
 			case SPACE:
 			case TAB: {
 				// ERROR FILE IS ILL-FORMED!
-				printf("%s", "ERROR\n");
+				printf("%s%s", "ERROR:", "6\n");
 			}
 
 			default: {
