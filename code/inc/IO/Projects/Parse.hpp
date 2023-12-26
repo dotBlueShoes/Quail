@@ -8,7 +8,7 @@ namespace IO::Projects::Parse {
 
 	block DisplayFiles() {
 
-		const array<char, 18> LABEL { "Project Filepaths\n" };
+		const array<char, 19> LABEL { "\nProject Filepaths\n" };
 
 		const uint8 SPACE_SIZE_FILES_COUNT = 1;
 		const uint8 SPACE_SIZE_CONTEXT = 1;
@@ -23,7 +23,7 @@ namespace IO::Projects::Parse {
 
 
 		// DISPLAY LABEL
-		fwrite(LABEL.Pointer(), sizeof(char), 18, stdout);
+		fwrite(LABEL.Pointer(), sizeof(char), LABEL.Length(), stdout);
 
 
 		for (uint8 i = 0; i < filesCount; ++i) {
@@ -41,12 +41,14 @@ namespace IO::Projects::Parse {
 			fwrite(memoryBlockA.data + nextIndex, sizeof(char), nameCount, stdout);
 			fwrite("\t: ", sizeof(char), 3, stdout);
 			fwrite(memoryBlockA.data + nextIndex + nameCount, sizeof(char), contextCount, stdout);
-			fwrite("\n", sizeof(char), 1, stdout);
+			fwrite("\n", sizeof(char), 2, stdout);
 
 			// MOVE TO THE BEGINING OF NEXT PROJECT
 			nextIndex += nameCount + contextCount;
 
 		}
+
+		fwrite("\n", sizeof(char), 1, stdout);
 		
 	}
 

@@ -9,21 +9,29 @@
 using MyString = array<char, 5>;
 
 
-MyString searchedFor { 'a', 'b', 'c', 'd', 'e' };
-array<MyString, 6> searchedData {
-	MyString { 'f', 'b', 'c', 'd', 'e' },
-	MyString { 'b', 'b', 'c', 'd', 'e' },
-	MyString { 'a', 'b', 'c', 'd', 'e' },
-	MyString { 'g', 'b', 'c', 'd', 'e' },
-	MyString { 'd', 'b', 'c', 'd', 'e' },
-	MyString { 'e', 'b', 'c', 'd', 'e' },
-};
+//MyString searchedFor { 'a', 'b', 'c', 'd', 'e' };
+//array<MyString, 6> searchedData {
+//	MyString { 'f', 'b', 'c', 'd', 'e' },
+//	MyString { 'b', 'b', 'c', 'd', 'e' },
+//	MyString { 'a', 'b', 'c', 'd', 'e' },
+//	MyString { 'g', 'b', 'c', 'd', 'e' },
+//	MyString { 'd', 'b', 'c', 'd', 'e' },
+//	MyString { 'e', 'b', 'c', 'd', 'e' },
+//};
 
 
 const int32 NO_PATH_CALL_HOW = 0;
 const int32 NO_PARAMETERS_CALL = 1;
 const int32 INCOMPLETE_COMMAND = 2;
 const int32 VALID_COMMAND = 3;
+
+
+// TODO:
+// - ENUMS for switches
+// - Move incomplete command execution somewhere else.
+// - Valid command logic
+// - Global variables
+// - Read project commands
 
 
 int32 main (
@@ -76,13 +84,12 @@ int32 main (
 				switch (i + (validator * COMMANDS_SHORTS_LENGTH)) {
 
 					case 0: {
-						// {i} always points by 1 up. 
+						// {i} always points up by 1. 
 						printf("IMPOSIBLE_CASE");
 					} break;
 
 					case 1: {
 						// VALID CASE - OPEN
-						//printf("VALID_CASE_OPEN");
 						IO::GetProjectsData();
 					} break;
 
