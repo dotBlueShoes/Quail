@@ -15,32 +15,27 @@ namespace Arguments {
 	const CommandShort shortOpen { "-o" };
 	const array<const charConsole, 6, uint8> open { "--open" };
 
-	// SAMPLE
-	const CommandShort shortSample { "-s" };
-	const array<const charConsole, 8, uint8> sample { "--sample" };
+	// HELP
+	const CommandShort shortHelp { "-h" };
+	const array<const charConsole, 6, uint8> help { "--help" };
 
 	// FOR VALIDATION PURPOSES ONLY
 	const CommandShort shortInvalid { "--" };
-	const array<const charConsole, 3, uint8> invalid { "---" };
 
 	// Array with shorts for better manipulation with data.
 	const array<CommandShort, 3> shorts {
 		shortOpen, 
-		shortSample, 
+		shortHelp, 
 		shortInvalid
 	};
 
 	// Array with fulls for better manipulation with data.
 	const array<const CommandFull, 3> fulls {
 		CommandFull { open.Length(), open.Pointer() },
-		CommandFull { sample.Length(), sample.Pointer() },
-		CommandFull { invalid.Length(), invalid.Pointer() }
+		CommandFull { help.Length(), help.Pointer() }
 	};
 
 	enum MATCH : int16 {
-		POSSIBLE_FULL_COMMAND = -2,
-		TOO_LONG = -2,
-		TOO_SHORT = -1,
 		IMPOSIBLE = 0,
 		OPEN = 1,
 		SAMPLE = 2,
@@ -82,7 +77,7 @@ namespace Arguments {
 		//validator += (commandName[1] != '-');
 
 		auto onNoMatchFound = []() { 
-			printf ("%s\n", Search::STRING_SEARCH_ARRAY_BYPFM_ERROR);
+			printf ("%s\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
 			exit (ExitCode::FAILURE_INVALID_ARGUMENT);
 		};
 
