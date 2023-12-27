@@ -8,10 +8,10 @@ namespace Search {
 
 		/// Example "sample" in string "sample_foobar" returns true.
 		/// Example "sample" in string "sample" returns true.
-		/// By Part First Match
+		/// By Part First Match (Equal Element in Array Size)
 
 		template <typename T, typename IntegerType, typename NoMatchCallable>
-		void ByPFM (
+		void ByPFME (
 			IN								NoMatchCallable&& 	NoMatchCallableFunc,// Execute at no match.
 			OUT								IntegerType& 		resultIndex,		// If found resultIndex points to found element if not stays unchainged.
 			IN  							const IntegerType& 	comparableToCount,	// Length of array data we're compering to.
@@ -26,8 +26,10 @@ namespace Search {
         	for (; resultIndex < comparableFromCount * collision; ++resultIndex) {
             	for (IntegerType i = 0; i < comparableToCount; ++i) {
             	    auto& element = ((T*)((byte*)(comparableFrom) + (structSize * resultIndex) + structOffset))[i];
+					// Add up signs that match. Later compare that to comparable length to see if successfuly matched.
             	    collision += comparableTo[i] == element;
             	}
+				// 1 - Signs are not equal, 0 - Signs are equal
             	collision = ((collision - 1) != comparableToCount);
         	}
 

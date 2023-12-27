@@ -61,3 +61,7 @@ using flag8 = uint8_t;
 using flag16 = uint16_t;
 using flag32 = uint32_t;
 using flag64 = uint64_t;
+
+// CHARACTERS
+using charConsole = char;
+using charFile = char;
