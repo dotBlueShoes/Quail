@@ -1,7 +1,69 @@
 #pragma once
 #include "lib/Framework.hpp"
 
-#include "Commands.hpp"
+#include "Arguments.hpp"
+
+
+
+namespace Arguments::Validate {
+
+	// Check for "-*".
+	//
+	getter int16 Short (
+		IN const charConsole* const commandName
+	) {
+
+		const uint8 COMMANDS_SHORTS_LENGTH = shorts.Length();
+
+		uint8 i = 0, j = COMMANDS_SHORTS_LENGTH;
+
+		// CHECK SIGN. 0 when TRUE, 1 when FALSE
+		uint8 validator = (commandName[0] != '-');
+
+		// GET COMMAND MATCH, {i} will always grow by 1.
+		for (; i < j;) {
+			// When x != y iterate next. When x == y break by condition changing. I
+			j = (commandName[1] != shorts[i][1]) * COMMANDS_SHORTS_LENGTH;
+			++i;
+		}
+
+		// CHECK VALIDATION + COMMAND MATCH. & RUN
+		return i + (validator * COMMANDS_SHORTS_LENGTH);
+
+	}
+
+
+	// Check for "--*...".
+	//
+	getter int16 Full (
+		IN 						const uint8& commandLength,
+		INREADS (commandLength) const charConsole* const commandName
+	) {
+
+		auto onNoMatchFound = []() { 
+			printf ("%s\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
+			exit (ExitCode::FAILURE_INVALID_ARGUMENT);
+		};
+
+		uint16 resultIndex (0);
+
+		// Helper data structure to point at proper buffer elements.
+		const array<uint8, COMMANDS_COUNT> START_POSITIONS { 
+			0_i8, 							// First element with length in front
+			(uint8)(1_i8 + ARG_OPEN_LENGTH) // Second element ...
+		};
+
+		Search::Buffor::ByPFM<charConsole, uint16> (
+			onNoMatchFound, resultIndex,
+			commandLength, commandName,
+			fulls.Pointer(), START_POSITIONS.Length(), START_POSITIONS.Pointer()
+		);
+
+		return resultIndex + 1;
+	}
+
+}
+
 
 namespace Arguments::Parse {
 
@@ -14,7 +76,7 @@ namespace Arguments::Parse {
 		// POSSIBLE SHORT COMMAND
 		if (commandLength == COMMAND_SHORT_LENGTH) {
 
-			switch (ValidateShort(commandName)) {
+			switch (Validate::Short(commandName)) {
 
 				case MATCH::IMPOSIBLE: {
 					printf("FAILRE: IMPOSIBLE_CASE?");
@@ -24,7 +86,7 @@ namespace Arguments::Parse {
 					IO::GetProjectsData();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
-				case MATCH::SAMPLE: {
+				case MATCH::HELP: {
 					printf("SUCCESS: VALID_CASE_SAMPLE");
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
@@ -39,15 +101,9 @@ namespace Arguments::Parse {
 			}
 
 		// POSIIBLE FULL COMMAND
-		} else if (commandLength > COMMAND_SHORT_LENGTH) {
-			
-			//printf ("%i\n", commandLength);
-			//fwrite(open.Pointer(), sizeof(char), open.Length(), stdout);
-			//fwrite("\n", sizeof(char), 1, stdout);
-			//fwrite(sample.Pointer(), sizeof(char), sample.Length(), stdout);
-			//fwrite("\n", sizeof(char), 1, stdout);
+		} else if (commandLength > COMMAND_SHORT_LENGTH && commandLength <= COMMAND_MAX_LENGTH) {
 
-			switch (ValidateFull(commandName, commandLength)) {
+			switch (Validate::Full(commandLength, commandName)) {
 
 				case MATCH::IMPOSIBLE: {
 					printf("FAILRE: IMPOSIBLE_CASE?");
@@ -57,7 +113,7 @@ namespace Arguments::Parse {
 					IO::GetProjectsData();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
-				case MATCH::SAMPLE: {
+				case MATCH::HELP: {
 					printf("SUCCESS: VALID_CASE_SAMPLE");
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 

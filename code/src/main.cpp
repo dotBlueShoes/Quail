@@ -76,35 +76,35 @@ int32 main (
 	DEBUG printf ("%s\n", strings::STRING_DEBUG_MODE_INFO);
 
 	
-	fwrite(searchedDataA[2].name, sizeof(char), searchedDataA[2].length, stdout);
+	//fwrite(searchedDataA[2].name, sizeof(char), searchedDataA[2].length, stdout);
 
-	{ // By Part Search Example
-		auto onNoMatchFound = []() { 
-			printf ("%s\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
-			exit (ExitCode::FAILURE_INVALID_ARGUMENT);
-		};
-	
-		uint16 resultIndex (0);
-	
-		Search::Array::ByPFME <char, uint16> (
-			onNoMatchFound, resultIndex,
-			searchedFor.Length(), searchedFor.Pointer(),
-			searchedData.Length(), (any*)searchedData.Pointer(),
-			sizeof (MyString), sizeof (uint8) /* offset in type */
-		);
-
-		printf ("Result: %i\n", resultIndex);
-		resultIndex = 0;
-
-		Search::Array::ByPFME <char, uint16> (
-			onNoMatchFound, resultIndex,
-			searchedForA.length, searchedForA.name,
-			searchedDataA.Length(), (any*)searchedDataA.Pointer()
-			//sizeof (MyString), sizeof (uint8) /* offset in type */
-		);
-	
-		printf ("Result: %i\n", resultIndex);
-	}
+	//{ // By Part Search Example
+	//	auto onNoMatchFound = []() { 
+	//		printf ("%s\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
+	//		exit (ExitCode::FAILURE_INVALID_ARGUMENT);
+	//	};
+	//
+	//	uint16 resultIndex (0);
+	//
+	//	Search::Array::ByPFME <char, uint16> (
+	//		onNoMatchFound, resultIndex,
+	//		searchedFor.Length(), searchedFor.Pointer(),
+	//		searchedData.Length(), (any*)searchedData.Pointer(),
+	//		sizeof (MyString), sizeof (uint8) /* offset in type */
+	//	);
+	//
+	//	printf ("Result: %i\n", resultIndex);
+	//	resultIndex = 0;
+	//
+	//	Search::Array::ByPFME <char, uint16> (
+	//		onNoMatchFound, resultIndex,
+	//		searchedForA.length, searchedForA.name,
+	//		searchedDataA.Length(), (any*)searchedDataA.Pointer()
+	//		//sizeof (MyString), sizeof (uint8) /* offset in type */
+	//	);
+	//
+	//	printf ("Result: %i\n", resultIndex);
+	//}
 
 	// Initialize Buffers with program start. They'll automaticlly deallocate.
 	memoryBlockA.INITIALIZE(1024);

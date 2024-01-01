@@ -54,8 +54,8 @@ namespace mst {
 
 		/// Getters
 
-		getter const IntegerType& Length() const noexcept { return nonTemporaryLength; }
-		getter const T* const Pointer() const noexcept { return &value[0]; }
-		getter T* const Pointer() noexcept { return &value[0]; } // to making old werid code work.
+		getter constexpr const IntegerType& Length() const noexcept { return nonTemporaryLength; }
+		getter constexpr const T* const Pointer() const noexcept { return &value[0]; }
+		getter constexpr T* const Pointer() noexcept { return &value[0]; } // to making old werid code work.
 	};
 }

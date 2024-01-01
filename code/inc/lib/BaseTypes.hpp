@@ -43,6 +43,7 @@
 
 /* Base types */
 using any = void*;
+using cany = const void*;
 
 using size = size_t;
 using wchar = wchar_t;
