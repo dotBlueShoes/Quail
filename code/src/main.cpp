@@ -4,6 +4,7 @@
 #include "Buffors.hpp"
 #include "IO/Projects.hpp"
 #include "Arguments/Parse.hpp"
+#include "Commands/Help.hpp"
 
 
 using MyString = array<char, 5, uint8>; // Arguments::CommandFull
@@ -41,8 +42,7 @@ enum ARGUMENTS_CHECK : int32 {
 
 
 // TODO:
-// - Valid command logic
-// - Global variables
+// - Global constants !!!
 // - Read project commands
 
 
@@ -88,7 +88,7 @@ int32 main (
 		} 
 
 		case ARGUMENTS_CHECK::NO_PARAMETERS_CALL: {
-			printf("NO_PARAMETERS_CALL");
+			Commands::Help::Display();
 			return ExitCode::FAILURE_TOO_LITTLE_ARGUMENTS;
 		} 
 
