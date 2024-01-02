@@ -32,22 +32,6 @@ namespace Arguments {
 	};
 
 
-	// Array with fulls for better manipulation with data.
-	//const array<const CommandFull, 2> fulls {
-	//	CommandFull { open.Length(), open.Pointer() },
-	//	CommandFull { help.Length(), help.Pointer() }
-	//};
-
-
-	inline uint8 operator "" _i8(char value) {
-		return (uint8)(value);
-	}
-
-	inline uint8 operator "" _i8(unsigned long long value) {
-		return (uint8)(value);
-	}
-
-
 	const uint8 ARG_OPEN_LENGTH = 6;
 	#define ARG_OPEN '-'_i8, '-'_i8, 'o'_i8, 'p'_i8, 'e'_i8, 'n'_i8
 
@@ -66,6 +50,12 @@ namespace Arguments {
 	// We add 0 between to make it imposible to write something like --open--help and get --open result.
 	const array<const uint8, ARG_FULLS_LENGTH> fulls {
 		ARG_OPEN, 0_i8, ARG_HELP
+	};
+
+	// Helper data structure to point at proper buffer elements.
+	const array<uint8, COMMANDS_COUNT> START_POSITIONS { 
+		0_i8, 							// First element with length in front
+		(uint8)(1_i8 + ARG_OPEN_LENGTH) // Second element ...
 	};
 
 

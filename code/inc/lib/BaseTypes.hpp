@@ -66,3 +66,14 @@ using flag64 = uint64_t;
 // CHARACTERS
 using charConsole = char;
 using charFile = char;
+
+
+// LITERALS
+
+inline uint8 operator "" _i8(char value) {
+	return (uint8)(value);
+}
+
+inline uint8 operator "" _i8(unsigned long long value) {
+	return (uint8)(value);
+}

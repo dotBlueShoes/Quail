@@ -2,7 +2,7 @@
 #include "lib/Framework.hpp"
 
 #include "Arguments.hpp"
-
+#include "Commands/Help.hpp"
 
 
 namespace Arguments::Validate {
@@ -47,12 +47,6 @@ namespace Arguments::Validate {
 
 		uint16 resultIndex (0);
 
-		// Helper data structure to point at proper buffer elements.
-		const array<uint8, COMMANDS_COUNT> START_POSITIONS { 
-			0_i8, 							// First element with length in front
-			(uint8)(1_i8 + ARG_OPEN_LENGTH) // Second element ...
-		};
-
 		Search::Buffor::ByPFM<charConsole, uint16> (
 			onNoMatchFound, resultIndex,
 			commandLength, commandName,
@@ -87,7 +81,7 @@ namespace Arguments::Parse {
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
-					printf("SUCCESS: VALID_CASE_SAMPLE");
+					Commands::Help::Display();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::INVALID: {
@@ -114,7 +108,7 @@ namespace Arguments::Parse {
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
-					printf("SUCCESS: VALID_CASE_SAMPLE");
+					Commands::Help::Display();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::INVALID: {
