@@ -2,9 +2,10 @@
 #include "lib/Search.hpp"
 
 #include "Buffors.hpp"
-#include "IO/Projects.hpp"
 #include "Arguments/Parse.hpp"
+
 #include "Commands/Help.hpp"
+#include "Commands/Open/Open.hpp"
 
 
 using MyString = array<char, 5, uint8>; // Arguments::CommandFull
@@ -37,7 +38,8 @@ enum ARGUMENTS_CHECK : int32 {
 	NO_PATH_CALL_HOW = 0,
 	NO_PARAMETERS_CALL = 1,
 	INCOMPLETE_COMMAND = 2,
-	VALID_COMMAND = 3,
+	PROJECT_ONLY = 3,
+	VALID_COMMAND = 4,
 };
 
 
@@ -93,14 +95,21 @@ int32 main (
 		} 
 
 		case ARGUMENTS_CHECK::INCOMPLETE_COMMAND: {
-			// Match 2nd argument with commands.
 			auto&& commandName = arguments[1];
 			return Arguments::Parse::CommandIncomplete(commandName);
 		}
 
+		case PROJECT_ONLY: {
+			auto&& commandName = arguments[1];
+			auto&& projectName = arguments[2];
+			return Arguments::Parse::CommandProjectOnly(commandName, projectName);
+			return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
+		}
+
 		case VALID_COMMAND: {
 			//auto&& commandName = arguments[1];
-			//auto&& subcommandName = arguments[2];
+			//auto&& projectName = arguments[2];
+			//auto&& subcmmdName = arguments[3];
 			return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 		}
 

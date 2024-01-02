@@ -1,13 +1,22 @@
 #pragma once
 #include "lib/Framework.hpp"
 
-#include "Constants.hpp"
 #include "Buffors.hpp"
 
-#include "Projects/Stages.hpp"
-#include "Projects/Parse.hpp"
+#include "Stages.hpp"
+#include "Parse.hpp"
+#include "IO.hpp"
 
-namespace IO {
+
+namespace Commands::Open::Subcommands {
+
+	// Predefined subcommands for common use.
+	const array<const charConsole, 6> config = "config";
+	const array<const charConsole, 4> list = "list";
+
+}
+
+namespace Commands::Open {
 
 	/// READS the main projects config file. 
 	block GetProjectsData () {
@@ -35,18 +44,18 @@ namespace IO {
 			// 	exit (ExitCode::FAILURE_BUFFOR_TO_SMALL);
 			// }
 
-			namespace IPS = IO::Projects::Stages;
+			namespace COS = Commands::Open::Stages;
 
 			//printf("%s", "START\n");
 
-			IPS::StageParams stageParams { EOF, 0 };
-			IPS::Current = IPS::MainBeginStage;
-			IPS::Initialize();
+			COS::StageParams stageParams { EOF, 0 };
+			COS::Current = COS::MainBeginStage;
+			COS::Initialize();
 
 			do { // The actuall read operation.
 				stageParams.current = fgetc (fileConfiguration);
 				// Call to stages extended
-				IPS::Current(stageParams);
+				COS::Current(stageParams);
 				//printf("%c", stageParams.current);
 				//printf("%c", '\n');
 			} while (stageParams.current != EOF);
@@ -54,8 +63,8 @@ namespace IO {
 			//printf("%s", "DISPLAY\n");
 
 			// DISPLAY COLLECTED DATA.
-			namespace IPP = IO::Projects::Parse;
-			IPP::DisplayFiles();
+			namespace COP = Commands::Open::Parse;
+			COP::DisplayFiles();
 
 			//printf("%s", "END\n");
 
@@ -76,16 +85,16 @@ namespace IO {
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			namespace IPS = IO::Projects::Stages;
+			namespace COS = Commands::Open::Stages;
 
-			IPS::StageParams stageParams { EOF, 0 };
-			IPS::Current = IPS::BeginStage;
-			IPS::Initialize();
+			COS::StageParams stageParams { EOF, 0 };
+			COS::Current = COS::BeginStage;
+			COS::Initialize();
 
 			do { // The actuall read operation.
 				stageParams.current = fgetc (fileConfiguration);
 				// Call to stages
-				IPS::Current(stageParams);
+				COS::Current(stageParams);
 			} while (stageParams.current != EOF);
 		}
 

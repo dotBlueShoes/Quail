@@ -1,7 +1,7 @@
 #pragma once
 #include "lib/Framework.hpp"
 
-namespace IO {
+namespace Commands::Open {
 
 	//const array<const char, 42> FOLDER_CONFIGS (R"(D:\ProgramFiles\dotBlueShoes\quail\configs)");
 	//const array<const char, 12> FILE_PROJECTS (R"(projects.txt)");

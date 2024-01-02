@@ -1,7 +1,7 @@
 #pragma once
 #include "lib/Framework.hpp"
 
-namespace IO::Projects::Stages {
+namespace Commands::Open::Stages {
 
 	struct StageParams {
         char current;

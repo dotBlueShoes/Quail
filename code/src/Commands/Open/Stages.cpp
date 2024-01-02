@@ -1,8 +1,8 @@
-#include "IO/Projects/Stages.hpp"
+#include "Commands/Open/Stages.hpp"
 
 #include "Buffors.hpp"
 
-namespace IO::Projects::Stages {
+namespace Commands::Open::Stages {
 
 	Stage Current, Next; // Next is rarely used.
 
@@ -101,7 +101,7 @@ namespace IO::Projects::Stages {
 }
 
 
-namespace IO::Projects::Stages::File {
+namespace Commands::Open::Stages::File {
 
 	StageProc Begin(const StageParams& stage) {
 
@@ -205,7 +205,7 @@ namespace IO::Projects::Stages::File {
 }
 
 
-namespace IO::Projects::Stages::Command {
+namespace Commands::Open::Stages::Command {
 
 	StageProc Begin(const StageParams& stage) {
 		switch (stage.current) {

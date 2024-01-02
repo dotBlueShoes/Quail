@@ -3,7 +3,7 @@
 
 #include "Types.hpp"
 
-namespace IO::Projects::Stages {
+namespace Commands::Open::Stages {
 
 	// Think about other files !
 	// quail files !
@@ -36,7 +36,7 @@ namespace IO::Projects::Stages {
 
 }
 
-namespace IO::Projects::Stages::File {
+namespace Commands::Open::Stages::File {
 
 	StageProc Begin(const StageParams& stage);
 	StageProc Assign(const StageParams& stage);
@@ -45,7 +45,7 @@ namespace IO::Projects::Stages::File {
 }
 
 
-namespace IO::Projects::Stages::Command {
+namespace Commands::Open::Stages::Command {
 
 	StageProc Begin(const StageParams& stage);
 
