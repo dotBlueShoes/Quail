@@ -44,6 +44,12 @@ enum ARGUMENTS_CHECK : int32 {
 
 
 // TODO:
+// - 1. Constants (variables) in main config (global)
+// - 2. Subcommands in main config - 'list', 'config' keywords use
+// - 3. Queues (pipes) in main config
+// - 4. Constants, Subcommands, Queues in project files
+// - 5. Projects inside main config
+
 // - Global constants !!!
 // - Read project commands
 

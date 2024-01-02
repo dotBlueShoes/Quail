@@ -31,6 +31,10 @@ namespace Commands::Open::Stages {
 	StageProc MainBeginStage(const StageParams& stage);
 	StageProc BeginStage(const StageParams& stage);
 	StageProc Comment(const StageParams& stage);
+
+	// Will be moved to Commands::Open::Stages::... namespaces
+	StageProc Constant(const StageParams& stage);
+	StageProc Queue(const StageParams& stage);
 	
 
 	extern Stage Current; // = MainBeginStage / BeginStage // Main for main file as it holds links to other files.

@@ -13,8 +13,9 @@
 namespace Commands::Open::Subcommands {
 
 	// Predefined subcommands for common use.
-	const array<const charConsole, 6> config = "config";
-	const array<const charConsole, 4> list = "list";
+	// We will define them in config instead !!!!
+	//const array<const charConsole, 6> config = "config";
+	//const array<const charConsole, 4> list = "list";
 
 }
 
@@ -74,7 +75,7 @@ namespace Commands::Open {
 	) {
 
 		//printf("here");
-		wprintf(L"\n%ls\n", filePath);
+		//wprintf(L"\n%ls\n", filePath);
 
 		//
 		//for (size i = 0; i < other.Length(); ++i) {

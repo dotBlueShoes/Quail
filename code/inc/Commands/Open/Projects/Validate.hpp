@@ -75,7 +75,7 @@ namespace Commands::Open::Projects {
 		// null-terminate the end
 		//begin[length] = '\0';
 
-		fwrite(begin, sizeof(char), length, stdout);
+		//fwrite(begin, sizeof(char), length, stdout);
 		//printf("c:%c\n", begin[0]);
 		//printf("c:%llu\n", length);
 

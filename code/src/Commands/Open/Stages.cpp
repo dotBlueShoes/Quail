@@ -36,6 +36,16 @@ namespace Commands::Open::Stages {
 				Current = Comment;
 			} break;
 
+			case CONSTANT: {
+				Next = MainBeginStage;
+				Current = Constant;
+			}
+
+			case QUEUE: {
+				Next = MainBeginStage;
+				Current = Queue;
+			}
+
 			case NEW_LINE:
 			case SPACE:
 			case TAB: {
@@ -88,6 +98,36 @@ namespace Commands::Open::Stages {
 	StageProc Comment(const StageParams& stage) {
 
 		//printf("%s", "Comment\n");
+
+		switch (stage.current) {
+            case NEW_LINE: {
+				//printf("%s", "NEWLINE\n");
+                Current = Next;
+            } break;
+			
+			case EOF:
+			default: {
+				//printf("%c", stage.current);
+			}
+		}
+	}
+
+	StageProc Constant(const StageParams& stage) {
+
+		switch (stage.current) {
+            case NEW_LINE: {
+				//printf("%s", "NEWLINE\n");
+                Current = Next;
+            } break;
+			
+			case EOF:
+			default: {
+				//printf("%c", stage.current);
+			}
+		}
+	}
+
+	StageProc Queue(const StageParams& stage) {
 
 		switch (stage.current) {
             case NEW_LINE: {
