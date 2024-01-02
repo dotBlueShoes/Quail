@@ -24,6 +24,7 @@ namespace Commands::Open::Stages {
 	// ... second command ...
 
 	void Initialize();
+	void FileReset();
 
 	// Function Stages
 

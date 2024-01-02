@@ -17,6 +17,10 @@ namespace Commands::Open::Stages {
 	void Initialize() {
 		memoryBlockA.data[bufforFilesCountIndex] = 0;
 	}
+
+	void FileReset() {
+		memoryBlockA.data[bufforFilesCountIndex] = 0;
+	}
 	
 	//ptr<uint8> projectsBuffor = ptr<uint8>(memoryBlockA, sizeof(size) /* offset */ );
 	//uint8* projectsBuffor = memoryBlockA.data;

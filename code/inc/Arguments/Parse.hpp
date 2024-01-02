@@ -26,7 +26,8 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Commands::Open::GetProjectsData();
+					Commands::Open::GetMainConfigData();
+					Commands::Open::Parse::DisplayFiles();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
@@ -53,7 +54,8 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Commands::Open::GetProjectsData();
+					Commands::Open::GetMainConfigData();
+					Commands::Open::Parse::DisplayFiles();
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
@@ -88,8 +90,8 @@ namespace Arguments::Parse {
 		for (; commandName[commandLength] != '\0'; ++commandLength);
 
 		// GET PROJECT LENGTH
-		uint8 projectNameLength = 0; 
-		for (; projectName[projectNameLength] != '\0'; ++projectNameLength);
+		uint8 projectLength = 0; 
+		for (; projectName[projectLength] != '\0'; ++projectLength);
 
 		// POSSIBLE SHORT COMMAND
 		if (commandLength == COMMAND_SHORT_LENGTH) {
@@ -101,7 +103,19 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Commands::Open::GetProjectsData();
+
+					// THIS SUCKS !
+					wchar filePath[256] { L'\0' };
+
+					// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
+					Commands::Open::GetMainConfigData();
+					// GET ASSOCIATED FILEPATH WITH PROJECT NAME
+					Commands::Open::Projects::Validate(filePath, projectLength, projectName);
+
+					//printf("\npath: %s\n", filePath);
+					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
+					Commands::Open::GetConfigData(filePath);
+
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
@@ -128,7 +142,8 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Commands::Open::GetProjectsData();
+					//const wchar* const filePath = L"0";
+					//Commands::Open::GetConfigData(filePath);
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {

@@ -7,6 +7,8 @@
 #include "Parse.hpp"
 #include "IO.hpp"
 
+#include "Projects/Validate.hpp"
+
 
 namespace Commands::Open::Subcommands {
 
@@ -19,7 +21,7 @@ namespace Commands::Open::Subcommands {
 namespace Commands::Open {
 
 	/// READS the main projects config file. 
-	block GetProjectsData () {
+	block GetMainConfigData () {
 		
 		{ /* WINDOWS ONLY */
 			FILE* fileConfiguration = nullptr;
@@ -60,42 +62,60 @@ namespace Commands::Open {
 				//printf("%c", '\n');
 			} while (stageParams.current != EOF);
 
-			//printf("%s", "DISPLAY\n");
-
-			// DISPLAY COLLECTED DATA.
-			namespace COP = Commands::Open::Parse;
-			COP::DisplayFiles();
-
-			//printf("%s", "END\n");
-
+			// CLOSE OPENNED FILES
+			fclose(fileConfiguration);
 		}
 
 	};
 
 	/// READS the linked project config file.
-	block GetProjectData ( 
-		IN	wchar* filePath
+	block GetConfigData ( 
+		IN	const charFilePath* const filePath
 	) {
+
+		//printf("here");
+		wprintf(L"\n%ls\n", filePath);
+
+		//
+		//for (size i = 0; i < other.Length(); ++i) {
+		//	if (other[i] != filePath[i]) {
+		//		printf("%i\n", i);
+		//	}
+		//}
+		//
+		//printf("%c", filePath[35]);
+
+		//wprintf(L"\n%ls\n", L"lol");
 
 		{ /* WINDOWS ONLY */
 			FILE* fileConfiguration = nullptr;
 
 			// IF file pointer return NULL - EXIT THE PROGRAM
 			if ((fileConfiguration = _wfopen (filePath, L"r")) == NULL) {
+				printf ("%s\n", strings::STRING_FAILURE_NO_CONFIG_FILE);
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			namespace COS = Commands::Open::Stages;
+			printf("2");
 
-			COS::StageParams stageParams { EOF, 0 };
-			COS::Current = COS::BeginStage;
-			COS::Initialize();
+			//namespace COS = Commands::Open::Stages;
+			
+			//COS::StageParams stageParams { EOF, 0 };
+			//COS::Current = COS::BeginStage;
+			//COS::FileReset();
 
-			do { // The actuall read operation.
-				stageParams.current = fgetc (fileConfiguration);
-				// Call to stages
-				COS::Current(stageParams);
-			} while (stageParams.current != EOF);
+			
+			
+			//do { // The actuall read operation.
+			//	stageParams.current = fgetc (fileConfiguration);
+			//	// Call to stages
+			//	COS::Current(stageParams);
+			//} while (stageParams.current != EOF);
+			//
+			//printf("end");
+
+			// CLOSE OPENNED FILES
+			fclose(fileConfiguration);
 		}
 
 	}

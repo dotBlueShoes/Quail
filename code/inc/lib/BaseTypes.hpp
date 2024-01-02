@@ -64,8 +64,10 @@ using flag32 = uint32_t;
 using flag64 = uint64_t;
 
 // CHARACTERS
+using charFilePath = wchar;
 using charConsole = char;
 using charFile = char;
+
 
 
 // LITERALS

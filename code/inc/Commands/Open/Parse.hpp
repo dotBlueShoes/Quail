@@ -3,27 +3,18 @@
 
 #include "Buffors.hpp"
 #include "Types.hpp"
+#include "Buffor.hpp"
 
 namespace Commands::Open::Parse {
 
 	block DisplayFiles() {
 
-		//const array<char, 19> LABEL { "\nProject Filepaths\n" };
-
-		const uint8 SPACE_SIZE_FILES_COUNT = 1;
-		const uint8 SPACE_SIZE_CONTEXT = 1;
-		const uint8 SPACE_SIZE_NAME = 1;
-
-
-		const uint8& filesCount = memoryBlockA.data[0];
-		
+		const uint8& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
 
 		uint8 nextIndex = SPACE_SIZE_FILES_COUNT;
 		uint8 nameCount, contextCount;
 
-
-		// DISPLAY LABEL
-		//fwrite(LABEL.Pointer(), sizeof(char), LABEL.Length(), stdout);
+		// DISPLAY
 		fputc('\n', stdout);
 
 		for (uint8 i = 0; i < filesCount; ++i) {
