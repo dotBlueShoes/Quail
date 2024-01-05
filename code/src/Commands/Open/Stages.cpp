@@ -68,7 +68,36 @@ namespace Commands::Open::Stages {
 
 	StageProc ProjectFile (const StageParams& stage) {
 		switch (stage.current) {
+			case NEW_LINE:
+			case SPACE:
+			case TAB:
+			case EOF: {
+			} break;
 
+			case COMMENT: {
+				//Next = MainFile;
+				//Current = Comment;
+			} break;
+
+			case CONSTANT: {
+				//Next = MainFile;
+				//Current = Constant::Name;
+			} break;
+
+			case QUEUE: {
+				//Next = MainFile;
+				//Current = Queue::Name;
+			} break;
+
+			case IMPORT: {
+				//Current = Import::Name;
+			} break;
+
+			default: { /* COMMAND does not have a beginning symbol! */
+				//memoryBlockA.data[bufforIndex] = stage.current;
+				//++bufforIndex; ++lengthTemp;
+				break;
+			}
 		}
 	}
 

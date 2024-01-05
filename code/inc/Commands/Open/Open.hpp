@@ -34,22 +34,7 @@ namespace Commands::Open {
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			// THIS NEEDS TO BE RETHINKED !
-			// // Obtain file size and check with buffor.
-  			// fseek (fileConfiguration ,0 ,SEEK_END);
-  			// readLength = ftell (fileConfiguration);
-  			// rewind (fileConfiguration);
-			// 
-			// 
-			// // Check if our memory buffor doing fine.
-			// if (readLength > memoryBlockA.length) {
-			// 	printf ("%s\n", strings::STRING_FAILURE_BUFFOR_TO_SMALL);
-			// 	exit (ExitCode::FAILURE_BUFFOR_TO_SMALL);
-			// }
-
 			namespace COS = Commands::Open::Stages;
-
-			//printf("%s", "START\n");
 
 			COS::StageParams stageParams { EOF, 0 };
 			COS::Current = COS::MainFile;
@@ -57,10 +42,7 @@ namespace Commands::Open {
 
 			do { // The actuall read operation.
 				stageParams.current = fgetc (fileConfiguration);
-				// Call to stages extended
 				COS::Current(stageParams);
-				//printf("%c", stageParams.current);
-				//printf("%c", '\n');
 			} while (stageParams.current != EOF);
 
 			// CLOSE OPENNED FILES
@@ -74,16 +56,6 @@ namespace Commands::Open {
 		IN	const charFilePath* const filePath
 	) {
 
-		//array<wchar, 43> other = L"D:\\Storage\\Projects\\Projects\\JCCR\\quail.txt";
-
-		//for (size i = 0; i < other.Length(); ++i) {
-		//	if (other[i] != filePath[i]) {
-		//		printf("here%zu\n", i);
-		//	}
-		//}
-		//printf("%c", filePath[35]);
-		//wprintf(L"\n%ls\n", L"lol");
-
 		{ /* WINDOWS ONLY */
 			FILE* fileConfiguration = nullptr;
 
@@ -93,23 +65,18 @@ namespace Commands::Open {
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			printf("2");
+			printf("\nReading Project File\n\n");
 
-			//namespace COS = Commands::Open::Stages;
+			namespace COS = Commands::Open::Stages;
 			
-			//COS::StageParams stageParams { EOF, 0 };
-			//COS::Current = COS::BeginStage;
-			//COS::FileReset();
-
+			COS::StageParams stageParams { EOF, 0 };
+			COS::Current = COS::ProjectFile;
+			COS::ImportReset();
 			
-			
-			//do { // The actuall read operation.
-			//	stageParams.current = fgetc (fileConfiguration);
-			//	// Call to stages
-			//	COS::Current(stageParams);
-			//} while (stageParams.current != EOF);
-			//
-			//printf("end");
+			do { // The actuall read operation.
+				stageParams.current = fgetc (fileConfiguration);
+				COS::Current(stageParams);
+			} while (stageParams.current != EOF);
 
 			// CLOSE OPENNED FILES
 			fclose(fileConfiguration);
