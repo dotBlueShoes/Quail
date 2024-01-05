@@ -2,163 +2,131 @@
 
 #include "Buffors.hpp"
 
+#
+
 namespace Commands::Open::Stages {
 
 	Stage Current, Next; // Next is rarely used.
 
-	const size bufforFilesCountIndex = 0;
-	size bufforSizeNameIndex = 1;
-	size bufforSizeContextIndex = 2;
-	size bufforIndex = 3;
+	size bufforSizeNameIndex = 1 + INDEX_OFFSET;
+	size bufforSizeContextIndex = 2 + INDEX_OFFSET;
+	size bufforIndex = 3 + INDEX_OFFSET;
 
-	//uint8 filesCount = 0;
 	uint8 lengthTemp = 0;
 
-	void Initialize() {
-		memoryBlockA.data[bufforFilesCountIndex] = 0;
+
+	void Initialize () {
+		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 	}
 
-	void FileReset() {
-		memoryBlockA.data[bufforFilesCountIndex] = 0;
+
+	void ImportReset () {
+		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 	}
-	
-	//ptr<uint8> projectsBuffor = ptr<uint8>(memoryBlockA, sizeof(size) /* offset */ );
-	//uint8* projectsBuffor = memoryBlockA.data;
 
-	StageProc MainBeginStage(const StageParams& stage) {
 
-		//printf("%s", "MAIN\n");
+	StageProc MainFile (const StageParams& stage) {
 
 		switch (stage.current) {
 
+			case NEW_LINE:
+			case SPACE:
+			case TAB:
+			case EOF: {
+			} break;
+
 			case COMMENT: {
-				Next = MainBeginStage;
+				Next = MainFile;
 				Current = Comment;
 			} break;
 
 			case CONSTANT: {
-				Next = MainBeginStage;
-				Current = Constant;
-			}
+				Next = MainFile;
+				Current = Constant::Name;
+			} break;
 
 			case QUEUE: {
-				Next = MainBeginStage;
-				Current = Queue;
-			}
-
-			case NEW_LINE:
-			case SPACE:
-			case TAB: {
+				Next = MainFile;
+				Current = Queue::Name;
 			} break;
 
-			case EOF: {
-				// ERROR FILE IS EMPTY!
-				printf("%s%s", "ERROR:", "1\n");
+			case IMPORT: {
+				Current = Import::Name;
 			} break;
 
-			default: {
-				//printf("%s", "CALL\n");
-				//projectsBuffor[bufforIndex] = stage.current;
-				memoryBlockA.data[bufforIndex] = stage.current;
-				++bufforIndex; ++lengthTemp;
-				Current = File::Begin;
+			default: { /* COMMAND does not have a beginning symbol! */
+				//memoryBlockA.data[bufforIndex] = stage.current;
+				//++bufforIndex; ++lengthTemp;
+				break;
 			}
 
 		}
 	}
 
 
-	StageProc BeginStage(const StageParams& stage) {
+	StageProc ProjectFile (const StageParams& stage) {
 		switch (stage.current) {
 
-			case COMMENT: {
-				Next = BeginStage;
-				Current = Comment;
-			} break;
-
-			case NEW_LINE:
-			case SPACE:
-			case TAB: {} break;
-
-			case EOF: {
-				// ERROR FILE IS EMPTY!
-				printf("%s%s", "ERROR:", "2\n");
-			} break;
-
-			default: {
-				memoryBlockA.data[bufforIndex] = stage.current;
-				++bufforIndex; ++lengthTemp;
-				Current = Command::Begin;
-			}
-
 		}
 	}
 
 
-	StageProc Comment(const StageParams& stage) {
-
-		//printf("%s", "Comment\n");
-
+	StageProc Comment (const StageParams& stage) {
 		switch (stage.current) {
             case NEW_LINE: {
-				//printf("%s", "NEWLINE\n");
                 Current = Next;
             } break;
 			
 			case EOF:
-			default: {
-				//printf("%c", stage.current);
-			}
-		}
-	}
-
-	StageProc Constant(const StageParams& stage) {
-
-		switch (stage.current) {
-            case NEW_LINE: {
-				//printf("%s", "NEWLINE\n");
-                Current = Next;
-            } break;
-			
-			case EOF:
-			default: {
-				//printf("%c", stage.current);
-			}
-		}
-	}
-
-	StageProc Queue(const StageParams& stage) {
-
-		switch (stage.current) {
-            case NEW_LINE: {
-				//printf("%s", "NEWLINE\n");
-                Current = Next;
-            } break;
-			
-			case EOF:
-			default: {
-				//printf("%c", stage.current);
-			}
+			default: {}
 		}
 	}
 
 }
 
 
-namespace Commands::Open::Stages::File {
+namespace Commands::Open::Stages::Constant {
 
-	StageProc Begin(const StageParams& stage) {
+	StageProc Name (const StageParams& stage) {
 
-		//printf("%s", "FileBegin\n");
+		switch (stage.current) {
+			
+		}
+		
+	}
 
+
+	StageProc Assign (const StageParams& stage) {
+
+		switch (stage.current) {
+
+		}
+
+	}
+
+
+	StageProc Context (const StageParams& stage) {
+
+		switch (stage.current) {
+
+		}
+		
+	}
+
+}
+
+
+namespace Commands::Open::Stages::Import {
+
+	StageProc Name (const StageParams& stage) {
 		switch (stage.current) {
 
 			case SECTION_SRT:
             case SECTION_END:
-			case COMMENT: {
-				// ERROR FILE IS ILL-FORMED!
-				printf("%s%s", "ERROR:", "4\n");
-			} break;
+			case COMMENT: 
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
 
 			case NEW_LINE:
 			case SPACE:
@@ -170,29 +138,23 @@ namespace Commands::Open::Stages::File {
 				Current = Assign;
 			} break;
 
-			// We've READ thought all. ALL good - sort off.
-        	case EOF: {} break;
-
             default: {
                 memoryBlockA.data[bufforIndex] = stage.current;
 				++bufforIndex; ++lengthTemp;
             }
+
 		}
 	}
 
 
-	StageProc Assign(const StageParams& stage) {
-
-		//printf("%s", "Assign\n");
-
+	StageProc Assign (const StageParams& stage) {
 		switch (stage.current) {
 			case NEW_LINE:
 			case SPACE:
 			case TAB: {} break;
 
 			case EOF: {
-				// ERROR FILE IS ILL-FORMED!
-				printf("%s%s", "ERROR:", "5\n");
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
 			} break;
 
 			default: {
@@ -204,7 +166,7 @@ namespace Commands::Open::Stages::File {
 	}
 
 
-	StageProc Context(const StageParams& stage) {
+	StageProc Context (const StageParams& stage) {
 		switch (stage.current) {
 
 			case EOF: {
@@ -212,7 +174,7 @@ namespace Commands::Open::Stages::File {
 				lengthTemp = 0; // RESET (NOT NEEDED THO)
 
 				// Increase the number of files.
-				++memoryBlockA.data[bufforFilesCountIndex];
+				++memoryBlockA.data[INDEX_FILES_COUNT];
 			} break;
 
 			case NEW_LINE: {
@@ -228,16 +190,15 @@ namespace Commands::Open::Stages::File {
 				//printf("AA: %" PRIu64 " %" PRIu64 "\n", bufforSizeNameIndex, bufforSizeContextIndex);
 
 				// Increase the number of files.
-				++memoryBlockA.data[bufforFilesCountIndex];
+				++memoryBlockA.data[INDEX_FILES_COUNT];
 
-				Current = MainBeginStage; // Look for another
+				Current = MainFile; // Look for another
 			} break;
 
 			case SPACE:
 			case TAB: {
-				// ERROR FILE IS ILL-FORMED!
-				printf("%s%s", "ERROR:", "6\n");
-			}
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
 
 			default: {
                 memoryBlockA.data[bufforIndex] = stage.current;
@@ -251,7 +212,18 @@ namespace Commands::Open::Stages::File {
 
 namespace Commands::Open::Stages::Command {
 
-	StageProc Begin(const StageParams& stage) {
+	StageProc Name(const StageParams& stage) {
+		switch (stage.current) {
+
+		}
+	}
+
+}
+
+
+namespace Commands::Open::Stages::Queue {
+
+	StageProc Name(const StageParams& stage) {
 		switch (stage.current) {
 
 		}

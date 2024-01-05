@@ -1,6 +1,7 @@
 #pragma once
 #include "lib/Framework.hpp"
 
+#include "Buffor.hpp"
 #include "Types.hpp"
 
 namespace Commands::Open::Stages {
@@ -23,35 +24,48 @@ namespace Commands::Open::Stages {
 	// Next byte is the offset to get to the third command
 	// ... second command ...
 
-	void Initialize();
-	void FileReset();
+	void Initialize ();
+	void ImportReset ();
 
 	// Function Stages
-
-	StageProc MainBeginStage(const StageParams& stage);
-	StageProc BeginStage(const StageParams& stage);
-	StageProc Comment(const StageParams& stage);
-
-	// Will be moved to Commands::Open::Stages::... namespaces
-	StageProc Constant(const StageParams& stage);
-	StageProc Queue(const StageParams& stage);
-	
+	StageProc MainFile (const StageParams& stage);		
+	StageProc ProjectFile (const StageParams& stage);
+	StageProc Comment (const StageParams& stage);
 
 	extern Stage Current; // = MainBeginStage / BeginStage // Main for main file as it holds links to other files.
 
 }
 
-namespace Commands::Open::Stages::File {
+namespace Commands::Open::Stages::Constant {
 
-	StageProc Begin(const StageParams& stage);
-	StageProc Assign(const StageParams& stage);
-	StageProc Context(const StageParams& stage);
+	//StageProc Begin (const StageParams& stage);
+	StageProc Name (const StageParams& stage);
+	StageProc Assign (const StageParams& stage);
+	StageProc Context (const StageParams& stage);
 
 }
 
+namespace Commands::Open::Stages::Import {
+
+	//StageProc Begin (const StageParams& stage);
+	StageProc Name (const StageParams& stage);
+	StageProc Assign (const StageParams& stage);
+	StageProc Context (const StageParams& stage);
+
+}
 
 namespace Commands::Open::Stages::Command {
 
-	StageProc Begin(const StageParams& stage);
+	StageProc Name (const StageParams& stage);
 
 }
+
+
+namespace Commands::Open::Stages::Queue {
+
+	StageProc Name (const StageParams& stage);
+
+}
+
+
+

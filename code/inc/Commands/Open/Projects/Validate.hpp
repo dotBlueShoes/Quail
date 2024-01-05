@@ -21,7 +21,7 @@ namespace Commands::Open::Projects {
 	) {
 
 		const uint8& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
-		uint8 nextIndex = SPACE_SIZE_FILES_COUNT;
+		uint8 nextIndex = SPACE_SIZE_COUNTS_OFFSET;
 		uint8 nameCount, contextCount;
 
 		// PREPERE WHERE TO LOOK FOR POSITIONS

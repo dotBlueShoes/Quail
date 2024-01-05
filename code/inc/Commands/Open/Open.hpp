@@ -52,7 +52,7 @@ namespace Commands::Open {
 			//printf("%s", "START\n");
 
 			COS::StageParams stageParams { EOF, 0 };
-			COS::Current = COS::MainBeginStage;
+			COS::Current = COS::MainFile;
 			COS::Initialize();
 
 			do { // The actuall read operation.
