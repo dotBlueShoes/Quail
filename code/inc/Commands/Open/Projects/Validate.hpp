@@ -2,6 +2,7 @@
 #include "lib/Framework.hpp"
 
 #include "../Buffor.hpp"
+#include "../Parse.hpp"
 
 #include <cstdlib>
 
@@ -20,13 +21,34 @@ namespace Commands::Open::Projects {
 		INREADS (projectLength)	const charFile* const projectName
 	) {
 
+		const uint16& constantsCount = memoryBlockA.data[INDEX_CONSTANTS_COUNT];
 		const uint8& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
 		uint8 nextIndex = SPACE_SIZE_COUNTS_OFFSET;
-		uint8 nameCount, contextCount;
+		uint8 nameCount, rawContextCount;
 
-		// PREPERE WHERE TO LOOK FOR POSITIONS
-		
-		auto&& startPositions = memoryBlockB.data;
+		// PREPERE LOOK_UP_POSITIONS FOR CONSTANTS
+		auto&& constantsStartPositions = memoryBlockC.data;
+
+		// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
+		for (uint8 i = 0; i < constantsCount; ++i) {
+			nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+			rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			// ASSIGN START POSITION
+			constantsStartPositions[i] = nextIndex;
+			// SAVE nameCount FOR LATER USE
+			constantsStartPositions[constantsCount + i] = nameCount;
+			// SAVE contextCount FOR LATER USE
+			constantsStartPositions[(constantsCount * 2) + i] = rawContextCount;
+
+			nextIndex += nameCount + rawContextCount;
+		}
+
+
+		// PREPERE LOOK_UP_POSITIONS FOR INCLUDES
+		auto&& includesStartPositions = memoryBlockB.data;
 
 		for (uint8 i = 0; i < filesCount; ++i) {
 
@@ -35,18 +57,18 @@ namespace Commands::Open::Projects {
 			nextIndex += SPACE_SIZE_NAME;
 
 			// GET PROJECT_PATH
-			contextCount = memoryBlockA.data[nextIndex];
+			rawContextCount = memoryBlockA.data[nextIndex];
 			nextIndex += SPACE_SIZE_CONTEXT;
 
 			// ASSIGN START POSITION
-			startPositions[i] = nextIndex;
+			includesStartPositions[i] = nextIndex;
 			// SAVE nameCount FOR LATER USE
-			startPositions[filesCount + i] = nameCount;
-			// SAVE contextCount FOR LATER USE
-			startPositions[(filesCount * 2) + i] = contextCount;
+			includesStartPositions[filesCount + i] = nameCount;
+			// SAVE rawContextCount FOR LATER USE
+			includesStartPositions[(filesCount * 2) + i] = rawContextCount;
 
 			// MOVE TO THE BEGINING OF NEXT PROJECT
-			nextIndex += nameCount + contextCount;
+			nextIndex += nameCount + rawContextCount;
 
 		}
 
@@ -62,28 +84,28 @@ namespace Commands::Open::Projects {
 		Search::Buffor::ByPFM<charFile, uint16> (
 			onNoMatchFound, resultIndex,
 			projectLength, projectName,
-			memoryBlockA.data, filesCount, startPositions
+			memoryBlockA.data, filesCount, includesStartPositions
 		);
 
-		// RETURN RESULT IN CORRECT FORMAT
-
+		// Get RAW string
+		auto&& rawContext = memoryBlockA.data + includesStartPositions[resultIndex] + includesStartPositions[filesCount + resultIndex];
+		rawContextCount = includesStartPositions[(2 * filesCount) + resultIndex];
 		
+		auto&& context = memoryBlockB.data;
+		uint16 contextCount (0);
 
-		char* begin = (char *)memoryBlockA.data + startPositions[resultIndex] + startPositions[filesCount + resultIndex];
-		const size length = startPositions[(2 * filesCount) + resultIndex];
+		//fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 
-		// null-terminate the end
-		//begin[length] = '\0';
+		Parse::ConstructConstants(
+			rawContextCount, rawContext, 
+			constantsCount, constantsStartPositions, 
+			contextCount, context
+		);
 
-		//fwrite(begin, sizeof(char), length, stdout);
-		//printf("c:%c\n", begin[0]);
-		//printf("c:%llu\n", length);
+		//fwrite(context, sizeof(char), contextCount, stdout);
 
-		std::mbstowcs(filePath, begin, length);
-
-		//wprintf(L"\n%ls\n", filePath);
-
-		//filePath = L"0";
+		// RETURN RESULT IN CORRECT FORMAT
+		std::mbstowcs(filePath, (char *)context, contextCount);
 		
 	}
 

@@ -74,18 +74,14 @@ namespace Commands::Open {
 		IN	const charFilePath* const filePath
 	) {
 
-		//printf("here");
-		//wprintf(L"\n%ls\n", filePath);
+		//array<wchar, 43> other = L"D:\\Storage\\Projects\\Projects\\JCCR\\quail.txt";
 
-		//
 		//for (size i = 0; i < other.Length(); ++i) {
 		//	if (other[i] != filePath[i]) {
-		//		printf("%i\n", i);
+		//		printf("here%zu\n", i);
 		//	}
 		//}
-		//
 		//printf("%c", filePath[35]);
-
 		//wprintf(L"\n%ls\n", L"lol");
 
 		{ /* WINDOWS ONLY */

@@ -113,6 +113,7 @@ namespace Arguments::Parse {
 					Commands::Open::Projects::Validate(filePath, projectLength, projectName);
 
 					//printf("\npath: %s\n", filePath);
+					
 					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
 					Commands::Open::GetConfigData(filePath);
 
