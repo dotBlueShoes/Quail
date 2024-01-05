@@ -70,7 +70,7 @@ namespace Commands::Open::Projects {
 		
 
 		char* begin = (char *)memoryBlockA.data + startPositions[resultIndex] + startPositions[filesCount + resultIndex];
-		const size length = startPositions[(2 *filesCount) + resultIndex];
+		const size length = startPositions[(2 * filesCount) + resultIndex];
 
 		// null-terminate the end
 		//begin[length] = '\0';

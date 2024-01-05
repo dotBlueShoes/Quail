@@ -2,7 +2,7 @@
 
 #include "Buffors.hpp"
 
-#
+
 
 namespace Commands::Open::Stages {
 
@@ -16,11 +16,13 @@ namespace Commands::Open::Stages {
 
 
 	void Initialize () {
+		memoryBlockA.data[INDEX_CONSTANTS_COUNT] = 0;
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 	}
 
 
 	void ImportReset () {
+		memoryBlockA.data[INDEX_CONSTANTS_COUNT] = 0;
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 	}
 
@@ -85,35 +87,101 @@ namespace Commands::Open::Stages {
 }
 
 
+
 namespace Commands::Open::Stages::Constant {
 
 	StageProc Name (const StageParams& stage) {
-
 		switch (stage.current) {
-			
+
+			case SECTION_SRT:
+            case SECTION_END:
+			case CONSTANT:
+			case COMMENT:
+			case IMPORT:
+			case QUEUE:
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
+
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
+            
+			case ASSIGN: {
+				memoryBlockA.data[bufforSizeNameIndex] = lengthTemp;
+				lengthTemp = 0; // RESET
+				Current = Assign;
+			} break;
+
+            default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
+
 		}
-		
 	}
 
 
 	StageProc Assign (const StageParams& stage) {
-
 		switch (stage.current) {
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
 
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} break;
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+				Current = Context;
+            }
 		}
-
 	}
 
 
 	StageProc Context (const StageParams& stage) {
-
 		switch (stage.current) {
 
+			case EOF: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
+				lengthTemp = 0; // RESET (NOT NEEDED THO)
+
+				// Increase the number of files.
+				++memoryBlockA.data[INDEX_CONSTANTS_COUNT];
+			} break;
+
+			case NEW_LINE: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp; // SET ON PREVIOUS INDEX
+				lengthTemp = 0; // RESET
+
+				// RESERVE SPACE (INDEXES) FOR NEW COMMANDS (THEIR SIZE VALUES)
+				bufforSizeNameIndex = bufforIndex;
+				++bufforIndex;
+				bufforSizeContextIndex = bufforIndex;
+				++bufforIndex;
+
+				// Increase the number of files.
+				++memoryBlockA.data[INDEX_CONSTANTS_COUNT];
+
+				Current = MainFile; // Look for another
+			} break;
+
+			case SPACE:
+			case TAB: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
 		}
-		
 	}
 
 }
+
 
 
 namespace Commands::Open::Stages::Import {
@@ -123,7 +191,10 @@ namespace Commands::Open::Stages::Import {
 
 			case SECTION_SRT:
             case SECTION_END:
+			case CONSTANT:
 			case COMMENT: 
+			case IMPORT:
+			case QUEUE:
 			case EOF: {
 				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
 			} exit(1);
@@ -210,6 +281,7 @@ namespace Commands::Open::Stages::Import {
 }
 
 
+
 namespace Commands::Open::Stages::Command {
 
 	StageProc Name(const StageParams& stage) {
@@ -219,6 +291,7 @@ namespace Commands::Open::Stages::Command {
 	}
 
 }
+
 
 
 namespace Commands::Open::Stages::Queue {

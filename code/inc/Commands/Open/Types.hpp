@@ -19,6 +19,7 @@ namespace Commands::Open::Stages {
 	constexpr auto SECTION_SRT 	= '{';
 	constexpr auto SECTION_END 	= '}';
 	constexpr auto CONSTANT 	= '%';
+	constexpr auto REFERENCE	= '@';
 	constexpr auto IMPORT 		= '!';
 	constexpr auto QUEUE 		= '|';
 

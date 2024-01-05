@@ -84,8 +84,9 @@ int32 main (
 	DEBUG printf ("%s\n", strings::STRING_DEBUG_MODE_INFO);
 
 	// Initialize Buffers with program start. They'll automaticlly deallocate.
-	memoryBlockA.INITIALIZE(1024);
-	memoryBlockB.INITIALIZE(512);
+	memoryBlockA.INITIALIZE(1024);		// Stores contents of read files.
+	memoryBlockB.INITIALIZE(256);		// Stores processed command / queue.
+	memoryBlockC.INITIALIZE(32 * 3); 	// Stores quick count tables for Constants, References, Commands, Queues
 	
 	// 1st. validate arguments count.
 	switch (argumentsCount) {
