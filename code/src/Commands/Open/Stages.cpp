@@ -48,7 +48,6 @@ namespace Commands::Open::Stages {
 			} break;
 
 			case QUEUE: {
-				Next = MainFile;
 				Current = Queue::Name;
 			} break;
 
@@ -57,9 +56,9 @@ namespace Commands::Open::Stages {
 			} break;
 
 			default: { /* COMMAND does not have a beginning symbol! */
-				//memoryBlockA.data[bufforIndex] = stage.current;
-				//++bufforIndex; ++lengthTemp;
-				break;
+				memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+				Current = Command::Name;
 			}
 
 		}
@@ -75,28 +74,26 @@ namespace Commands::Open::Stages {
 			} break;
 
 			case COMMENT: {
-				//Next = MainFile;
-				//Current = Comment;
+				Next = ProjectFile;
+				Current = Comment;
 			} break;
 
 			case CONSTANT: {
-				//Next = MainFile;
-				//Current = Constant::Name;
+				Current = Constant::Name;
 			} break;
 
 			case QUEUE: {
-				//Next = MainFile;
-				//Current = Queue::Name;
+				Current = Queue::Name;
 			} break;
 
 			case IMPORT: {
-				//Current = Import::Name;
+				Current = Import::Name;
 			} break;
 
 			default: { /* COMMAND does not have a beginning symbol! */
-				//memoryBlockA.data[bufforIndex] = stage.current;
-				//++bufforIndex; ++lengthTemp;
-				break;
+				memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+				Current = Command::Name;
 			}
 		}
 	}
@@ -313,7 +310,19 @@ namespace Commands::Open::Stages::Import {
 
 namespace Commands::Open::Stages::Command {
 
-	StageProc Name(const StageParams& stage) {
+	StageProc Name (const StageParams& stage) {
+		switch (stage.current) {
+
+		}
+	}
+
+	StageProc Assign (const StageParams& stage) {
+		switch (stage.current) {
+
+		}
+	}
+
+	StageProc Context (const StageParams& stage) {
 		switch (stage.current) {
 
 		}
@@ -325,7 +334,19 @@ namespace Commands::Open::Stages::Command {
 
 namespace Commands::Open::Stages::Queue {
 
-	StageProc Name(const StageParams& stage) {
+	StageProc Name (const StageParams& stage) {
+		switch (stage.current) {
+
+		}
+	}
+
+	StageProc Assign (const StageParams& stage) {
+		switch (stage.current) {
+
+		}
+	}
+
+	StageProc Context (const StageParams& stage) {
 		switch (stage.current) {
 
 		}

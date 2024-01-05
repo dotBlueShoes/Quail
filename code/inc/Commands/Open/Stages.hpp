@@ -38,7 +38,6 @@ namespace Commands::Open::Stages {
 
 namespace Commands::Open::Stages::Constant {
 
-	//StageProc Begin (const StageParams& stage);
 	StageProc Name (const StageParams& stage);
 	StageProc Assign (const StageParams& stage);
 	StageProc Context (const StageParams& stage);
@@ -47,7 +46,6 @@ namespace Commands::Open::Stages::Constant {
 
 namespace Commands::Open::Stages::Import {
 
-	//StageProc Begin (const StageParams& stage);
 	StageProc Name (const StageParams& stage);
 	StageProc Assign (const StageParams& stage);
 	StageProc Context (const StageParams& stage);
@@ -57,6 +55,8 @@ namespace Commands::Open::Stages::Import {
 namespace Commands::Open::Stages::Command {
 
 	StageProc Name (const StageParams& stage);
+	StageProc Assign (const StageParams& stage);
+	StageProc Context (const StageParams& stage);
 
 }
 
@@ -64,6 +64,8 @@ namespace Commands::Open::Stages::Command {
 namespace Commands::Open::Stages::Queue {
 
 	StageProc Name (const StageParams& stage);
+	StageProc Assign (const StageParams& stage);
+	StageProc Context (const StageParams& stage);
 
 }
 
