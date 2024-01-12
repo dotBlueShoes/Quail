@@ -117,6 +117,9 @@ namespace Arguments::Parse {
 					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
 					Commands::Open::GetConfigData(filePath);
 
+					// Display all we got.
+					Commands::Open::Parse::DisplayProject();
+
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {

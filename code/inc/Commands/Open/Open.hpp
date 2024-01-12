@@ -65,13 +65,13 @@ namespace Commands::Open {
 				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
 			}
 
-			printf("\nReading Project File\n\n");
+			//printf("\nReading Project File\n\n");
 
 			namespace COS = Commands::Open::Stages;
 			
 			COS::StageParams stageParams { EOF, 0 };
 			COS::Current = COS::ProjectFile;
-			COS::ImportReset();
+			COS::AddImport();
 			
 			do { // The actuall read operation.
 				stageParams.current = fgetc (fileConfiguration);

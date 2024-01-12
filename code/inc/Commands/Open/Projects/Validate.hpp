@@ -21,8 +21,8 @@ namespace Commands::Open::Projects {
 		INREADS (projectLength)	const charFile* const projectName
 	) {
 
-		const uint16& constantsCount = memoryBlockA.data[INDEX_CONSTANTS_COUNT];
-		const uint8& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
+		const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
+		const uint8& filesCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
 		uint8 nextIndex = SPACE_SIZE_COUNTS_OFFSET;
 		uint8 nameCount, rawContextCount;
 

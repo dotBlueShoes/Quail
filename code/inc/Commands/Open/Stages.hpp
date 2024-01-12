@@ -25,7 +25,8 @@ namespace Commands::Open::Stages {
 	// ... second command ...
 
 	void Initialize ();
-	void ImportReset ();
+	void ResetCommandsAndQueues ();
+	void AddImport ();
 
 	// Function Stages
 	StageProc MainFile (const StageParams& stage);		

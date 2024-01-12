@@ -12,18 +12,70 @@ namespace Commands::Open::Stages {
 	size bufforSizeContextIndex = 2 + INDEX_OFFSET;
 	size bufforIndex = 3 + INDEX_OFFSET;
 
+	// Additional variable for temporal storage use.
 	uint8 lengthTemp = 0;
 
+	// Varaible to distinguish file imports inside bufforIndex var.
+	// When we reed a new file then the current bufforIndex is being saved here.
+	size fileIndex = 1;
 
-	void Initialize () {
-		memoryBlockA.data[INDEX_CONSTANTS_COUNT] = 0;
-		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
+
+	getter constexpr size GetCurrentIndexConstantsCount (const size& currentFileIndex) {
+		return currentFileIndex;
 	}
 
 
-	void ImportReset () {
-		memoryBlockA.data[INDEX_CONSTANTS_COUNT] = 0;
+	getter constexpr size GetCurrentIndexImportsCount (const size& currentFileIndex) {
+		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT;
+	}
+
+
+	getter constexpr size GetCurrentIndexCommandsCount (const size& currentFileIndex) {
+		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT;
+	}
+
+
+	getter constexpr size GetCurrentIndexQueuesCount (const size& currentFileIndex) {
+		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT + SPACE_SIZE_COMMANDS_COUNT;
+	}
+
+
+	void Initialize () {
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
+		memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT] = 0;
+		memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT] = 0;
+	}
+
+
+	//void ResetCommandsAndQueues () {
+	//	memoryBlockA.data[INDEX_FILES_COUNT]++
+	//}
+
+	void AddImport () {
+		// ADD INFORMATION ABOUT INCLUSION OF ANOTHER FILE.
+		memoryBlockA.data[INDEX_FILES_COUNT]++;
+
+		// SIGN BEFORE NEW FILE
+		//printf("-:%i\n", memoryBlockA.data[bufforIndex-3]);
+
+		// REPOSITION COUNT INDEXES.
+		// Because we're adding 2 spaces after each assign for new name and context count variables we need to discard those and add up later.
+		fileIndex = bufforIndex - 2;
+
+		// ADD UP LATER
+		bufforSizeNameIndex = bufforIndex;
+		bufforSizeContextIndex = bufforIndex + 1;
+
+		// POINT CORRECTLY AT WRITABLE DATA.
+		// add offset name_count & context_count
+		bufforIndex += 2;
+
+		// ZERO-MEMORY
+		//memoryBlockA.data[fileIndex] = 0;
+		//memoryBlockA.data[fileIndex + 1] = 0;
+		//memoryBlockA.data[fileIndex + 2] = 0;
+		//memoryBlockA.data[fileIndex + 3] = 0;
+		//std::memset
 	}
 
 
@@ -174,8 +226,8 @@ namespace Commands::Open::Stages::Constant {
 				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
 				lengthTemp = 0; // RESET (NOT NEEDED THO)
 
-				// Increase the number of files.
-				++memoryBlockA.data[INDEX_CONSTANTS_COUNT];
+				// Increase the number of constants.
+				++memoryBlockA.data[GetCurrentIndexConstantsCount(fileIndex)];
 			} break;
 
 			case NEW_LINE: {
@@ -188,8 +240,12 @@ namespace Commands::Open::Stages::Constant {
 				bufforSizeContextIndex = bufforIndex;
 				++bufforIndex;
 
-				// Increase the number of files.
-				++memoryBlockA.data[INDEX_CONSTANTS_COUNT];
+				//printf("\n%llu%s", GetCurrentIndexConstantsCount(fileIndex), "CALL!\n");
+
+				// Increase the number of constants.
+				//printf("1:%i\n", memoryBlockA.data[GetCurrentIndexConstantsCount(fileIndex)]);
+				++memoryBlockA.data[GetCurrentIndexConstantsCount(fileIndex)];
+				//printf("2:%i\n", memoryBlockA.data[GetCurrentIndexConstantsCount(fileIndex)]);
 
 				Current = MainFile; // Look for another
 			} break;
@@ -271,7 +327,7 @@ namespace Commands::Open::Stages::Import {
 				lengthTemp = 0; // RESET (NOT NEEDED THO)
 
 				// Increase the number of files.
-				++memoryBlockA.data[INDEX_FILES_COUNT];
+				++memoryBlockA.data[GetCurrentIndexImportsCount(fileIndex)];
 			} break;
 
 			case NEW_LINE: {
@@ -287,7 +343,8 @@ namespace Commands::Open::Stages::Import {
 				//printf("AA: %" PRIu64 " %" PRIu64 "\n", bufforSizeNameIndex, bufforSizeContextIndex);
 
 				// Increase the number of files.
-				++memoryBlockA.data[INDEX_FILES_COUNT];
+				++memoryBlockA.data[GetCurrentIndexImportsCount(fileIndex)];
+				//printf("1:%i\n", memoryBlockA.data[GetCurrentIndexImportsCount(fileIndex)]);
 
 				Current = MainFile; // Look for another
 			} break;
