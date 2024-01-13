@@ -8,9 +8,9 @@ namespace Commands::Open::Stages {
 
 	Stage Current, Next; // Next is rarely used.
 
-	size bufforSizeNameIndex = 1 + INDEX_OFFSET;
-	size bufforSizeContextIndex = 2 + INDEX_OFFSET;
-	size bufforIndex = 3 + INDEX_OFFSET;
+	size bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+	size bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
+	size bufforIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + SPACE_SIZE_CONTEXT + INDEX_OFFSET;
 
 	// Additional variable for temporal storage use.
 	uint8 lengthTemp = 0;
@@ -44,6 +44,8 @@ namespace Commands::Open::Stages {
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 		memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT] = 0;
 		memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT] = 0;
+		memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT] = 0;
+		memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT] = 0;
 	}
 
 
@@ -56,19 +58,21 @@ namespace Commands::Open::Stages {
 		memoryBlockA.data[INDEX_FILES_COUNT]++;
 
 		// SIGN BEFORE NEW FILE
-		//printf("-:%i\n", memoryBlockA.data[bufforIndex-3]);
+		//printf("-:%i\n", memoryBlockA.data[fileIndex-1]);
 
 		// REPOSITION COUNT INDEXES.
 		// Because we're adding 2 spaces after each assign for new name and context count variables we need to discard those and add up later.
-		fileIndex = bufforIndex - 2;
+		bufforIndex -= 2;
+
+		fileIndex = bufforIndex;
 
 		// ADD UP LATER
-		bufforSizeNameIndex = bufforIndex;
-		bufforSizeContextIndex = bufforIndex + 1;
+		bufforSizeNameIndex = bufforIndex + SPACE_SIZE_FILE_OFFSET;
+		bufforSizeContextIndex = bufforIndex + SPACE_SIZE_FILE_OFFSET + 1;
 
 		// POINT CORRECTLY AT WRITABLE DATA.
 		// add offset name_count & context_count
-		bufforIndex += 2;
+		bufforIndex += 2 + 4;
 
 		// ZERO-MEMORY
 		//memoryBlockA.data[fileIndex] = 0;
@@ -326,6 +330,10 @@ namespace Commands::Open::Stages::Import {
 				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
 				lengthTemp = 0; // RESET (NOT NEEDED THO)
 
+				// If theres a file after this file then we need to ensure that space...
+				// Thats ugly...
+				bufforIndex += 2;
+
 				// Increase the number of files.
 				++memoryBlockA.data[GetCurrentIndexImportsCount(fileIndex)];
 			} break;
@@ -349,10 +357,9 @@ namespace Commands::Open::Stages::Import {
 				Current = MainFile; // Look for another
 			} break;
 
-			case SPACE:
-			case TAB: {
-				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
-			} exit(1);
+			//case SPACE:
+			//case TAB: {
+			//} break;
 
 			default: {
                 memoryBlockA.data[bufforIndex] = stage.current;
@@ -370,18 +377,93 @@ namespace Commands::Open::Stages::Command {
 	StageProc Name (const StageParams& stage) {
 		switch (stage.current) {
 
+			case SECTION_SRT:
+            case SECTION_END:
+			case CONSTANT:
+			case COMMENT: 
+			case IMPORT:
+			case QUEUE:
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
+
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
+            
+			case ASSIGN: {
+				memoryBlockA.data[bufforSizeNameIndex] = lengthTemp;
+				lengthTemp = 0; // RESET
+				Current = Assign;
+			} break;
+
+            default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
+
 		}
 	}
+
 
 	StageProc Assign (const StageParams& stage) {
 		switch (stage.current) {
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
 
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} break;
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+				Current = Context;
+            }
 		}
 	}
+
 
 	StageProc Context (const StageParams& stage) {
 		switch (stage.current) {
 
+			case EOF: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
+				lengthTemp = 0; // RESET (NOT NEEDED THO)
+
+				// If theres a file after this file then we need to ensure that space...
+				// Thats ugly...
+				bufforIndex += 2;
+
+				// Increase the number of files.
+				++memoryBlockA.data[GetCurrentIndexCommandsCount(fileIndex)];
+			} break;
+
+			case NEW_LINE: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp; // SET ON PREVIOUS INDEX
+				lengthTemp = 0; // RESET
+
+				// RESERVE SPACE (INDEXES) FOR NEW COMMANDS (THEIR SIZE VALUES)
+				bufforSizeNameIndex = bufforIndex;
+				++bufforIndex;
+				bufforSizeContextIndex = bufforIndex;
+				++bufforIndex;
+
+				// Increase the number of files.
+				++memoryBlockA.data[GetCurrentIndexCommandsCount(fileIndex)];
+
+				Current = MainFile;
+			} break;
+
+			//case SPACE:
+			//case TAB: {
+			//} break;
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
 		}
 	}
 
@@ -394,18 +476,93 @@ namespace Commands::Open::Stages::Queue {
 	StageProc Name (const StageParams& stage) {
 		switch (stage.current) {
 
+			case SECTION_SRT:
+            case SECTION_END:
+			case CONSTANT:
+			case COMMENT: 
+			case IMPORT:
+			case QUEUE:
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} exit(1);
+
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
+            
+			case ASSIGN: {
+				memoryBlockA.data[bufforSizeNameIndex] = lengthTemp;
+				lengthTemp = 0; // RESET
+				Current = Assign;
+			} break;
+
+            default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
+
 		}
 	}
+
 
 	StageProc Assign (const StageParams& stage) {
 		switch (stage.current) {
+			case NEW_LINE:
+			case SPACE:
+			case TAB: {} break;
 
+			case EOF: {
+				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
+			} break;
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+				Current = Context;
+            }
 		}
 	}
+
 
 	StageProc Context (const StageParams& stage) {
 		switch (stage.current) {
 
+			case EOF: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp;
+				lengthTemp = 0; // RESET (NOT NEEDED THO)
+
+				// If theres a file after this file then we need to ensure that space...
+				// Thats ugly...
+				bufforIndex += 2;
+
+				// Increase the number of files.
+				++memoryBlockA.data[GetCurrentIndexQueuesCount(fileIndex)];
+			} break;
+
+			case NEW_LINE: {
+				memoryBlockA.data[bufforSizeContextIndex] = lengthTemp; // SET ON PREVIOUS INDEX
+				lengthTemp = 0; // RESET
+
+				// RESERVE SPACE (INDEXES) FOR NEW COMMANDS (THEIR SIZE VALUES)
+				bufforSizeNameIndex = bufforIndex;
+				++bufforIndex;
+				bufforSizeContextIndex = bufforIndex;
+				++bufforIndex;
+
+				// Increase the number of files.
+				++memoryBlockA.data[GetCurrentIndexQueuesCount(fileIndex)];
+
+				Current = MainFile;
+			} break;
+
+			case SPACE:
+			case TAB: {
+			} break;
+
+			default: {
+                memoryBlockA.data[bufforIndex] = stage.current;
+				++bufforIndex; ++lengthTemp;
+            }
 		}
 	}
 

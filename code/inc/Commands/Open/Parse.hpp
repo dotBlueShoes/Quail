@@ -79,10 +79,12 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 	block DisplayFiles() {
 
-		const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
-		const uint16& importsCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
+		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
+		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
+		const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT];
+		const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT];
 
-		size nextIndex = SPACE_SIZE_COUNTS_OFFSET;
+		size nextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_FILE_OFFSET;
 		uint16 nameCount, rawContextCount, contextCount;
 
 		auto&& startPositions = memoryBlockC.data;
@@ -104,7 +106,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			nextIndex += nameCount + rawContextCount;
 		}
 
-		// DISPLAY
+		// DISPLAY IMPORTS
 		fputc('\n', stdout);
 
 		for (uint16 i = 0; i < importsCount; ++i) {
@@ -146,9 +148,52 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		}
 
+		// DISPLAY COMMANDS
+		fputc('\n', stdout);
+
+		for (uint16 i = 0; i < commandsCount; ++i) {
+			nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+			rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			auto&& rawName = memoryBlockA.data + nextIndex;
+			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
+
+			fwrite(" ", sizeof(char), 2, stdout);
+			fwrite(rawName, sizeof(char), nameCount, stdout);
+			fwrite("\t: ", sizeof(char), 3, stdout);
+			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
+			fwrite("\n", sizeof(char), 2, stdout);
+
+			nextIndex += nameCount + rawContextCount;
+		}
+
+		// DISPLAY QUEUES
+		fputc('\n', stdout);
+
+		for (uint16 i = 0; i < queuesCount; ++i) {
+			nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+			rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			auto&& rawName = memoryBlockA.data + nextIndex;
+			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
+
+			fwrite(" ", sizeof(char), 2, stdout);
+			fwrite(rawName, sizeof(char), nameCount, stdout);
+			fwrite("\t: ", sizeof(char), 3, stdout);
+			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
+			fwrite("\n", sizeof(char), 2, stdout);
+
+			nextIndex += nameCount + rawContextCount;
+		}
+
 		fputc('\n', stdout);
 		
 	}
+
 
 	block DisplayProject() {
 
@@ -180,118 +225,132 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		// - diffrentiate between ValidateProject and ValidateImports
 		// - ValidateImports would process on number of imports rather then just one. just so we dont offset so much.
 
-		const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
-		const uint16& importsCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
+		const uint16& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
 
-		size nextIndex = SPACE_SIZE_COUNTS_OFFSET;
+		size nextIndex = 1;
 		uint16 nameCount, rawContextCount, contextCount;
 
 		auto&& startPositions = memoryBlockC.data;
 
-		// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
-		for (uint8 i = 0; i < constantsCount; ++i) {
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			// ASSIGN START POSITION
-			startPositions[i] = nextIndex;
-			// SAVE nameCount FOR LATER USE
-			startPositions[constantsCount + i] = nameCount;
-			// SAVE contextCount FOR LATER USE
-			startPositions[(constantsCount * 2) + i] = rawContextCount;
-
-			nextIndex += nameCount + rawContextCount;
-		}
-
-		// DISPLAY
-		fputc('\n', stdout);
-
-		for (uint16 i = 0; i < importsCount; ++i) {
-
-			// GET PROJECT_NAME
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-
-			// GET PROJECT_PATH
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			auto&& rawName = memoryBlockA.data + nextIndex;
-			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
-
-			uint16 nameIndex = 0;
-			for (; nameIndex < nameCount; ++nameIndex) {
-				memoryBlockB.data[nameIndex] = rawName[nameIndex];
-			}
-
-			ConstructConstants(
-				rawContextCount, rawContext, 
-				constantsCount, startPositions, 
-				contextCount, memoryBlockB.data + nameIndex
-			);
-
-			auto&& name = memoryBlockB.data;
-			auto&& context = memoryBlockB.data + nameCount;
-
-			// DISPLAY FILES
-			fwrite(" ", sizeof(char), 2, stdout);
-			fwrite(name, sizeof(char), nameCount, stdout);
-			fwrite("\t: ", sizeof(char), 3, stdout);
-			fwrite(context, sizeof(char), contextCount, stdout);
-			fwrite("\n", sizeof(char), 2, stdout);
-
-			// MOVE TO THE BEGINING OF NEXT IMPORT
-			nextIndex += nameCount + rawContextCount;
-
-		}
-
-		fputc('\n', stdout);
-
-
+		//fputc('\n', stdout);
+		//printf(":%i\n", filesCount);
 		
 
-		{ // NEXT IMPORT
+		for (uint8 j = 0; j < filesCount + 1; ++j) {
 
-			//printf("\n-:%llu\n", nextIndex);
+			const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
+			const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
+			const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
+			const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
 
-			auto&& constatns =  memoryBlockA.data[nextIndex];
-			auto&& imports = memoryBlockA.data[nextIndex + 1];
+			nextIndex += INDEX_OFFSET;
 
-			nextIndex += 2;
-
-			for (uint8 i = 0; i < constatns; ++i) {
+			// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
+			for (uint8 i = 0; i < constantsCount; ++i) {
 				nameCount = memoryBlockA.data[nextIndex];
 				nextIndex += SPACE_SIZE_NAME;
-				contextCount = memoryBlockA.data[nextIndex];
+				rawContextCount = memoryBlockA.data[nextIndex];
 				nextIndex += SPACE_SIZE_CONTEXT;
 
-				nextIndex += nameCount + contextCount;
+				// ASSIGN START POSITION
+				startPositions[i] = nextIndex;
+				// SAVE nameCount FOR LATER USE
+				startPositions[constantsCount + i] = nameCount;
+				// SAVE contextCount FOR LATER USE
+				startPositions[(constantsCount * 2) + i] = rawContextCount;
+
+				nextIndex += nameCount + rawContextCount;
 			}
 
-			for (uint8 i = 0; i < imports; ++i) {
+			// DISPLAY IMPORTS
+			fwrite("\nIMPORTS\n", sizeof(char), 9, stdout);
+
+			for (uint16 i = 0; i < importsCount; ++i) {
+
+				// GET PROJECT_NAME
 				nameCount = memoryBlockA.data[nextIndex];
 				nextIndex += SPACE_SIZE_NAME;
-				contextCount = memoryBlockA.data[nextIndex];
+
+				// GET PROJECT_PATH
+				rawContextCount = memoryBlockA.data[nextIndex];
 				nextIndex += SPACE_SIZE_CONTEXT;
 
-				auto&& name = memoryBlockA.data + nextIndex;
-				auto&& context = memoryBlockA.data + nextIndex + nameCount;
+				auto&& rawName = memoryBlockA.data + nextIndex;
+				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
+				uint16 nameIndex = 0;
+				for (; nameIndex < nameCount; ++nameIndex) {
+					memoryBlockB.data[nameIndex] = rawName[nameIndex];
+				}
 
+				ConstructConstants(
+					rawContextCount, rawContext, 
+					constantsCount, startPositions, 
+					contextCount, memoryBlockB.data + nameIndex
+				);
+
+				auto&& name = memoryBlockB.data;
+				auto&& context = memoryBlockB.data + nameCount;
+
+				// DISPLAY FILES
 				fwrite(" ", sizeof(char), 2, stdout);
 				fwrite(name, sizeof(char), nameCount, stdout);
 				fwrite("\t: ", sizeof(char), 3, stdout);
 				fwrite(context, sizeof(char), contextCount, stdout);
 				fwrite("\n", sizeof(char), 2, stdout);
 
-				nextIndex += nameCount + contextCount;
+				// MOVE TO THE BEGINING OF NEXT IMPORT
+				nextIndex += nameCount + rawContextCount;
+
 			}
 
-			fputc('\n', stdout);
+			// DISPLAY COMMANDS
+			//fputc('\n', stdout);
+			fwrite("\nCOMMANDS\n", sizeof(char), 10, stdout);
+
+			for (uint16 i = 0; i < commandsCount; ++i) {
+				nameCount = memoryBlockA.data[nextIndex];
+				nextIndex += SPACE_SIZE_NAME;
+				rawContextCount = memoryBlockA.data[nextIndex];
+				nextIndex += SPACE_SIZE_CONTEXT;
+
+				auto&& rawName = memoryBlockA.data + nextIndex;
+				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
+
+				fwrite(" ", sizeof(char), 2, stdout);
+				fwrite(rawName, sizeof(char), nameCount, stdout);
+				fwrite("\t: ", sizeof(char), 3, stdout);
+				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
+				fwrite("\n", sizeof(char), 2, stdout);
+
+				nextIndex += nameCount + rawContextCount;
+			}
+
+			// DISPLAY QUEUES
+			//fputc('\n', stdout);
+			fwrite("\nQUEUES\n", sizeof(char), 8, stdout);
+
+			for (uint16 i = 0; i < queuesCount; ++i) {
+				nameCount = memoryBlockA.data[nextIndex];
+				nextIndex += SPACE_SIZE_NAME;
+				rawContextCount = memoryBlockA.data[nextIndex];
+				nextIndex += SPACE_SIZE_CONTEXT;
+
+				auto&& rawName = memoryBlockA.data + nextIndex;
+				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
+
+				fwrite(" ", sizeof(char), 2, stdout);
+				fwrite(rawName, sizeof(char), nameCount, stdout);
+				fwrite("\t: ", sizeof(char), 3, stdout);
+				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
+				fwrite("\n", sizeof(char), 2, stdout);
+
+				nextIndex += nameCount + rawContextCount;
+			}
 
 		}
+
+		fputc('\n', stdout);
 		
 	}
 

@@ -117,6 +117,11 @@ namespace Arguments::Parse {
 					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
 					Commands::Open::GetConfigData(filePath);
 
+					// LOAD DATA FROM NESTED IMPORT
+					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" };
+					other[48] = 0;
+					Commands::Open::GetConfigData(other);
+
 					// Display all we got.
 					Commands::Open::Parse::DisplayProject();
 

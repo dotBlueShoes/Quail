@@ -1,0 +1,4 @@
+%project_dir = D:\Storage\Projects\Quail
+!other = .\.quail\properties.txt
+sample1 = explorer.exe "@project_dir@"
+|sample2=sample1

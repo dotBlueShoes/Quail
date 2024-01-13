@@ -21,10 +21,18 @@ namespace Commands::Open::Projects {
 		INREADS (projectLength)	const charFile* const projectName
 	) {
 
-		const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
-		const uint8& filesCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
-		uint8 nextIndex = SPACE_SIZE_COUNTS_OFFSET;
+		//const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
+		//const uint8& importsCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
+
+		uint8 nextIndex = 1;
 		uint8 nameCount, rawContextCount;
+
+		const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
+		const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
+		//const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
+		//const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
+
+		nextIndex += INDEX_OFFSET;
 
 		// PREPERE LOOK_UP_POSITIONS FOR CONSTANTS
 		auto&& constantsStartPositions = memoryBlockC.data;
@@ -50,7 +58,7 @@ namespace Commands::Open::Projects {
 		// PREPERE LOOK_UP_POSITIONS FOR INCLUDES
 		auto&& includesStartPositions = memoryBlockB.data;
 
-		for (uint8 i = 0; i < filesCount; ++i) {
+		for (uint8 i = 0; i < importsCount; ++i) {
 
 			// GET PROJECT_NAME
 			nameCount = memoryBlockA.data[nextIndex];
@@ -63,9 +71,9 @@ namespace Commands::Open::Projects {
 			// ASSIGN START POSITION
 			includesStartPositions[i] = nextIndex;
 			// SAVE nameCount FOR LATER USE
-			includesStartPositions[filesCount + i] = nameCount;
+			includesStartPositions[importsCount + i] = nameCount;
 			// SAVE rawContextCount FOR LATER USE
-			includesStartPositions[(filesCount * 2) + i] = rawContextCount;
+			includesStartPositions[(importsCount * 2) + i] = rawContextCount;
 
 			// MOVE TO THE BEGINING OF NEXT PROJECT
 			nextIndex += nameCount + rawContextCount;
@@ -84,12 +92,12 @@ namespace Commands::Open::Projects {
 		Search::Buffor::ByPFM<charFile, uint16> (
 			onNoMatchFound, resultIndex,
 			projectLength, projectName,
-			memoryBlockA.data, filesCount, includesStartPositions
+			memoryBlockA.data, importsCount, includesStartPositions
 		);
 
 		// Get RAW string
-		auto&& rawContext = memoryBlockA.data + includesStartPositions[resultIndex] + includesStartPositions[filesCount + resultIndex];
-		rawContextCount = includesStartPositions[(2 * filesCount) + resultIndex];
+		auto&& rawContext = memoryBlockA.data + includesStartPositions[resultIndex] + includesStartPositions[importsCount + resultIndex];
+		rawContextCount = includesStartPositions[(2 * importsCount) + resultIndex];
 		
 		auto&& context = memoryBlockB.data;
 		uint16 contextCount (0);
