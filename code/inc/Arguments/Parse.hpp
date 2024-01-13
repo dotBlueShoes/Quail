@@ -151,8 +151,28 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					//const wchar* const filePath = L"0";
-					//Commands::Open::GetConfigData(filePath);
+					
+					// THIS SUCKS !
+					wchar filePath[256] { L'\0' };
+
+					// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
+					Commands::Open::GetMainConfigData();
+					// GET ASSOCIATED FILEPATH WITH PROJECT NAME
+					Commands::Open::Projects::Validate(filePath, projectLength, projectName);
+
+					//printf("\npath: %s\n", filePath);
+					
+					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
+					Commands::Open::GetConfigData(filePath);
+
+					// LOAD DATA FROM NESTED IMPORT
+					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" };
+					other[48] = 0;
+					Commands::Open::GetConfigData(other);
+
+					// Display all we got.
+					Commands::Open::Parse::DisplayProject();
+
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {

@@ -7,6 +7,13 @@
 
 namespace Commands::Open::Parse {
 
+	// TODO
+	// 1. Proper constatns startingPoint list (get all from whole buffor then after 1readthrough apply them and display them)
+	// 2. Raw to Proccessed commands (talking about consts) not only imports
+	// 3. Proper including ... 
+	// 4. Execute commands
+	// 5. Execute queues
+
 	const array<const char, 16> PADDING { 
 		' ', ' ', ' ', ' ', 
 		' ', ' ', ' ', ' ', 
