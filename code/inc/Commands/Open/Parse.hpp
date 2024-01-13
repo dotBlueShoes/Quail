@@ -7,6 +7,12 @@
 
 namespace Commands::Open::Parse {
 
+	const array<const char, 16> PADDING { 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' '
+	};
 
 		block ConstructConstants (
 			IN							const uint16& rawContextCount, 
@@ -137,9 +143,13 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& context = memoryBlockB.data + nameCount;
 
 			// DISPLAY FILES
-			fwrite(" ", sizeof(char), 2, stdout);
+			fwrite(" !", sizeof(char), 3, stdout);
 			fwrite(name, sizeof(char), nameCount, stdout);
-			fwrite("\t: ", sizeof(char), 3, stdout);
+
+			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+			fwrite(": ", sizeof(char), 2, stdout);
 			fwrite(context, sizeof(char), contextCount, stdout);
 			fwrite("\n", sizeof(char), 2, stdout);
 
@@ -149,7 +159,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		}
 
 		// DISPLAY COMMANDS
-		fputc('\n', stdout);
+		//fputc('\n', stdout);
 
 		for (uint16 i = 0; i < commandsCount; ++i) {
 			nameCount = memoryBlockA.data[nextIndex];
@@ -160,9 +170,13 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& rawName = memoryBlockA.data + nextIndex;
 			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-			fwrite(" ", sizeof(char), 2, stdout);
+			fwrite(" >", sizeof(char), 3, stdout);
 			fwrite(rawName, sizeof(char), nameCount, stdout);
-			fwrite("\t: ", sizeof(char), 3, stdout);
+			
+			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+			fwrite(": ", sizeof(char), 2, stdout);
 			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 			fwrite("\n", sizeof(char), 2, stdout);
 
@@ -170,7 +184,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		}
 
 		// DISPLAY QUEUES
-		fputc('\n', stdout);
+		//fputc('\n', stdout);
 
 		for (uint16 i = 0; i < queuesCount; ++i) {
 			nameCount = memoryBlockA.data[nextIndex];
@@ -181,9 +195,13 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& rawName = memoryBlockA.data + nextIndex;
 			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-			fwrite(" ", sizeof(char), 2, stdout);
+			fwrite(" |", sizeof(char), 3, stdout);
 			fwrite(rawName, sizeof(char), nameCount, stdout);
-			fwrite("\t: ", sizeof(char), 3, stdout);
+			
+			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+			fwrite(": ", sizeof(char), 2, stdout);
 			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 			fwrite("\n", sizeof(char), 2, stdout);
 
@@ -228,11 +246,11 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		const uint16& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
 
 		size nextIndex = 1;
-		uint16 nameCount, rawContextCount, contextCount;
+		uint16 nameCount, rawContextCount/*, contextCount*/;
 
 		auto&& startPositions = memoryBlockC.data;
 
-		//fputc('\n', stdout);
+		fputc('\n', stdout);
 		//printf(":%i\n", filesCount);
 		
 
@@ -263,7 +281,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			}
 
 			// DISPLAY IMPORTS
-			fwrite("\nIMPORTS\n", sizeof(char), 9, stdout);
+			//fwrite("\nIMPORTS\n", sizeof(char), 9, stdout);
 
 			for (uint16 i = 0; i < importsCount; ++i) {
 
@@ -275,29 +293,33 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 				rawContextCount = memoryBlockA.data[nextIndex];
 				nextIndex += SPACE_SIZE_CONTEXT;
 
-				auto&& rawName = memoryBlockA.data + nextIndex;
-				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
+				//auto&& rawName = memoryBlockA.data + nextIndex;
+				//auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-				uint16 nameIndex = 0;
-				for (; nameIndex < nameCount; ++nameIndex) {
-					memoryBlockB.data[nameIndex] = rawName[nameIndex];
-				}
+				//uint16 nameIndex = 0;
+				//for (; nameIndex < nameCount; ++nameIndex) {
+				//	memoryBlockB.data[nameIndex] = rawName[nameIndex];
+				//}
 
-				ConstructConstants(
-					rawContextCount, rawContext, 
-					constantsCount, startPositions, 
-					contextCount, memoryBlockB.data + nameIndex
-				);
+				//ConstructConstants(
+				//	rawContextCount, rawContext, 
+				//	constantsCount, startPositions, 
+				//	contextCount, memoryBlockB.data + nameIndex
+				//);
 
-				auto&& name = memoryBlockB.data;
-				auto&& context = memoryBlockB.data + nameCount;
+				//auto&& name = memoryBlockB.data;
+				//auto&& context = memoryBlockB.data + nameCount;
 
 				// DISPLAY FILES
-				fwrite(" ", sizeof(char), 2, stdout);
-				fwrite(name, sizeof(char), nameCount, stdout);
-				fwrite("\t: ", sizeof(char), 3, stdout);
-				fwrite(context, sizeof(char), contextCount, stdout);
-				fwrite("\n", sizeof(char), 2, stdout);
+				//fwrite(" ", sizeof(char), 2, stdout);
+				//fwrite(name, sizeof(char), nameCount, stdout);
+
+				//const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+				//fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+				//fwrite(": ", sizeof(char), 2, stdout);
+				//fwrite(context, sizeof(char), contextCount, stdout);
+				//fwrite("\n", sizeof(char), 2, stdout);
 
 				// MOVE TO THE BEGINING OF NEXT IMPORT
 				nextIndex += nameCount + rawContextCount;
@@ -306,7 +328,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 			// DISPLAY COMMANDS
 			//fputc('\n', stdout);
-			fwrite("\nCOMMANDS\n", sizeof(char), 10, stdout);
+			//fwrite("\nCOMMANDS\n", sizeof(char), 10, stdout);
 
 			for (uint16 i = 0; i < commandsCount; ++i) {
 				nameCount = memoryBlockA.data[nextIndex];
@@ -317,9 +339,13 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 				auto&& rawName = memoryBlockA.data + nextIndex;
 				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-				fwrite(" ", sizeof(char), 2, stdout);
+				fwrite(" >", sizeof(char), 3, stdout);
 				fwrite(rawName, sizeof(char), nameCount, stdout);
-				fwrite("\t: ", sizeof(char), 3, stdout);
+
+				const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+				fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+				fwrite(": ", sizeof(char), 2, stdout);
 				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 				fwrite("\n", sizeof(char), 2, stdout);
 
@@ -328,7 +354,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 			// DISPLAY QUEUES
 			//fputc('\n', stdout);
-			fwrite("\nQUEUES\n", sizeof(char), 8, stdout);
+			//fwrite("\nQUEUES\n", sizeof(char), 8, stdout);
 
 			for (uint16 i = 0; i < queuesCount; ++i) {
 				nameCount = memoryBlockA.data[nextIndex];
@@ -339,9 +365,13 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 				auto&& rawName = memoryBlockA.data + nextIndex;
 				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-				fwrite(" ", sizeof(char), 2, stdout);
+				fwrite(" |", sizeof(char), 3, stdout);
 				fwrite(rawName, sizeof(char), nameCount, stdout);
-				fwrite("\t: ", sizeof(char), 3, stdout);
+
+				const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+				fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+
+				fwrite(": ", sizeof(char), 2, stdout);
 				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 				fwrite("\n", sizeof(char), 2, stdout);
 
