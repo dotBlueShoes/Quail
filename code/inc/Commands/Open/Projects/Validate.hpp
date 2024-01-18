@@ -63,8 +63,8 @@ namespace Commands::Open::Projects {
 		IN						const uint8& 			projectLength,
 		INREADS (projectLength)	const charFile* const 	projectName
 	) {
-		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
-		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
+		const uint16& constantsCount	 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
+		const uint16& importsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
 		
 		// Declare and iterator to iterate through our main buffor.
 		size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
@@ -113,10 +113,10 @@ namespace Commands::Open::Projects {
 		INREADS (projectLength)	const charFile* const 	projectName
 	) {
 
-		//const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
-		//const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
-		//const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT	];
-		//const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT		];
+		//const uint16& constantsCount	 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
+		//const uint16& importsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
+		//const uint16& commandsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)];
+		//const uint16& queuesCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)];
 		//
 		//size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
 

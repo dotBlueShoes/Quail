@@ -251,12 +251,12 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 	block DisplayFiles() {
 
-		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
-		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
-		const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT	];
-		const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT		];
+		const uint16& constantsCount	 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
+		const uint16& importsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
+		const uint16& commandsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)];
+		const uint16& queuesCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)];
 
-		size nextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_FILE_OFFSET;
+		size nextIndex = SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4);
 
 		auto&& constants = memoryBlockC.data;
 
@@ -283,10 +283,10 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		for (uint8 j = 0; j < filesCount + 1; ++j) {
 
-			const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
-			const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
-			const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
-			const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
+			const uint16& constantsCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(0)];
+			const uint16& importsCount 		= memoryBlockA.data[nextIndex + GetHeaderIndex(1)];
+			const uint16& commandsCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(2)];
+			const uint16& queuesCount 		= memoryBlockA.data[nextIndex + GetHeaderIndex(3)];
 
 			nextIndex += INDEX_OFFSET;
 

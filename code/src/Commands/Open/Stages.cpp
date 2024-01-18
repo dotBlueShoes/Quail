@@ -52,10 +52,10 @@ namespace Commands::Open::Stages {
 
 	void Initialize () {
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
-		memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT] = 0;
-		memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT] = 0;
-		memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT] = 0;
-		memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT] = 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)] = 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)] = 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)] = 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)] = 0;
 	}
 
 
@@ -83,8 +83,8 @@ namespace Commands::Open::Stages {
 		fileIndex = bufforIndex;
 
 		// ADD UP LATER
-		bufforSizeNameIndex = bufforIndex + SPACE_SIZE_FILE_OFFSET;
-		bufforSizeContextIndex = bufforIndex + SPACE_SIZE_FILE_OFFSET + 1;
+		bufforSizeNameIndex = bufforIndex + GetHeaderIndex(4);
+		bufforSizeContextIndex = bufforIndex + GetHeaderIndex(4) + 1;
 
 		// POINT CORRECTLY AT WRITABLE DATA.
 		// add offset name_count & context_count
