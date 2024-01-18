@@ -8,79 +8,16 @@
 
 namespace Commands::Open::Projects {
 
-	// IN BUFFOR
-	// READ FROM IT:
-	// - PROJECTS COUNT
-	// - PROJECT LENGTH
-	// - PROJECT NAME
-	// RETURN ASSOCIATED WITH IT PATH
 
-	block Validate (
-		OUT						charFilePath* filePath, 
-		IN						const uint8& projectLength,
-		INREADS (projectLength)	const charFile* const projectName
+	block GetConfigFilePath (
+		OUT						charFilePath* const		filePath, 
+		IN						const uint8& 			projectLength,
+		INREADS (projectLength)	const charFile* const 	projectName,
+		IN 						const uint8& 			importsCount, 
+		INREADS (importsCount)	const uint8* const 		imports,
+		IN 						const uint8& 			constantsCount,
+		INREADS (constants) 	const uint8* const 		constants
 	) {
-
-		//const uint16& constantsCount = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
-		//const uint8& importsCount = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
-
-		uint8 nextIndex = 1;
-		uint8 nameCount, rawContextCount;
-
-		const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
-		const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
-		//const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
-		//const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
-
-		nextIndex += INDEX_OFFSET;
-
-		// PREPERE LOOK_UP_POSITIONS FOR CONSTANTS
-		auto&& constantsStartPositions = memoryBlockC.data;
-
-		// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
-		for (uint8 i = 0; i < constantsCount; ++i) {
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			// ASSIGN START POSITION
-			constantsStartPositions[i] = nextIndex;
-			// SAVE nameCount FOR LATER USE
-			constantsStartPositions[constantsCount + i] = nameCount;
-			// SAVE contextCount FOR LATER USE
-			constantsStartPositions[(constantsCount * 2) + i] = rawContextCount;
-
-			nextIndex += nameCount + rawContextCount;
-		}
-
-
-		// PREPERE LOOK_UP_POSITIONS FOR INCLUDES
-		auto&& includesStartPositions = memoryBlockB.data;
-
-		for (uint8 i = 0; i < importsCount; ++i) {
-
-			// GET PROJECT_NAME
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-
-			// GET PROJECT_PATH
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			// ASSIGN START POSITION
-			includesStartPositions[i] = nextIndex;
-			// SAVE nameCount FOR LATER USE
-			includesStartPositions[importsCount + i] = nameCount;
-			// SAVE rawContextCount FOR LATER USE
-			includesStartPositions[(importsCount * 2) + i] = rawContextCount;
-
-			// MOVE TO THE BEGINING OF NEXT PROJECT
-			nextIndex += nameCount + rawContextCount;
-
-		}
-
-		// MATCH
 
 		auto onNoMatchFound = []() { 
 			printf ("\n%s\n\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
@@ -92,29 +29,97 @@ namespace Commands::Open::Projects {
 		Search::Buffor::ByPFM<charFile, uint16> (
 			onNoMatchFound, resultIndex,
 			projectLength, projectName,
-			memoryBlockA.data, importsCount, includesStartPositions
+			memoryBlockA.data, importsCount, imports
 		);
 
 		// Get RAW string
-		auto&& rawContext = memoryBlockA.data + includesStartPositions[resultIndex] + includesStartPositions[importsCount + resultIndex];
-		rawContextCount = includesStartPositions[(2 * importsCount) + resultIndex];
+		const auto&& rawContext = memoryBlockA.data + imports[resultIndex] + imports[importsCount + resultIndex];
+		const uint8& rawContextCount = imports[(2 * importsCount) + resultIndex];
 		
 		auto&& context = memoryBlockB.data;
 		uint16 contextCount (0);
 
-		//fwrite(rawContext, sizeof(char), rawContextCount, stdout);
-
 		Parse::ConstructConstants(
 			rawContextCount, rawContext, 
-			constantsCount, constantsStartPositions, 
+			constantsCount, constants, 
 			contextCount, context
 		);
 
-		//fwrite(context, sizeof(char), contextCount, stdout);
-
-		// RETURN RESULT IN CORRECT FORMAT
+		// RETURN RESULT IN WCHAR* FORMAT
 		std::mbstowcs(filePath, (char *)context, contextCount);
+	}
+
+	// Go THROUGHT buffor to:
+	// 1. Get all constants positions
+	// 2. Get all current file imports
+	// 3. match argument_project_name with first import 
+	// 4. Construct project_path with said constants
+	// 5. Change path in char* to wchar*
+	// 6. return wchar* path
+
+
+	block ValidateProjectArgument (
+		OUT						charFilePath* const		filePath, 
+		IN						const uint8& 			projectLength,
+		INREADS (projectLength)	const charFile* const 	projectName
+	) {
+		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
+		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
 		
+		// Declare and iterator to iterate through our main buffor.
+		size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+
+		// Prepere buffor for LOOK_UP_POSITIONS for CONSTANTS.
+		auto&& constants = memoryBlockC.data;
+		// Prepere buffor for LOOK_UP_POSITIONS for IMPORTS.
+		auto&& imports = memoryBlockB.data;
+
+		Parse::ReadThroughSave (nextIndex, constants, constantsCount);
+		Parse::ReadThroughSave (nextIndex, imports, importsCount);
+
+		// Construct IMPORTS context with CONSTANTS, match and retrive.
+		GetConfigFilePath (
+			filePath, projectLength, projectName,
+			importsCount, imports, 
+			constantsCount, constants
+		);
+	}
+
+	// FILESCOUNT
+	// { PROJECT FILE
+	//	 - constantsCount
+	//	 - importsCount
+	//	 - commandsCount
+	//	 - queuesCount
+	//	 - data {name, context}
+	// }
+	// { IMPORT FILE
+	//	 - constantsCount
+	//	 - importsCount
+	//	 - commandsCount
+	//	 - queuesCount
+	//	 - data {name, context}
+	// }
+
+	block RestructureBufforForProject() {
+
+	}
+
+
+	block AddImport (
+		OUT						uint8& 					filePathsCount, 
+		OUT						charFilePath* const		filePaths, 
+		IN						const uint8& 			projectLength,
+		INREADS (projectLength)	const charFile* const 	projectName
+	) {
+
+		//const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
+		//const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
+		//const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT	];
+		//const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT		];
+		//
+		//size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+
 	}
 
 

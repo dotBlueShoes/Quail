@@ -7,19 +7,6 @@
 
 namespace Commands::Open::Parse {
 
-	// TODO
-	// 1. Proper constatns startingPoint list (get all from whole buffor then after 1readthrough apply them and display them)
-	// 2. Raw to Proccessed commands (talking about consts) not only imports
-	// 3. Proper including ... 
-	// 4. Execute commands
-	// 5. Execute queues
-
-	const array<const char, 16> PADDING { 
-		' ', ' ', ' ', ' ', 
-		' ', ' ', ' ', ' ', 
-		' ', ' ', ' ', ' ', 
-		' ', ' ', ' ', ' '
-	};
 
 		block ConstructConstants (
 			IN							const uint16& rawContextCount, 
@@ -90,47 +77,109 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		}
 
 
-	block DisplayFiles() {
+	block ReadThrough (
+		OUT	size& 			nextIndex,
+		IN	const uint8& 	valuesCount
+	) {
+		for (uint8 i = 0; i < valuesCount; ++i) {
 
-		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT];
-		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT];
-		const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT];
-		const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT];
-
-		size nextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_FILE_OFFSET;
-		uint16 nameCount, rawContextCount, contextCount;
-
-		auto&& startPositions = memoryBlockC.data;
-
-		// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
-		for (uint8 i = 0; i < constantsCount; ++i) {
-			nameCount = memoryBlockA.data[nextIndex];
+			const uint8& nameCount = memoryBlockA.data[nextIndex];
 			nextIndex += SPACE_SIZE_NAME;
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
 
-			// ASSIGN START POSITION
-			startPositions[i] = nextIndex;
-			// SAVE nameCount FOR LATER USE
-			startPositions[constantsCount + i] = nameCount;
-			// SAVE contextCount FOR LATER USE
-			startPositions[(constantsCount * 2) + i] = rawContextCount;
+			const uint8& rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
 
 			nextIndex += nameCount + rawContextCount;
 		}
+	}
 
-		// DISPLAY IMPORTS
-		fputc('\n', stdout);
 
-		for (uint16 i = 0; i < importsCount; ++i) {
+	block ReadThroughSave (
+		OUT	size& 			nextIndex,
+		OUT	uint8* const	values,
+		IN	const uint8& 	valuesCount
+	) {
+		for (uint8 i = 0; i < valuesCount; ++i) {
 
-			// GET PROJECT_NAME
-			nameCount = memoryBlockA.data[nextIndex];
+			const uint8& nameCount = memoryBlockA.data[nextIndex];
 			nextIndex += SPACE_SIZE_NAME;
 
-			// GET PROJECT_PATH
-			rawContextCount = memoryBlockA.data[nextIndex];
+			const uint8& rawContextCount = memoryBlockA.data[nextIndex];
 			nextIndex += SPACE_SIZE_CONTEXT;
+
+			// ASSIGN START POSITION
+			values[i] = nextIndex;
+			// SAVE 'nameCount' FOR LATER USE
+			values[valuesCount + i] = nameCount;
+			// SAVE 'contextCount' FOR LATER USE
+			values[(valuesCount * 2) + i] = rawContextCount;
+
+			nextIndex += nameCount + rawContextCount;
+		}
+	}
+
+
+	using StrType = array<const charFile, 2, uint8>;
+	const StrType STR_TYPE_CONSTANT	= { " %" };
+	const StrType STR_TYPE_IMPORT 	= { " !" };
+	const StrType STR_TYPE_COMMAND	= { " >" };
+	const StrType STR_TYPE_PIPE 	= { " |" };
+	
+
+	const array<const char, 16> PADDING { 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' ', 
+		' ', ' ', ' ', ' '
+	};
+
+
+	block ReadThroughWrite (
+		OUT	size& 			nextIndex,
+		IN  const StrType&	strType,
+		IN	const uint8& 	valuesCount
+	) {
+		for (uint16 i = 0; i < valuesCount; ++i) {
+			
+			const uint8& nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+			const uint8& rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
+
+			auto&& name = memoryBlockA.data + nextIndex;
+			auto&& context = memoryBlockA.data + nextIndex + nameCount;
+
+			fwrite(strType.Pointer(), sizeof(char), strType.Length(), stdout);
+			fwrite(name, sizeof(char), nameCount, stdout);
+			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
+			fwrite(": ", sizeof(char), 2, stdout);
+			fwrite(context, sizeof(char), rawContextCount, stdout);
+			fwrite("\n", sizeof(char), 2, stdout);
+
+			nextIndex += nameCount + rawContextCount;
+		}
+	}
+
+
+	block ReadThroughConstructWrite (
+		OUT							size& 				nextIndex,
+		IN  						const StrType&		strType,
+		IN							const uint8& 		valuesCount,
+		IN							const uint8& 		constantsCount,
+		INREADS (constantsCount)	const uint8* const 	constants
+	) {
+		uint16 contextCount = 0;
+
+		for (uint16 i = 0; i < valuesCount; ++i) {
+			
+			const uint8& nameCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+			const uint8& rawContextCount = memoryBlockA.data[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
 
 			auto&& rawName = memoryBlockA.data + nextIndex;
 			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
@@ -142,78 +191,82 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 			ConstructConstants(
 				rawContextCount, rawContext, 
-				constantsCount, startPositions, 
+				constantsCount, constants, 
 				contextCount, memoryBlockB.data + nameIndex
 			);
 
 			auto&& name = memoryBlockB.data;
 			auto&& context = memoryBlockB.data + nameCount;
 
-			// DISPLAY FILES
-			fwrite(" !", sizeof(char), 3, stdout);
+			fwrite(strType.Pointer(), sizeof(char), strType.Length(), stdout);
 			fwrite(name, sizeof(char), nameCount, stdout);
-
-			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
 			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
-
 			fwrite(": ", sizeof(char), 2, stdout);
 			fwrite(context, sizeof(char), contextCount, stdout);
 			fwrite("\n", sizeof(char), 2, stdout);
 
-			// MOVE TO THE BEGINING OF NEXT PROJECT
-			nextIndex += nameCount + rawContextCount;
-
-		}
-
-		// DISPLAY COMMANDS
-		//fputc('\n', stdout);
-
-		for (uint16 i = 0; i < commandsCount; ++i) {
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			auto&& rawName = memoryBlockA.data + nextIndex;
-			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
-
-			fwrite(" >", sizeof(char), 3, stdout);
-			fwrite(rawName, sizeof(char), nameCount, stdout);
-			
-			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
-			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
-
-			fwrite(": ", sizeof(char), 2, stdout);
-			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
-			fwrite("\n", sizeof(char), 2, stdout);
-
 			nextIndex += nameCount + rawContextCount;
 		}
+	}
 
-		// DISPLAY QUEUES
-		//fputc('\n', stdout);
 
-		for (uint16 i = 0; i < queuesCount; ++i) {
-			nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-			rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
 
-			auto&& rawName = memoryBlockA.data + nextIndex;
-			auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
 
-			fwrite(" |", sizeof(char), 3, stdout);
-			fwrite(rawName, sizeof(char), nameCount, stdout);
-			
-			const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
-			fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
 
-			fwrite(": ", sizeof(char), 2, stdout);
-			fwrite(rawContext, sizeof(char), rawContextCount, stdout);
-			fwrite("\n", sizeof(char), 2, stdout);
 
-			nextIndex += nameCount + rawContextCount;
-		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// TODO
+	// 1. Proper constatns startingPoint list (get all from whole buffor then after 1readthrough apply them and display them)
+	// 2. Raw to Proccessed commands (talking about consts) not only imports
+	// 3. Proper including ... 
+	// 4. Execute commands
+	// 5. Execute queues
+
+
+	block DisplayFiles() {
+
+		const uint16& constantsCount	 = memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT	];
+		const uint16& importsCount		 = memoryBlockA.data[INDEX_INITIAL_IMPORTS_COUNT	];
+		const uint16& commandsCount		 = memoryBlockA.data[INDEX_INITIAL_COMMANDS_COUNT	];
+		const uint16& queuesCount		 = memoryBlockA.data[INDEX_INITIAL_QUEUES_COUNT		];
+
+		size nextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_FILE_OFFSET;
+
+		auto&& constants = memoryBlockC.data;
+
+		// DISPLAY IMPORTS
+		fputc('\n', stdout);
+
+		ReadThroughSave (nextIndex, constants, constantsCount);
+		ReadThroughConstructWrite (nextIndex, STR_TYPE_IMPORT, importsCount, constantsCount, constants);
+		ReadThroughWrite (nextIndex, STR_TYPE_COMMAND, commandsCount);
+		ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
 
 		fputc('\n', stdout);
 		
@@ -221,6 +274,35 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 
 	block DisplayProject() {
+
+		const uint16& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
+		auto&& constants = memoryBlockC.data;
+		size nextIndex = SPACE_SIZE_FILES_COUNT;
+
+		fputc('\n', stdout);
+
+		for (uint8 j = 0; j < filesCount + 1; ++j) {
+
+			const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
+			const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
+			const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
+			const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
+
+			nextIndex += INDEX_OFFSET;
+
+			ReadThroughSave (nextIndex, constants, constantsCount);
+			ReadThrough (nextIndex, importsCount);
+			ReadThroughWrite (nextIndex, STR_TYPE_COMMAND, commandsCount);
+			ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
+
+		}
+
+		fputc('\n', stdout);
+		
+	}
+
+}
+
 
 		// TODO
 		// Refactor it so that 
@@ -250,44 +332,8 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		// - diffrentiate between ValidateProject and ValidateImports
 		// - ValidateImports would process on number of imports rather then just one. just so we dont offset so much.
 
-		const uint16& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
-
-		size nextIndex = 1;
-		uint16 nameCount, rawContextCount/*, contextCount*/;
-
-		auto&& startPositions = memoryBlockC.data;
-
-		fputc('\n', stdout);
-		//printf(":%i\n", filesCount);
-		
-
-		for (uint8 j = 0; j < filesCount + 1; ++j) {
-
-			const uint16& constantsCount 	= memoryBlockA.data[nextIndex + 0];
-			const uint16& importsCount 		= memoryBlockA.data[nextIndex + 1];
-			const uint16& commandsCount 	= memoryBlockA.data[nextIndex + 2];
-			const uint16& queuesCount 		= memoryBlockA.data[nextIndex + 3];
-
-			nextIndex += INDEX_OFFSET;
-
-			// Skip constants in buffor to point at imports instead and create LOOK_UP_POSITIONS.
-			for (uint8 i = 0; i < constantsCount; ++i) {
-				nameCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_NAME;
-				rawContextCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_CONTEXT;
-
-				// ASSIGN START POSITION
-				startPositions[i] = nextIndex;
-				// SAVE nameCount FOR LATER USE
-				startPositions[constantsCount + i] = nameCount;
-				// SAVE contextCount FOR LATER USE
-				startPositions[(constantsCount * 2) + i] = rawContextCount;
-
-				nextIndex += nameCount + rawContextCount;
-			}
-
-			// DISPLAY IMPORTS
+/* IMPORT AND CONSTRUCT 
+// DISPLAY IMPORTS
 			//fwrite("\nIMPORTS\n", sizeof(char), 9, stdout);
 
 			for (uint16 i = 0; i < importsCount; ++i) {
@@ -310,7 +356,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 				//ConstructConstants(
 				//	rawContextCount, rawContext, 
-				//	constantsCount, startPositions, 
+				//	constantsCount, constants, 
 				//	contextCount, memoryBlockB.data + nameIndex
 				//);
 
@@ -336,59 +382,4 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			// DISPLAY COMMANDS
 			//fputc('\n', stdout);
 			//fwrite("\nCOMMANDS\n", sizeof(char), 10, stdout);
-
-			for (uint16 i = 0; i < commandsCount; ++i) {
-				nameCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_NAME;
-				rawContextCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_CONTEXT;
-
-				auto&& rawName = memoryBlockA.data + nextIndex;
-				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
-
-				fwrite(" >", sizeof(char), 3, stdout);
-				fwrite(rawName, sizeof(char), nameCount, stdout);
-
-				const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
-				fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
-
-				fwrite(": ", sizeof(char), 2, stdout);
-				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
-				fwrite("\n", sizeof(char), 2, stdout);
-
-				nextIndex += nameCount + rawContextCount;
-			}
-
-			// DISPLAY QUEUES
-			//fputc('\n', stdout);
-			//fwrite("\nQUEUES\n", sizeof(char), 8, stdout);
-
-			for (uint16 i = 0; i < queuesCount; ++i) {
-				nameCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_NAME;
-				rawContextCount = memoryBlockA.data[nextIndex];
-				nextIndex += SPACE_SIZE_CONTEXT;
-
-				auto&& rawName = memoryBlockA.data + nextIndex;
-				auto&& rawContext = memoryBlockA.data + nextIndex + nameCount;
-
-				fwrite(" |", sizeof(char), 3, stdout);
-				fwrite(rawName, sizeof(char), nameCount, stdout);
-
-				const uint8 paddingLength = (PADDING.Length() - nameCount) * (nameCount <= PADDING.Length());
-				fwrite(PADDING.Pointer(), sizeof(char), paddingLength, stdout);
-
-				fwrite(": ", sizeof(char), 2, stdout);
-				fwrite(rawContext, sizeof(char), rawContextCount, stdout);
-				fwrite("\n", sizeof(char), 2, stdout);
-
-				nextIndex += nameCount + rawContextCount;
-			}
-
-		}
-
-		fputc('\n', stdout);
-		
-	}
-
-}
+*/

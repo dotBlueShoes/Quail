@@ -56,10 +56,10 @@ namespace Search::Buffor {
 		OUT							IntegerType& 		resultIndex,		// If found resultIndex points to found element if not stays unchainged.
 		//IN							const byte&			elementSize,		// wchar vs char and such.
 		IN  						const IntegerType& 	searchedCount,		// Length of array data we're compering to.
-		INREADS (searchedCount) 	const T* 			searched,			// Data we're compering to.
-		IN							const byte*			buffor,				// Buffor that holds all data.
+		INREADS (searchedCount) 	const T* const		searched,			// Data we're compering to.
+		IN							const byte*	const	buffor,				// Buffor that holds all data.
 		IN							const IntegerType&	indicatorsCount,	// Length of pointers - pointing at right buffor positions.
-		INREADS	(indicatorsCount)	const byte*			indicators			// Pointers telling where to look for inside buffor.
+		INREADS	(indicatorsCount)	const byte*	const	indicators			// Pointers telling where to look for inside buffor.
 	) {
 		IntegerType collision = 1;
 

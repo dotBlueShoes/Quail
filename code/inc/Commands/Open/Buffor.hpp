@@ -1,6 +1,8 @@
 #pragma once
 #include "lib/Framework.hpp"
 
+#include "Buffors.hpp"
+
 namespace Commands::Open {
 
 	// Space in bytes.
@@ -20,12 +22,13 @@ namespace Commands::Open {
 	const uint8 SPACE_SIZE_NAME = 1;
 
 	// AT WHAT INDECIES IS WHAT VALUE
-	const size INDEX_FILES_COUNT = 0;
-	const size INDEX_INITIAL_CONSTANTS_COUNT = 1;
-	const size INDEX_INITIAL_IMPORTS_COUNT = 2;
-	const size INDEX_INITIAL_COMMANDS_COUNT = 3;
-	const size INDEX_INITIAL_QUEUES_COUNT = 4;
+	const size INDEX_FILES_COUNT 				= 0;
+	const size INDEX_INITIAL_CONSTANTS_COUNT 	= SPACE_SIZE_FILES_COUNT;
+	const size INDEX_INITIAL_IMPORTS_COUNT 		= SPACE_SIZE_FILES_COUNT + SPACE_SIZE_CONSTANTS_COUNT;
+	const size INDEX_INITIAL_COMMANDS_COUNT 	= SPACE_SIZE_FILES_COUNT + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT;
+	const size INDEX_INITIAL_QUEUES_COUNT 		= SPACE_SIZE_FILES_COUNT + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT + SPACE_SIZE_COMMANDS_COUNT;
 	const size INDEX_OFFSET = INDEX_INITIAL_QUEUES_COUNT;
+
 
 	// running from config file
 	// ! we don't access config import file: constants

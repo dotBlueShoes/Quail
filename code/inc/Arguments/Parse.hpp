@@ -105,24 +105,26 @@ namespace Arguments::Parse {
 				case MATCH::OPEN: {
 
 					// THIS SUCKS !
-					wchar filePath[256] { L'\0' };
+					wchar filePath[512] { L'\0' };
+					//uint8 filePathCount[4] { 0 };
 
-					// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
-					Commands::Open::GetMainConfigData();
-					// GET ASSOCIATED FILEPATH WITH PROJECT NAME
-					Commands::Open::Projects::Validate(filePath, projectLength, projectName);
+					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other[48] = 0;
 
-					//printf("\npath: %s\n", filePath);
+					{ // Get PROJECT from main config.
+						// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
+						Commands::Open::GetMainConfigData();
+						// GET ASSOCIATED FILEPATH WITH PROJECT NAME
+						Commands::Open::Projects::ValidateProjectArgument(filePath, projectLength, projectName);
+						// READ DATA FROM PROJECT CONFIG INTO BUFFOR
+						Commands::Open::GetProjectConfigData(filePath);
+					}
+
+					{ // Get IMPORTS from Project
+						// LOAD DATA FROM NESTED IMPORT
+						Commands::Open::GetConfigData(other);
+					}
 					
-					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
-					Commands::Open::GetConfigData(filePath);
-
-					// LOAD DATA FROM NESTED IMPORT
-					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" };
-					other[48] = 0;
-					Commands::Open::GetConfigData(other);
-
-					// Display all we got.
+					// Display commands and queues we got.
 					Commands::Open::Parse::DisplayProject();
 
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
@@ -153,24 +155,26 @@ namespace Arguments::Parse {
 				case MATCH::OPEN: {
 					
 					// THIS SUCKS !
-					wchar filePath[256] { L'\0' };
+					wchar filePath[512] { L'\0' };
+					//uint8 filePathCount[4] { 0 };
 
-					// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
-					Commands::Open::GetMainConfigData();
-					// GET ASSOCIATED FILEPATH WITH PROJECT NAME
-					Commands::Open::Projects::Validate(filePath, projectLength, projectName);
+					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other[48] = 0;
 
-					//printf("\npath: %s\n", filePath);
+					{ // Get PROJECT from main config.
+						// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
+						Commands::Open::GetMainConfigData();
+						// GET ASSOCIATED FILEPATH WITH PROJECT NAME
+						Commands::Open::Projects::ValidateProjectArgument(filePath, projectLength, projectName);
+						// READ DATA FROM PROJECT CONFIG INTO BUFFOR
+						Commands::Open::GetProjectConfigData(filePath);
+					}
+
+					{ // Get IMPORTS from Project
+						// LOAD DATA FROM NESTED IMPORT
+						Commands::Open::GetConfigData(other);
+					}
 					
-					// LOAD DATA FROM PROJECT CONFIG INTO BUFFOR
-					Commands::Open::GetConfigData(filePath);
-
-					// LOAD DATA FROM NESTED IMPORT
-					wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" };
-					other[48] = 0;
-					Commands::Open::GetConfigData(other);
-
-					// Display all we got.
+					// Display commands and queues we got.
 					Commands::Open::Parse::DisplayProject();
 
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;

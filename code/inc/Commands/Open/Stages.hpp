@@ -25,7 +25,7 @@ namespace Commands::Open::Stages {
 	// ... second command ...
 
 	void Initialize ();
-	void ResetCommandsAndQueues ();
+	void Reset ();
 	void AddImport ();
 
 	// Function Stages

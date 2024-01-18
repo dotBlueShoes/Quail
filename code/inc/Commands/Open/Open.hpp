@@ -21,66 +21,81 @@ namespace Commands::Open::Subcommands {
 
 namespace Commands::Open {
 
-	/// READS the main projects config file. 
+	// Pretty much WINDOWS ONLY stuff here !
+
+	getter constexpr FILE* GetFile (
+		IN	const charFilePath* const filePath
+	) {
+		FILE* fileConfiguration = nullptr;
+
+		// IF file pointer return NULL - EXIT THE PROGRAM
+		if ((fileConfiguration = _wfopen(filePath, L"r")) == NULL) {
+			printf ("%s\n", strings::STRING_FAILURE_NO_CONFIG_FILE);
+			exit (ExitCode::FAILURE_NO_CONFIG_FILE);
+		}
+
+		return fileConfiguration;
+	}
+
+
+	block ReadAndCloseStream (
+		IN	FILE* const fileConfiguration,
+		IN	Commands::Open::Stages::StageParams& stage
+	) {
+		do {
+			stage.current = fgetc (fileConfiguration);
+			Commands::Open::Stages::Current(stage);
+		} while (stage.current != EOF);
+
+		fclose(fileConfiguration);
+	}
+
+
 	block GetMainConfigData () {
 		
-		{ /* WINDOWS ONLY */
-			FILE* fileConfiguration = nullptr;
-			//size readLength = 0;
+		FILE* const fileConfiguration = GetFile ( FILE_PROJECTS.Pointer() );
 
-			// IF file pointer return NULL - EXIT THE PROGRAM
-			if ((fileConfiguration = _wfopen(FILE_PROJECTS.Pointer(), L"r")) == NULL) {
-				printf ("%s\n", strings::STRING_FAILURE_NO_CONFIG_FILE);
-				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
-			}
+		namespace COS = Commands::Open::Stages;
 
-			namespace COS = Commands::Open::Stages;
+		COS::StageParams stage { EOF, 0 };
+		COS::Current = COS::MainFile;
+		COS::Initialize ();
 
-			COS::StageParams stageParams { EOF, 0 };
-			COS::Current = COS::MainFile;
-			COS::Initialize();
-
-			do { // The actuall read operation.
-				stageParams.current = fgetc (fileConfiguration);
-				COS::Current(stageParams);
-			} while (stageParams.current != EOF);
-
-			// CLOSE OPENNED FILES
-			fclose(fileConfiguration);
-		}
+		ReadAndCloseStream (fileConfiguration, stage);
 
 	};
 
-	/// READS the linked project config file.
+
+	block GetProjectConfigData (
+		IN	const charFilePath* const filePath
+	) {
+		
+		FILE* const fileConfiguration = GetFile ( filePath );
+
+		namespace COS = Commands::Open::Stages;
+
+		COS::StageParams stage { EOF, 0 };
+		COS::Current = COS::MainFile;
+		COS::Reset();
+
+		ReadAndCloseStream (fileConfiguration, stage);
+
+	};
+
+
 	block GetConfigData ( 
 		IN	const charFilePath* const filePath
 	) {
 
-		{ /* WINDOWS ONLY */
-			FILE* fileConfiguration = nullptr;
+		FILE* const fileConfiguration = GetFile ( filePath );
 
-			// IF file pointer return NULL - EXIT THE PROGRAM
-			if ((fileConfiguration = _wfopen (filePath, L"r")) == NULL) {
-				printf ("%s\n", strings::STRING_FAILURE_NO_CONFIG_FILE);
-				exit (ExitCode::FAILURE_NO_CONFIG_FILE);
-			}
-
-			//printf("\nReading Project File\n\n");
-
-			namespace COS = Commands::Open::Stages;
+		namespace COS = Commands::Open::Stages;
 			
-			COS::StageParams stageParams { EOF, 0 };
-			COS::Current = COS::ProjectFile;
-			COS::AddImport();
+		COS::StageParams stage { EOF, 0 };
+		COS::Current = COS::ProjectFile;
+		COS::AddImport();
 			
-			do { // The actuall read operation.
-				stageParams.current = fgetc (fileConfiguration);
-				COS::Current(stageParams);
-			} while (stageParams.current != EOF);
-
-			// CLOSE OPENNED FILES
-			fclose(fileConfiguration);
-		}
+		ReadAndCloseStream (fileConfiguration, stage);
 
 	}
 

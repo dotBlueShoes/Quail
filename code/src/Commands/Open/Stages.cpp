@@ -6,18 +6,10 @@
 
 namespace Commands::Open::Stages {
 
-	Stage Current, Next; // Next is rarely used.
 
-	size bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
-	size bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
-	size bufforIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + SPACE_SIZE_CONTEXT + INDEX_OFFSET;
-
-	// Additional variable for temporal storage use.
-	uint8 lengthTemp = 0;
-
-	// Varaible to distinguish file imports inside bufforIndex var.
-	// When we reed a new file then the current bufforIndex is being saved here.
-	size fileIndex = 1;
+	getter constexpr size GetInitialBufforIndex () {
+		return SPACE_SIZE_FILES_COUNT + INDEX_OFFSET + SPACE_SIZE_NAME + SPACE_SIZE_CONTEXT;
+	}
 
 
 	getter constexpr size GetCurrentIndexConstantsCount (const size& currentFileIndex) {
@@ -40,6 +32,24 @@ namespace Commands::Open::Stages {
 	}
 
 
+	// Next is rarely used.
+	Stage Current, Next; 
+
+
+	size bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+	size bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
+	size bufforIndex = GetInitialBufforIndex();
+
+
+	// Additional variable for temporal storage use.
+	uint8 lengthTemp = 0;
+
+
+	// Varaible to distinguish file imports inside bufforIndex var.
+	// When we reed a new file then the current bufforIndex is being saved here.
+	size fileIndex = 1;
+
+
 	void Initialize () {
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
 		memoryBlockA.data[INDEX_INITIAL_CONSTANTS_COUNT] = 0;
@@ -49,13 +59,19 @@ namespace Commands::Open::Stages {
 	}
 
 
-	//void ResetCommandsAndQueues () {
-	//	memoryBlockA.data[INDEX_FILES_COUNT]++
-	//}
+	void Reset () {
+		Initialize ();
+		bufforIndex = GetInitialBufforIndex ();
+		bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+		bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
+	}
+	
 
 	void AddImport () {
 		// ADD INFORMATION ABOUT INCLUSION OF ANOTHER FILE.
 		memoryBlockA.data[INDEX_FILES_COUNT]++;
+
+		//printf("call");
 
 		// SIGN BEFORE NEW FILE
 		//printf("-:%i\n", memoryBlockA.data[fileIndex-1]);
