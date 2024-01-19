@@ -52,14 +52,17 @@ namespace Arguments::Parse::Cmmds {
 
 	block RunSubcommand (
 		IN 						const uint8& 				projectLength, 
-		INREADS (projectLength) const charConsole* const 	projectName
+		INREADS (projectLength) const charConsole* const 	projectName,
+		IN 						const uint8& 				subcmmdLength, 
+		INREADS (projectLength) const charConsole* const 	subcmmdName
 	) {
 
 		// THIS SUCKS !
 		wchar filePath[512] { L'\0' };
 		//uint8 filePathCount[4] { 0 };
 
-		wchar other[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other[48] = 0;
+		wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
+		wchar other2[256] { LR"(D:\Storage\Projects\Quail\.quail\extra.txt)" }; other2[43] = 0;
 
 		{ // Get PROJECT from main config.
 			// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
@@ -72,13 +75,11 @@ namespace Arguments::Parse::Cmmds {
 
 		{ // Get IMPORTS from Project
 			// LOAD DATA FROM NESTED IMPORT
-			//Commands::Open::GetConfigData(other);
+			Commands::Open::GetConfigData(other1);
+			Commands::Open::GetConfigData(other2);
 		}
-
-		printf("hay !");
 					
-		// Display commands and queues we got.
-		//Commands::Open::Parse::DisplayProject();
+		Commands::Open::Parse::ExecuteSubcommand(subcmmdLength, subcmmdName);
 	}
 
 }
@@ -262,7 +263,7 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Cmmds::RunSubcommand (projectLength, projectName);
+					Cmmds::RunSubcommand (projectLength, projectName, subcmmdLength, subcmmdName);
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {
@@ -289,7 +290,7 @@ namespace Arguments::Parse {
 				} return ExitCode::FAILURE_UNKNOWN;
 
 				case MATCH::OPEN: {
-					Cmmds::RunSubcommand (projectLength, projectName);
+					Cmmds::RunSubcommand (projectLength, projectName, subcmmdLength, subcmmdName);
 				} return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 
 				case MATCH::HELP: {

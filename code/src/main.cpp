@@ -44,36 +44,14 @@ enum ARGUMENTS_CHECK : int32 {
 
 
 // TODO:
-// - 1. Constants (variables) in main config (global)
-// - 2. Subcommands in main config - 'list', 'config' keywords use
-// - 3. Queues (pipes) in main config
-// - 4. Constants, Subcommands, Queues in project files
-// - 5. Projects inside main config
-
-// - Global constants !!!
-// - Read project commands
-
-
-// When using 1 heap buffor theres 2 things i need to take care of
-//  with commands i've read from file. 
-//
-// - COMMAND LENGTH
-// - OFFSET FROM 1 COMMAND TO OTHER
-
-// ByPFME wymaga przesłania array'a wartości do których będziemy porównywać naszą wartość.
-//  To jest problematyczne, ponieważ nasze wartości są o różnych wielkościach i w różnych odstępach między sobą.
-//  Mamy, więc 2 problemy:
-//		1. Różne wielkości komend.
-//		2. Różne Odstępy między komendami.
-// Ad1.
-//  Różne wielkości nie są problemem dopóki są one większe od wielkości wartości szukanej.
-//   Ponieważ najpierw parsujemy argument później komendy.
-//	 a) Można najpierw określić minimalny rozmiar, a później z każdą alokacją {command_name} upewniać się że min jest zaalokowane.
-//   b) Określić rozmiar min, i dokleić go do ostatniej {command_name}
-//   do SEARCH'a będziemy musieli wysłać główny buffor, tablice pozycji startów wszystkich {command_name} po której będziemy iterować.
-//
-// Ad2.
-//	Odstępy między sobą możemy zczytać już z tablicy
+// -  2. Subcommands in main config - 'list', 'config' keywords use
+// -  3. Queues (pipes) in main config
+// -  5. Projects inside main config
+// -  6. Execute Commands
+// -  7. Proper include system.
+// -  8. '.' implementation.
+// -  9. wchar and maybe other...
+// - 10. buffor123s checks...
 
 
 int32 main (

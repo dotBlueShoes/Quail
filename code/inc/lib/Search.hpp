@@ -91,36 +91,4 @@ namespace Search::Buffor {
     	--resultIndex;
 	}
 
-
-	//template <typename T, typename IntegerType, typename IndicatorsType, typename NoMatchCallable>
-	//void ByPFM (
-	//	IN							NoMatchCallable&& 	NoMatchCallableFunc,// Execute at no match.
-	//	OUT							IntegerType& 		resultIndex,		// If found resultIndex points to found element if not stays unchainged.
-	//	//IN							const byte&			elementSize,		// wchar vs char and such.
-	//	IN  						const IntegerType& 	searchedCount,		// Length of array data we're compering to.
-	//	INREADS (searchedCount) 	const T* const		searched,			// Data we're compering to.
-	//	IN							const byte*	const	buffor,				// Buffor that holds all data.
-	//	IN							const IntegerType&	indicatorsCount,	// Length of pointers - pointing at right buffor positions.
-	//	INREADS	(indicatorsCount)	const IndicatorsType*	const	indicators			// Pointers telling where to look for inside buffor.
-	//) {
-	//	IntegerType collision = 1;
-	//
-	//	// For each element pointed by indicator + When collision hit break.
-	//	for (; resultIndex < indicatorsCount * collision; ++resultIndex) {
-	//		// For each element in searched array.
-	//		for (IntegerType i = 0; i < searchedCount; ++i) {
-	//			auto&& origin = (T*)(buffor + indicators[resultIndex]);
-	//			auto&& element = origin[i];
-	//			collision += searched[i] == element;
-	//		}
-	//		//printf("%i\n", collision);
-	//		collision = ((collision - 1) != searchedCount);
-	//		//printf("%i\n", collision);
-	//	}
-	//
-	//	if (collision) NoMatchCallableFunc();
-	//
-    //	--resultIndex;
-	//}
-
 }
