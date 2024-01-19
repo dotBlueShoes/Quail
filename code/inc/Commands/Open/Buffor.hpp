@@ -5,8 +5,11 @@
 
 namespace Commands::Open {
 
-	// Space in bytes.
+	// Limits
+	const uint8 CONSTANTS_LIMIT = 16;
+	const uint16 SPACE_SIZE_CONSTATNS_INDEX = 4;
 
+	// Space in bytes.
 	const uint8 SPACE_SIZE_FILES_COUNT = 1;
 	const uint8 SPACE_SIZE_CONSTANTS_COUNT = 1;
 	const uint8 SPACE_SIZE_IMPORTS_COUNT = 1;

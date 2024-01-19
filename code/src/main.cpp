@@ -84,9 +84,10 @@ int32 main (
 	DEBUG printf ("%s\n", strings::STRING_DEBUG_MODE_INFO);
 
 	// Initialize Buffers with program start. They'll automaticlly deallocate.
-	memoryBlockA.INITIALIZE(2048);		// Stores contents of read files.
-	memoryBlockB.INITIALIZE(256);		// Stores processed command / queue.
-	memoryBlockC.INITIALIZE(32 * 3); 	// Stores quick count tables for Constants, References, Commands, Queues
+	memoryBlockA.INITIALIZE(2048);					// Stores contents of read files.
+	memoryBlockB.INITIALIZE(256);					// Stores processed command / queue.
+	// 32 * 4 because we save nextIndex which is llu type.
+	memoryBlockC.INITIALIZE((32 * 4) + 32 * 2); 	// Stores quick count tables for Constants, References, Commands, Queues
 	
 	// 1st. validate arguments count.
 	switch (argumentsCount) {
@@ -110,14 +111,13 @@ int32 main (
 			auto&& commandName = arguments[1];
 			auto&& projectName = arguments[2];
 			return Arguments::Parse::CommandProjectOnly(commandName, projectName);
-			return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
 		}
 
 		case VALID_COMMAND: {
-			//auto&& commandName = arguments[1];
-			//auto&& projectName = arguments[2];
-			//auto&& subcmmdName = arguments[3];
-			return ExitCode::SUCCESSFULL_COMMAND_EXECUTION;
+			auto&& commandName = arguments[1];
+			auto&& projectName = arguments[2];
+			auto&& subcmmdName = arguments[3];
+			return Arguments::Parse::Command(commandName, projectName, subcmmdName);
 		}
 
 		default: {

@@ -1,5 +1,6 @@
 %name = Quail
 %project_name = quail
+%project_dir = D:\Storage\Projects\Quail
 
 # Links to quail files.
 !properties = .\.quail\properties.txt

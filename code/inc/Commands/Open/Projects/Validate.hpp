@@ -26,15 +26,36 @@ namespace Commands::Open::Projects {
 
 		uint16 resultIndex (0);
 
+		//printf("1");
+
 		Search::Buffor::ByPFM<charFile, uint16> (
 			onNoMatchFound, resultIndex,
 			projectLength, projectName,
-			memoryBlockA.data, importsCount, imports
+			memoryBlockA.data, importsCount, imports,
+			SPACE_SIZE_CONSTATNS_INDEX
 		);
 
+		uint32 index = imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 0];
+		index <<= 8;
+		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 1];
+		index <<= 8;
+		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 2];
+		index <<= 8;
+		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 3];
+
+		//printf("\nwhy:%i, %i\n", resultIndex, index);
+
 		// Get RAW string
-		const auto&& rawContext = memoryBlockA.data + imports[resultIndex] + imports[importsCount + resultIndex];
-		const uint8& rawContextCount = imports[(2 * importsCount) + resultIndex];
+		const auto&& rawContext = memoryBlockA.data + 
+			index + 
+			imports[(CONSTANTS_LIMIT * 4) + resultIndex];
+
+		const uint8& rawContextCount = 
+			imports[(CONSTANTS_LIMIT * 5) + resultIndex];
+
+		//printf("c:%i\n", imports[(CONSTANTS_LIMIT * 4) + resultIndex]);
+		//printf("c:%i\n", rawContextCount);
+		//fwrite(rawContext, sizeof(char), rawContextCount, stdout);
 		
 		auto&& context = memoryBlockB.data;
 		uint16 contextCount (0);
@@ -44,6 +65,10 @@ namespace Commands::Open::Projects {
 			constantsCount, constants, 
 			contextCount, context
 		);
+
+		//printf("\nc:%i\n", contextCount);
+		//fwrite(context, sizeof(char), contextCount, stdout);
+		//printf("\n\n");
 
 		// RETURN RESULT IN WCHAR* FORMAT
 		std::mbstowcs(filePath, (char *)context, contextCount);
@@ -63,9 +88,9 @@ namespace Commands::Open::Projects {
 		IN						const uint8& 			projectLength,
 		INREADS (projectLength)	const charFile* const 	projectName
 	) {
-		const uint16& constantsCount	 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
-		const uint16& importsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
-		
+		const uint8& constantsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
+		const uint8& importsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
+
 		// Declare and iterator to iterate through our main buffor.
 		size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
 
@@ -76,6 +101,11 @@ namespace Commands::Open::Projects {
 
 		Parse::ReadThroughSave (nextIndex, constants, constantsCount);
 		Parse::ReadThroughSave (nextIndex, imports, importsCount);
+
+		
+		//printf("\n1:%i", imports[3]);
+		//printf("\n2:%i", imports[(CONSTANTS_LIMIT * 4) + 0]);
+		//printf("\n3:%i\n", imports[(CONSTANTS_LIMIT * 5) + 0]);
 
 		// Construct IMPORTS context with CONSTANTS, match and retrive.
 		GetConfigFilePath (
