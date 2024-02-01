@@ -56,6 +56,9 @@ namespace Commands::Open::Stages {
 		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)] = 0;
 		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)] = 0;
 		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)] = 0;
+		
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4) + 0] = 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4) + 1] = 0;
 	}
 
 
@@ -270,7 +273,7 @@ namespace Commands::Open::Stages::Constant {
 				Current = MainFile; // Look for another
 			} break;
 
-			case SPACE:
+			//case SPACE:
 			case TAB: {
 				printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
 			} exit(1);

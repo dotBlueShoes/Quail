@@ -21,36 +21,6 @@ namespace Commands::Open::Subcommands {
 
 namespace Commands::Open {
 
-	// Pretty much WINDOWS ONLY stuff here !
-
-	getter constexpr FILE* GetFile (
-		IN	const charFilePath* const filePath
-	) {
-		FILE* fileConfiguration = nullptr;
-
-		// IF file pointer return NULL - EXIT THE PROGRAM
-		if ((fileConfiguration = _wfopen(filePath, L"r")) == NULL) {
-			printf ("%s\n", strings::STRING_FAILURE_NO_CONFIG_FILE);
-			exit (ExitCode::FAILURE_NO_CONFIG_FILE);
-		}
-
-		return fileConfiguration;
-	}
-
-
-	block ReadAndCloseStream (
-		IN	FILE* const fileConfiguration,
-		IN	Commands::Open::Stages::StageParams& stage
-	) {
-		do {
-			stage.current = fgetc (fileConfiguration);
-			Commands::Open::Stages::Current(stage);
-		} while (stage.current != EOF);
-
-		fclose(fileConfiguration);
-	}
-
-
 	block GetMainConfigData () {
 		
 		FILE* const fileConfiguration = GetFile ( FILE_PROJECTS.Pointer() );
@@ -76,7 +46,7 @@ namespace Commands::Open {
 
 		COS::StageParams stage { EOF, 0 };
 		COS::Current = COS::MainFile;
-		COS::Reset();
+		COS::Reset ();
 
 		ReadAndCloseStream (fileConfiguration, stage);
 
@@ -93,7 +63,7 @@ namespace Commands::Open {
 			
 		COS::StageParams stage { EOF, 0 };
 		COS::Current = COS::ProjectFile;
-		COS::AddImport();
+		COS::AddImport ();
 			
 		ReadAndCloseStream (fileConfiguration, stage);
 

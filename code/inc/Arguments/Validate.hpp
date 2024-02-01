@@ -39,7 +39,7 @@ namespace Arguments::Validate {
 		INREADS (commandLength) const charConsole* const commandName
 	) {
 
-		auto onNoMatchFound = []() { 
+		auto onNoMatchFound = [](uint16& resultIndex, const uint8 elementsCount) { 
 			printf ("%s\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
 			exit (ExitCode::FAILURE_INVALID_ARGUMENT);
 		};

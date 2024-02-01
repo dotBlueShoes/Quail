@@ -1,5 +1,6 @@
 #include "Framework.hpp"
 
+
 namespace Search::Array {
 
 	const char* STRING_SEARCH_BYPFME_ERROR = "Array Search BYPFME No match failure!";
@@ -38,6 +39,7 @@ namespace Search::Array {
 	}
 
 }
+
 
 namespace Search::Buffor {
 
@@ -86,7 +88,7 @@ namespace Search::Buffor {
 			//printf("%i\n", collision);
 		}
 
-		if (collision) NoMatchCallableFunc();
+		if (collision) NoMatchCallableFunc(resultIndex, indicatorsCount);
 
     	--resultIndex;
 	}

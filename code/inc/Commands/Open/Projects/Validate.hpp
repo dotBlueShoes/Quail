@@ -19,14 +19,12 @@ namespace Commands::Open::Projects {
 		INREADS (constants) 	const uint8* const 		constants
 	) {
 
-		auto onNoMatchFound = []() { 
+		auto onNoMatchFound = [](uint16& resultIndex, const uint8 elementsCount) { 
 			printf ("\n%s\n\n", Search::Array::STRING_SEARCH_BYPFME_ERROR);
 			exit (ExitCode::FAILURE_INVALID_ARGUMENT);
 		};
 
 		uint16 resultIndex (0);
-
-		//printf("1");
 
 		Search::Buffor::ByPFM<charFile, uint16> (
 			onNoMatchFound, resultIndex,
@@ -35,15 +33,8 @@ namespace Commands::Open::Projects {
 			SPACE_SIZE_CONSTATNS_INDEX
 		);
 
-		uint32 index = imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 0];
-		index <<= 8;
-		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 1];
-		index <<= 8;
-		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 2];
-		index <<= 8;
-		index += imports[resultIndex * SPACE_SIZE_CONSTATNS_INDEX + 3];
-
-		//printf("\nwhy:%i, %i\n", resultIndex, index);
+		uint32 index = 0;
+		Parse::LoadNextIndex (index, imports, resultIndex);
 
 		// Get RAW string
 		const auto&& rawContext = memoryBlockA.data + 

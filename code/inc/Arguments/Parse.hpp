@@ -9,6 +9,7 @@
 
 namespace Arguments::Parse::Cmmds {
 
+
 	block ViewMainConfig () {
 		Commands::Open::GetMainConfigData ();
 		Commands::Open::Parse::DisplayFiles ();
@@ -24,8 +25,8 @@ namespace Arguments::Parse::Cmmds {
 		wchar filePath[512] { L'\0' };
 		//uint8 filePathCount[4] { 0 };
 
-		wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
-		wchar other2[256] { LR"(D:\Storage\Projects\Quail\.quail\extra.txt)" }; other2[43] = 0;
+		//wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
+		//wchar other2[256] { LR"(D:\Storage\Projects\Quail\.quail\extra.txt)" }; other2[43] = 0;
 
 		{ // Get PROJECT from main config.
 			// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
@@ -39,8 +40,8 @@ namespace Arguments::Parse::Cmmds {
 
 		{ // Get IMPORTS from Project
 			// LOAD DATA FROM NESTED IMPORT
-			Commands::Open::GetConfigData(other1);
-			Commands::Open::GetConfigData(other2);
+			//Commands::Open::GetConfigData(other1);
+			//Commands::Open::GetConfigData(other2);
 		}
 					
 		// Display commands and queues we got.
@@ -61,8 +62,8 @@ namespace Arguments::Parse::Cmmds {
 		wchar filePath[512] { L'\0' };
 		//uint8 filePathCount[4] { 0 };
 
-		wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
-		wchar other2[256] { LR"(D:\Storage\Projects\Quail\.quail\extra.txt)" }; other2[43] = 0;
+		//wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
+		//wchar other2[256] { LR"(D:\Storage\Projects\Quail\.quail\extra.txt)" }; other2[43] = 0;
 
 		{ // Get PROJECT from main config.
 			// LOAD DATA FROM MAIN CONFIG INTO BUFFOR
@@ -75,20 +76,19 @@ namespace Arguments::Parse::Cmmds {
 
 		{ // Get IMPORTS from Project
 			// LOAD DATA FROM NESTED IMPORT
-			Commands::Open::GetConfigData(other1);
-			Commands::Open::GetConfigData(other2);
+			//Commands::Open::GetConfigData(other1);
+			//Commands::Open::GetConfigData(other2);
 		}
-					
+		
 		Commands::Open::Parse::ExecuteSubcommand(subcmmdLength, subcmmdName);
 	}
 
 }
 
+
 namespace Arguments::Parse {
 
-
-
-	getter int32 CommandIncomplete(
+	getter int32 CommandIncomplete (
 		IN const charConsole* const commandName
 	) {
 
@@ -159,7 +159,7 @@ namespace Arguments::Parse {
 
 
 
-	getter int32 CommandProjectOnly(
+	getter int32 CommandProjectOnly (
 		IN const charConsole* const commandName, 
 		IN const charConsole* const projectName
 	) {
@@ -235,7 +235,7 @@ namespace Arguments::Parse {
 
 
 
-	getter int32 Command(
+	getter int32 Command (
 		IN const charConsole* const commandName,
 		IN const charConsole* const projectName,
 		IN const charConsole* const subcmmdName
