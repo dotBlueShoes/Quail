@@ -195,6 +195,29 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 	}
 
 
+	block ReadThroughSaveEx (
+		IN	uint8*& 		filesBuffor,
+		OUT	size& 			nextIndex,
+		IN	const uint8& 	valuesCount,
+		OUT	uint8* const	values,
+		IN	const size&		offset = 0
+	) {
+		for (uint8 i = 0; i < valuesCount; ++i) {
+
+			const uint8& nameCount = filesBuffor[nextIndex];
+			nextIndex += SPACE_SIZE_NAME;
+
+			const uint8& rawContextCount = filesBuffor[nextIndex];
+			nextIndex += SPACE_SIZE_CONTEXT;
+
+			// SAVE START POSITIONS
+			SaveNextIndex (values, nextIndex, i, offset);
+
+			nextIndex += nameCount + rawContextCount;
+		}
+	}
+
+
 	block ReadThroughWrite (
 		OUT	size& 			nextIndex,
 		IN  const StrType&	strType,
@@ -291,20 +314,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		}
 	}
 
-	//template <typename IntegerType>
-	//block PartCheck (
-	//	OUT							IntegerType& 		resultIndex
-	//	IN							const uint8* const searchedDataCount,
-	//	INREADS (searchedDataCount)	const uint8* const searchedData,
-	//	IN							const uint8* const data
-	//) {
-	//	IntegerType collision = 1;
-	//
-	//	for (; (resultIndex < searchedDataCount) * collision; ++resultIndex) {
-	//		collision = searchedData[i] == data[i];
-	//
-	//	}
-	//}
 
 	block ReadThroughCommandMatchConstructExecute (
 		OUT						size& 						nextIndex,
@@ -316,34 +325,19 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		INREADS (projectLength) const charConsole* const 	subcmmdName
 	) {
 
-		// 1. get all names as search indecies.
-		// 2. parse that into search function with our subcommand.
-		// 3. get rawContext and construct actual context.
+		// 1. Get all names as search indecies.
+		// 2. Parse those names into search function with our subcommand.
+		// 3. Get rawContext and construct actual context.
+		// 4. Null-terminate and execute
 
 		auto onNoMatchFound = [](uint16& resultIndex, const uint8 elementsCount) { 
-			resultIndex = elementsCount;
+			resultIndex = elementsCount + 1;
 		};
 
 		auto&& filesBuffor = memoryBlockA.data;
 		auto&& names = memoryBlockB.data;
 
-		for (uint8 i = 0; i < valuesCount; ++i) {
-
-			const uint8& nameCount = filesBuffor[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
-
-			const uint8& rawContextCount = filesBuffor[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
-
-			// SAVE START POSITIONS
-			SaveNextIndex (names, nextIndex, i, 0);
-			// SAVE 'nameCount' FOR LATER USE
-			//names[(CONSTANTS_LIMIT * SPACE_SIZE_CONSTATNS_INDEX) + (i + offset)] = nameCount;
-			// SAVE 'contextCount' FOR LATER USE
-			//names[(CONSTANTS_LIMIT * (SPACE_SIZE_CONSTATNS_INDEX + 1)) + (i + offset)] = rawContextCount;
-
-			nextIndex += nameCount + rawContextCount;
-		}
+		ReadThroughSaveEx (filesBuffor, nextIndex, valuesCount, names, 0);
 
 		uint16 resultIndex (0);
 		Search::Buffor::ByPFM<charFile, uint16> (
@@ -354,7 +348,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		);
 
 		if (resultIndex != valuesCount) {
-			//printf ("\nGOT IT!:%i\n", resultIndex);
 
 			// This is bad.. i do the very same in Search::Buffor::ByPFM function...
 			uint32 bufforIndex = 0;
@@ -366,7 +359,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& rawContext = filesBuffor + bufforIndex + nameCount;
 			auto&& context = memoryBlockB.data;
 
-			//fwrite (rawContext, sizeof (char), rawContextCount, stdout);
 			uint16 contextCount = 0;
 
 			ConstructConstants (
@@ -375,8 +367,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 				contextCount, context
 			);
 
-			//fwrite (context, sizeof (char), contextCount, stdout);
-
 			// null-terminate the string.
 			context[contextCount] = '\0';
 
@@ -384,38 +374,155 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 			exit(0);
 		}
-		
-
-
-		// test
-		//uint32 bufforIndex = 0;
-		//LoadNextIndex (bufforIndex, names, 0 /* test index */);
-		//auto&& name1 = memoryBlockA.data + bufforIndex;
-		//fwrite (name1, sizeof (char), 7, stdout);
-		//fputc('\n', stdout);
-		//fwrite (subcmmdName, sizeof (char), subcmmdLength, stdout);
 
 	}
 
 	block ReadThroughQueueMatchConstructExecute (
 		OUT						size& 						nextIndex,
 		IN  					const StrType&				strType,
-		IN						const uint8& 				valuesCount,
+		IN						const uint8& 				commandsCount,
+		IN						const uint8& 				queuesCount,
 		IN						const uint8& 				constantsCount,
 		IN						const uint8* const 			constants,
 		IN 						const uint8& 				subcmmdLength, 
 		INREADS (projectLength) const charConsole* const 	subcmmdName
 	) {
 
-		for (uint8 i = 0; i < valuesCount; ++i) {
+		//printf("WE'RE HERE!!!");
+		// 1. Get all command names as search indecies.
+		// 2. Get command_name's from queue context in an array.
+		// FOR EACH SUBCOMMAND
+		//	3. parse those names into search function with our subcommand.
+		//	4. get rawContext and construct actual context.
+		//	5. null-terminate and execute
 
-			const uint8& nameCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_NAME;
+		auto onNoMatchFound = [](uint16& resultIndex, const uint8 elementsCount) { 
+			resultIndex = elementsCount + 1;
+			printf("hello");
+		};
 
-			const uint8& rawContextCount = memoryBlockA.data[nextIndex];
-			nextIndex += SPACE_SIZE_CONTEXT;
+		auto&& filesBuffor = memoryBlockA.data;
+		auto&& commandsBuffor = memoryBlockB.data;
+		auto&& names = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTATNS_INDEX);
 
-			nextIndex += nameCount + rawContextCount;
+		ReadThroughSaveEx (filesBuffor, nextIndex, queuesCount, names, 0);
+
+		uint16 resultIndex (0);
+		Search::Buffor::ByPFM<charFile, uint16> (
+			onNoMatchFound, resultIndex,
+			subcmmdLength, subcmmdName,
+			filesBuffor, queuesCount, names,
+			SPACE_SIZE_CONSTATNS_INDEX
+		);
+
+		if (resultIndex != queuesCount) {
+
+			// This is bad.. i do the very same in Search::Buffor::ByPFM function...
+			uint32 bufforIndex = 0;
+			LoadNextIndex (bufforIndex, names, resultIndex);
+
+			auto&& queueNameCount = filesBuffor[bufforIndex - 2];
+			auto&& rawContextCount = filesBuffor[bufforIndex - 1];
+			auto&& rawContext = filesBuffor + bufforIndex + queueNameCount;
+
+			// 1. Save first position of context in names
+			// For each "," save another position in place of names as that is no longer used.
+
+			const auto&& divider = ',';
+			uint8 elementLength = 0;
+			uint8 substringsCount = 1;
+			uint8 substringsTempCount = 0;
+			uint8 collision = 0;
+
+			// Prep substring start position
+
+			// Get substring count
+			for (size i = 0; i < rawContextCount; ++i) {
+				collision = rawContext[i] == divider;
+				substringsCount += collision;
+			}
+
+			std::memset(names, 0, (substringsCount * 1) + 1);
+
+			// Save other substring start positions
+			for (size i = 0; i < rawContextCount; ++i) {
+				collision = rawContext[i] == divider;
+				substringsTempCount += collision;
+
+				// It will return to 0 at collision.
+				elementLength = ++elementLength * !collision; 
+
+				//names[(substringsTempCount * 2) + 0] += (bufforIndex + queueNameCount + i) * collision; // Start Index
+				names[(substringsTempCount * 1) + 1] = elementLength; // Substring Count
+			}
+
+
+			uint8 prevCommandLength = 0;
+
+			for (size i = 0; i < substringsCount; ++i) {
+				const auto& commandNameLength = names[(i * 1) + 1];
+				const auto&& commandName = (const charFile* const)(filesBuffor + bufforIndex + queueNameCount + prevCommandLength + i);
+				prevCommandLength += commandNameLength;
+
+				// Now each command have to be matched with the ones declared, constructed and then executed.
+				//  Therefore we will copy-paste partly code from "ReadThroughCommandMatchConstructExecute"
+
+				{
+					auto onQueueCommandMatchNoFound = [](uint16& resultIndex, const uint8 elementsCount) { 
+						printf("ERROR! invalid subcommand in queue declaration!");
+						exit(1);
+					};
+
+					resultIndex = 0;
+					Search::Buffor::ByPFM<charFile, uint16> (
+						onQueueCommandMatchNoFound, resultIndex,
+						commandNameLength, commandName,
+						filesBuffor, commandsCount, commandsBuffor,
+						SPACE_SIZE_CONSTATNS_INDEX
+					);
+
+					if (resultIndex != commandsCount) {
+						
+						// This is bad.. i do the very same in Search::Buffor::ByPFM function...
+						uint32 bufforIndex = 0;
+						LoadNextIndex (bufforIndex, commandsBuffor, resultIndex);
+
+
+						auto&& nameCount = filesBuffor[bufforIndex - 2];
+						auto&& rawContextCount = filesBuffor[bufforIndex - 1];
+						auto&& rawContext = filesBuffor + bufforIndex + nameCount;
+						//auto&& context = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTATNS_INDEX);
+						uint8 context[256] { 0 }; 
+
+						//fwrite (rawContext, sizeof (char), rawContextCount, stdout);
+						//fputc('\n', stdout);
+
+						uint16 contextCount = 0;
+
+						//printf("call\n");
+
+						ConstructConstants (
+							rawContextCount, rawContext, 
+							constantsCount, constants, 
+							contextCount, context
+						);
+
+						// null-terminate the string.
+						context[contextCount] = '\0';
+
+						//fputc('\n', stdout);
+						//fwrite (context, sizeof (char), contextCount, stdout);
+
+						std::system((const char *)(context));
+						
+						//printf("Matched!");
+					}
+				}
+			}
+
+
+			//printf("here?!");
+			exit(0);
 		}
 
 	}
@@ -539,7 +646,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			ReadThrough (nextIndex, constantsCount);
 			ReadThrough (nextIndex, importsCount);
 			ReadThroughCommandMatchConstructExecute (nextIndex, STR_TYPE_COMMAND, commandsCount, allConstantsCount, allConstants, subcmmdLength, subcmmdName);
-			ReadThroughQueueMatchConstructExecute (nextIndex, STR_TYPE_PIPE, queuesCount, allConstantsCount, allConstants, subcmmdLength, subcmmdName);
+			ReadThroughQueueMatchConstructExecute (nextIndex, STR_TYPE_PIPE, commandsCount, queuesCount, allConstantsCount, allConstants, subcmmdLength, subcmmdName);
 		}
 
 	}
