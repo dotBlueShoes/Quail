@@ -29,24 +29,25 @@ namespace Commands::Open::Parse {
 		IN	const size&		element,
 		IN	const size&		offset
 	) {
-		values[((element + offset) * SPACE_SIZE_CONSTATNS_INDEX) + 0] = nextIndex >> 24;
-		values[((element + offset) * SPACE_SIZE_CONSTATNS_INDEX) + 1] = nextIndex >> 16;
-		values[((element + offset) * SPACE_SIZE_CONSTATNS_INDEX) + 2] = nextIndex >>  8;
-		values[((element + offset) * SPACE_SIZE_CONSTATNS_INDEX) + 3] = nextIndex >>  0;
+		values[((element + offset) * SPACE_SIZE_CONSTANTS_INDEX) + 0] = nextIndex >> 24;
+		values[((element + offset) * SPACE_SIZE_CONSTANTS_INDEX) + 1] = nextIndex >> 16;
+		values[((element + offset) * SPACE_SIZE_CONSTANTS_INDEX) + 2] = nextIndex >>  8;
+		values[((element + offset) * SPACE_SIZE_CONSTANTS_INDEX) + 3] = nextIndex >>  0;
 	}
+
 
 	block LoadNextIndex (
 		INOUT uint32& index,
 		IN	const uint8* const values,
 		IN	const uint16& element
 	) {
-		index += values[element * SPACE_SIZE_CONSTATNS_INDEX + 0];
+		index += values[element * SPACE_SIZE_CONSTANTS_INDEX + 0];
 		index <<= 8;
-		index += values[element * SPACE_SIZE_CONSTATNS_INDEX + 1];
+		index += values[element * SPACE_SIZE_CONSTANTS_INDEX + 1];
 		index <<= 8;
-		index += values[element * SPACE_SIZE_CONSTATNS_INDEX + 2];
+		index += values[element * SPACE_SIZE_CONSTANTS_INDEX + 2];
 		index <<= 8;
-		index += values[element * SPACE_SIZE_CONSTATNS_INDEX + 3];
+		index += values[element * SPACE_SIZE_CONSTANTS_INDEX + 3];
 	}
 
 
@@ -64,6 +65,18 @@ namespace Commands::Open::Parse {
 		fwrite (": ", sizeof (char), 2, stdout);
 		fwrite (context, sizeof (char), contextCount, stdout);
 		fwrite ("\n", sizeof (char), 2, stdout);
+	}
+
+	block WriteDirectory (
+		IN							const uint8& 		filePathLength,
+		INREADS	(filePathLength)	const uint8* const 	filePath
+	) {
+		const array<char, 3> dirLS { "\n [" };
+		const array<char, 2> dirLE { "]\n" };
+
+		fwrite (dirLS.Pointer(), sizeof (char), dirLS.Length(), stdout);
+		fwrite (filePath, sizeof (wchar), filePathLength, stdout);
+		fwrite (dirLE.Pointer(), sizeof (char), dirLE.Length(), stdout);
 	}
 
 
@@ -112,7 +125,7 @@ replace:	{
 					onNoMatchFound, resultIndex,
 					constantLength, constantName,
 					memoryBlockA.data, constantsCount, startPositions,
-					SPACE_SIZE_CONSTATNS_INDEX
+					SPACE_SIZE_CONSTANTS_INDEX
 				);
 
 				// We need to get index that is stored in bytes.
@@ -186,9 +199,9 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			// SAVE START POSITIONS
 			SaveNextIndex (values, nextIndex, i, offset);
 			// SAVE 'nameCount' FOR LATER USE
-			values[(CONSTANTS_LIMIT * SPACE_SIZE_CONSTATNS_INDEX) + (i + offset)] = nameCount;
+			values[(CONSTANTS_LIMIT * SPACE_SIZE_CONSTANTS_INDEX) + (i + offset)] = nameCount;
 			// SAVE 'contextCount' FOR LATER USE
-			values[(CONSTANTS_LIMIT * (SPACE_SIZE_CONSTATNS_INDEX + 1)) + (i + offset)] = rawContextCount;
+			values[(CONSTANTS_LIMIT * (SPACE_SIZE_CONSTANTS_INDEX + 1)) + (i + offset)] = rawContextCount;
 
 			nextIndex += nameCount + rawContextCount;
 		}
@@ -289,7 +302,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		OUT	uint8*& allConstants
 	) {
 
-		size nextIndex = SPACE_SIZE_FILES_COUNT;
+		size nextIndex = SPACE_SIZE_FILES_COUNT + GetDirectoryOffset ();
 
 		for (uint8 j = 0; j < filesCount + 1; ++j) {
 
@@ -303,7 +316,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 				fwrite (errorMessage.Pointer(), sizeof (char), errorMessage.Length(), stdout);
 			}
 
-			nextIndex += INDEX_OFFSET;
+			nextIndex += GetHeaderIndex(4);
 
 			ReadThroughSave (nextIndex, allConstants, constantsCount, allConstantsCount);
 			ReadThrough (nextIndex, importsCount);
@@ -344,7 +357,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			onNoMatchFound, resultIndex,
 			subcmmdLength, subcmmdName,
 			filesBuffor, valuesCount, names,
-			SPACE_SIZE_CONSTATNS_INDEX
+			SPACE_SIZE_CONSTANTS_INDEX
 		);
 
 		if (resultIndex != valuesCount) {
@@ -403,7 +416,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		auto&& filesBuffor = memoryBlockA.data;
 		auto&& commandsBuffor = memoryBlockB.data;
-		auto&& names = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTATNS_INDEX);
+		auto&& names = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTANTS_INDEX);
 
 		ReadThroughSaveEx (filesBuffor, nextIndex, queuesCount, names, 0);
 
@@ -412,7 +425,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			onNoMatchFound, resultIndex,
 			subcmmdLength, subcmmdName,
 			filesBuffor, queuesCount, names,
-			SPACE_SIZE_CONSTATNS_INDEX
+			SPACE_SIZE_CONSTANTS_INDEX
 		);
 
 		if (resultIndex != queuesCount) {
@@ -478,7 +491,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 						onQueueCommandMatchNoFound, resultIndex,
 						commandNameLength, commandName,
 						filesBuffor, commandsCount, commandsBuffor,
-						SPACE_SIZE_CONSTATNS_INDEX
+						SPACE_SIZE_CONSTANTS_INDEX
 					);
 
 					if (resultIndex != commandsCount) {
@@ -491,7 +504,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 						auto&& nameCount = filesBuffor[bufforIndex - 2];
 						auto&& rawContextCount = filesBuffor[bufforIndex - 1];
 						auto&& rawContext = filesBuffor + bufforIndex + nameCount;
-						//auto&& context = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTATNS_INDEX);
+						//auto&& context = memoryBlockB.data + (commandsCount * SPACE_SIZE_CONSTANTS_INDEX);
 						uint8 context[256] { 0 }; 
 
 						//fwrite (rawContext, sizeof (char), rawContextCount, stdout);
@@ -559,40 +572,46 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 
 	block DisplayFiles () {
-			
-		const uint8& constantsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
-		const uint8& importsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
-		const uint8& commandsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)];
-		const uint8& queuesCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)];
+		const uint8& filePathLength	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH];
+		const uint8& constantsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (0)];
+		const uint8& importsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (1)];
+		const uint8& commandsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (2)];
+		const uint8& queuesCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (3)];
 
-		size nextIndex = SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4);
+		size nextIndex = GetHeaderOffset ();
 
 		auto&& constants = memoryBlockC.data;
+		auto&& filePath = memoryBlockA.data + SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 1;
+
+		//printf("\nv: %hhu", memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + ((55 * 2) + 2)]);
+
+		
+		WriteDirectory (filePathLength, filePath);
 
 		// DISPLAY IMPORTS
-		fputc('\n', stdout);
-
 		ReadThroughSave (nextIndex, constants, constantsCount);
 		ReadThroughConstructWrite (nextIndex, STR_TYPE_IMPORT, importsCount, constantsCount, constants);
 		ReadThroughWrite (nextIndex, STR_TYPE_COMMAND, commandsCount);
 		ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
 
-		fputc('\n', stdout);
+		fputc ('\n', stdout);
 		
 	}
 
 
 	block DisplayProject () {
-		const uint8& filesCount = memoryBlockA.data[INDEX_FILES_COUNT];
-		
-		uint8*& allConstants = memoryBlockC.data;
-		size allConstantsCount = 0;
+		const uint8& filesCount		= memoryBlockA.data[INDEX_FILES_COUNT];
+		const uint8& filePathLength	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH];
 
-		size nextIndex = SPACE_SIZE_FILES_COUNT;
+		auto&& filePath = memoryBlockA.data + SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 1;
+		uint8*& allConstants		= memoryBlockC.data;
+
+		size allConstantsCount		= 0;
+		size nextIndex				= SPACE_SIZE_FILES_COUNT + GetDirectoryOffset ();
 
 		ReadThroughAllGetConstants (filesCount, allConstantsCount, allConstants);
 
-		fputc('\n', stdout);
+		WriteDirectory (filePathLength, filePath);
 
 		// Read again to write and apply constants.
 		for (uint8 j = 0; j < filesCount + 1; ++j) {
@@ -601,7 +620,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			const uint8& commandsCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(2)];
 			const uint8& queuesCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(3)];
 		
-			nextIndex += INDEX_OFFSET;
+			nextIndex += GetHeaderIndex(4);
 		
 			ReadThrough (nextIndex, constantsCount);
 			ReadThrough (nextIndex, importsCount);
@@ -609,7 +628,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
 		}
 
-		fputc('\n', stdout);
+		fputc ('\n', stdout);
 	}
 
 	// 2 fors, 
@@ -625,7 +644,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		uint8*& allConstants = memoryBlockC.data;
 		size allConstantsCount = 0;
 
-		size nextIndex = SPACE_SIZE_FILES_COUNT;
+		size nextIndex = SPACE_SIZE_FILES_COUNT + GetDirectoryOffset ();
 
 		//printf("0");
 
@@ -639,9 +658,9 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			const uint8& commandsCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(2)];
 			const uint8& queuesCount 	= memoryBlockA.data[nextIndex + GetHeaderIndex(3)];
 		
-			nextIndex += INDEX_OFFSET;
+			nextIndex += GetHeaderIndex(4);
 
-			//printf("2");
+			//printf ("2");
 		
 			ReadThrough (nextIndex, constantsCount);
 			ReadThrough (nextIndex, importsCount);

@@ -23,13 +23,13 @@ namespace Commands::Open {
 
 	block GetMainConfigData () {
 		
-		FILE* const fileConfiguration = GetFile ( FILE_PROJECTS.Pointer() );
+		FILE* const fileConfiguration = GetFile (FILE_PROJECTS.Pointer());
 
 		namespace COS = Commands::Open::Stages;
 
 		COS::StageParams stage { EOF, 0 };
 		COS::Current = COS::MainFile;
-		COS::Initialize ();
+		COS::Initialize (FILE_PROJECTS.Length(), FILE_PROJECTS.Pointer());
 
 		ReadAndCloseStream (fileConfiguration, stage);
 
@@ -37,16 +37,17 @@ namespace Commands::Open {
 
 
 	block GetProjectConfigData (
-		IN	const charFilePath* const filePath
+		IN							const uint8& filePathLength,
+		INREADS (filePathLength) 	const charFilePath* const filePath
 	) {
 		
-		FILE* const fileConfiguration = GetFile ( filePath );
+		FILE* const fileConfiguration = GetFile (filePath);
 
 		namespace COS = Commands::Open::Stages;
 
 		COS::StageParams stage { EOF, 0 };
 		COS::Current = COS::MainFile;
-		COS::Reset ();
+		COS::Initialize (filePathLength, filePath);
 
 		ReadAndCloseStream (fileConfiguration, stage);
 

@@ -3,12 +3,14 @@
 // -  2. Subcommands in main config - 'list', 'config' keywords use
 // -  3. Queues (pipes) in main config
 // -  5. Projects inside main config
-// -  6. Execute Commands
 // -  7. Proper include system.
 // -  8. '.' implementation.
 // -  9. wchar and maybe other...
 // - 10. buffor123s checks...
 // ----------------------------------------------------------------
+
+// What do i need to do?
+// i want to display directory once as 1st and instead displaying it display '.' sign.  
 
 
 #include "lib/Framework.hpp"

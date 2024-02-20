@@ -3,32 +3,36 @@
 #include "Buffors.hpp"
 
 
+namespace Commands::Open {
+	uint8 directoryPath = 0;
+}
+
 
 namespace Commands::Open::Stages {
 
 
-	getter constexpr size GetInitialBufforIndex () {
-		return SPACE_SIZE_FILES_COUNT + INDEX_OFFSET + SPACE_SIZE_NAME + SPACE_SIZE_CONTEXT;
+	getter size GetInitialBufforIndex () {
+		return GetHeaderOffset () + SPACE_SIZE_NAME + SPACE_SIZE_CONTEXT;
+	}
+
+	// ERORRS!!! THIS MEANS EVERY FOR EVERY INCLUDE FILE WE WILL HAVE IT'S PATH FULLY STORRED INSIDE BUFFOR !!!!!!!
+	getter size GetCurrentIndexConstantsCount (const size& currentFileIndex) {
+		return currentFileIndex + GetDirectoryOffset ();
 	}
 
 
-	getter constexpr size GetCurrentIndexConstantsCount (const size& currentFileIndex) {
-		return currentFileIndex;
+	getter size GetCurrentIndexImportsCount (const size& currentFileIndex) {
+		return currentFileIndex + GetDirectoryOffset () + SPACE_SIZE_CONSTANTS_COUNT;
 	}
 
 
-	getter constexpr size GetCurrentIndexImportsCount (const size& currentFileIndex) {
-		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT;
+	getter size GetCurrentIndexCommandsCount (const size& currentFileIndex) {
+		return currentFileIndex + GetDirectoryOffset () + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT;
 	}
 
 
-	getter constexpr size GetCurrentIndexCommandsCount (const size& currentFileIndex) {
-		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT;
-	}
-
-
-	getter constexpr size GetCurrentIndexQueuesCount (const size& currentFileIndex) {
-		return currentFileIndex + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT + SPACE_SIZE_COMMANDS_COUNT;
+	getter size GetCurrentIndexQueuesCount (const size& currentFileIndex) {
+		return currentFileIndex + GetDirectoryOffset () + SPACE_SIZE_CONSTANTS_COUNT + SPACE_SIZE_IMPORTS_COUNT + SPACE_SIZE_COMMANDS_COUNT;
 	}
 
 
@@ -36,9 +40,9 @@ namespace Commands::Open::Stages {
 	Stage Current, Next; 
 
 
-	size bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
-	size bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
-	size bufforIndex = GetInitialBufforIndex();
+	size bufforSizeNameIndex 	= 0; // Now sets with initialize. ;GetHeaderOffset ();
+	size bufforSizeContextIndex = 0; // Now sets with initialize. ;GetHeaderOffset () + SPACE_SIZE_NAME;
+	size bufforIndex 			= 0; // Now sets with initialize. ;GetInitialBufforIndex ();
 
 
 	// Additional variable for temporal storage use.
@@ -50,34 +54,69 @@ namespace Commands::Open::Stages {
 	size fileIndex = 1;
 
 
-	void Initialize () {
+	void Initialize (
+		IN 							const uint8& filePathLength,	
+		INREADS (filePathLength) 	const charFilePath* const filePath
+	) {
 		memoryBlockA.data[INDEX_FILES_COUNT] = 0;
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)] = 0;
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)] = 0;
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)] = 0;
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)] = 0;
-		
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4) + 0] = 0;
-		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(4) + 1] = 0;
+
+		// It's wide-char!
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH] = filePathLength;
+		directoryPath = (filePathLength * 2) + 1;
+
+		// TODO:
+		// SAVE wchar filePath after 'SPACE_SIZE_DIRECTORY_LENGTH' index.
+		// LOAD it during DisplayFiles()
+
+		// SAVE FilePath
+		for (uint8 i = 0; i < filePathLength; ++i) {
+			memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + ((i * 2) + 1)] = (filePath[i] << 8);
+			memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + ((i * 2) + 2)] = filePath[i];
+		}
+
+		//memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 1] = 20;
+		//memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 2] = 54;
+
+
+		//printf("\n3v: %hhu", memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + ((32 * 2) + 2)]);
+		//printf("\n2v: %hhu", memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + ((33 * 2) + 2)]);
+		//printf("\n1: %hhu", memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 2]);
+		//printf("\nl: %hhu", memoryBlockA.data[SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + (((filePathLength-1) * 2) + 2)]);
+		//printf("\na: %hhu", filePathLength);
+		//printf("\nb: %hhu\n", GetDirectoryOffset ());
+
+		//auto&& bFilePath = memoryBlockA.data + SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 1;
+		//fwrite (bFilePath, sizeof (wchar), filePathLength, stdout);
+
+
+		bufforSizeNameIndex		= GetHeaderOffset ();
+		bufforSizeContextIndex	= GetHeaderOffset () + SPACE_SIZE_NAME;
+		bufforIndex 			= GetInitialBufforIndex ();
+
+
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (0)]		= 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (1)]		= 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (2)]		= 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (3)]		= 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (4) + 0]	= 0;
+		memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (4) + 1]	= 0;
 	}
 
 
-	void Reset () {
-		Initialize ();
-		bufforIndex = GetInitialBufforIndex ();
-		bufforSizeNameIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
-		bufforSizeContextIndex = SPACE_SIZE_FILES_COUNT + SPACE_SIZE_NAME + INDEX_OFFSET;
-	}
+	//void Reset () {
+	//	Initialize (0, nullptr);
+		//bufforIndex 			= GetInitialBufforIndex ();
+		//bufforSizeNameIndex 	= GetHeaderOffset ();
+		//bufforSizeContextIndex	= GetHeaderOffset () + SPACE_SIZE_NAME;
+		// files
+		// constants, imports, commands, queues
+		// name, context
+	//}
 	
 
 	void AddImport () {
 		// ADD INFORMATION ABOUT INCLUSION OF ANOTHER FILE.
 		memoryBlockA.data[INDEX_FILES_COUNT]++;
-
-		//printf("call");
-
-		// SIGN BEFORE NEW FILE
-		//printf("-:%i\n", memoryBlockA.data[fileIndex-1]);
 
 		// REPOSITION COUNT INDEXES.
 		// Because we're adding 2 spaces after each assign for new name and context count variables we need to discard those and add up later.
@@ -86,19 +125,12 @@ namespace Commands::Open::Stages {
 		fileIndex = bufforIndex;
 
 		// ADD UP LATER
-		bufforSizeNameIndex = bufforIndex + GetHeaderIndex(4);
-		bufforSizeContextIndex = bufforIndex + GetHeaderIndex(4) + 1;
+		bufforSizeNameIndex		= bufforIndex + GetHeaderIndex(4);
+		bufforSizeContextIndex	= bufforIndex + GetHeaderIndex(4) + 1;
 
 		// POINT CORRECTLY AT WRITABLE DATA.
 		// add offset name_count & context_count
 		bufforIndex += 2 + 4;
-
-		// ZERO-MEMORY
-		//memoryBlockA.data[fileIndex] = 0;
-		//memoryBlockA.data[fileIndex + 1] = 0;
-		//memoryBlockA.data[fileIndex + 2] = 0;
-		//memoryBlockA.data[fileIndex + 3] = 0;
-		//std::memset
 	}
 
 

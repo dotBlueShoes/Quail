@@ -10,6 +10,7 @@ namespace Commands::Open::Projects {
 
 
 	block GetConfigFilePath (
+		OUT						uint8&					filePathLength,
 		OUT						charFilePath* const		filePath, 
 		IN						const uint8& 			projectLength,
 		INREADS (projectLength)	const charFile* const 	projectName,
@@ -30,7 +31,7 @@ namespace Commands::Open::Projects {
 			onNoMatchFound, resultIndex,
 			projectLength, projectName,
 			memoryBlockA.data, importsCount, imports,
-			SPACE_SIZE_CONSTATNS_INDEX
+			SPACE_SIZE_CONSTANTS_INDEX
 		);
 
 		uint32 index = 0;
@@ -63,6 +64,8 @@ namespace Commands::Open::Projects {
 
 		// RETURN RESULT IN WCHAR* FORMAT
 		std::mbstowcs(filePath, (char *)context, contextCount);
+		filePathLength = contextCount; // TODO. Write it better!!!
+		//fwrite(filePath, sizeof(wchar), contextCount, stdout);
 	}
 
 	// Go THROUGHT buffor to:
@@ -75,15 +78,16 @@ namespace Commands::Open::Projects {
 
 
 	block ValidateProjectArgument (
+		OUT						uint8&					filePathLength, 
 		OUT						charFilePath* const		filePath, 
 		IN						const uint8& 			projectLength,
 		INREADS (projectLength)	const charFile* const 	projectName
 	) {
-		const uint8& constantsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(0)];
-		const uint8& importsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(1)];
+		const uint8& constantsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (0)];
+		const uint8& importsCount	= memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetDirectoryOffset () + GetHeaderIndex (1)];
 
 		// Declare and iterator to iterate through our main buffor.
-		size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+		size nextIndex = GetHeaderOffset ();
 
 		// Prepere buffor for LOOK_UP_POSITIONS for CONSTANTS.
 		auto&& constants = memoryBlockC.data;
@@ -100,7 +104,7 @@ namespace Commands::Open::Projects {
 
 		// Construct IMPORTS context with CONSTANTS, match and retrive.
 		GetConfigFilePath (
-			filePath, projectLength, projectName,
+			filePathLength, filePath, projectLength, projectName,
 			importsCount, imports, 
 			constantsCount, constants
 		);
@@ -139,7 +143,7 @@ namespace Commands::Open::Projects {
 		//const uint16& commandsCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(2)];
 		//const uint16& queuesCount		 = memoryBlockA.data[SPACE_SIZE_FILES_COUNT + GetHeaderIndex(3)];
 		//
-		//size nextIndex = SPACE_SIZE_FILES_COUNT + INDEX_OFFSET;
+		//size nextIndex = GetHeaderOffset ();
 
 	}
 

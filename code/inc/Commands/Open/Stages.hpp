@@ -24,8 +24,8 @@ namespace Commands::Open::Stages {
 	// Next byte is the offset to get to the third command
 	// ... second command ...
 
-	void Initialize ();
-	void Reset ();
+	void Initialize (IN const uint8& filePathLength, INREADS (filePathLength) const charFilePath* const filePath);
+	//void Reset ();
 	void AddImport ();
 
 	// Function Stages

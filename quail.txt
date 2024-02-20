@@ -5,11 +5,16 @@
 # Links to quail files.
 !properties = .\.quail\properties.txt
 
-terminal = wt -w 1 nt --title @name@ -d "@project_dir@"
+terminal = wt -w 1 nt --title @name@ -d "@project_dir@" --tabColor "#FF0000"
 directory = explorer.exe "@project_dir@"
 npp = start "" "@project_dir@\@project_name@.npp"
 vsc = start "" "@project_dir@\@project_name@_vsc.lnk"
 github = github "@project_dir@"
+a = ninja bld-release
+
+# i cannot do it using quail... because it is being used...
+b = @project_dir@/deploy
 
 |alpha=vsc,directory
 |main=terminal,directory,vsc
+|compile=a,b
