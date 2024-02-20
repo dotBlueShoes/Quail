@@ -24,6 +24,7 @@ namespace Arguments::Parse::Cmmds {
 		// THIS SUCKS !
 		wchar filePath[512] { L'\0' };
 		uint8 filePathLength = 0;
+		//uint8 sebsctractLength = 0;
 		//uint8 filePathCount[4] { 0 };
 
 		//wchar other1[256] { LR"(D:\Storage\Projects\Quail\.quail\properties.txt)" }; other1[48] = 0;
@@ -34,9 +35,8 @@ namespace Arguments::Parse::Cmmds {
 			Commands::Open::GetMainConfigData();
 			// GET ASSOCIATED FILEPATH WITH PROJECT NAME
 			Commands::Open::Projects::ValidateProjectArgument(filePathLength, filePath, projectLength, projectName);
-			//// Get length this can be written better! TODO!
-			//for (; filePath[filePathLength] != '\0'; ++filePathLength);
-			//fwrite(filePath, sizeof(wchar), filePathLength, stdout);
+			// Cut fileName from filePath  
+			for (; filePath[filePathLength] != L'\\'; filePathLength--);
 			// READ DATA FROM PROJECT CONFIG INTO BUFFOR
 			Commands::Open::GetProjectConfigData(filePathLength /* the fuck?*/, filePath);
 		}
@@ -74,9 +74,8 @@ namespace Arguments::Parse::Cmmds {
 			Commands::Open::GetMainConfigData();
 			// GET ASSOCIATED FILEPATH WITH PROJECT NAME
 			Commands::Open::Projects::ValidateProjectArgument(filePathLength, filePath, projectLength, projectName);
-			//// Get length this can be written better! TODO!
-			//for (; filePath[filePathLength] != '\0'; ++filePathLength);
-			// READ DATA FROM PROJECT CONFIG INTO BUFFOR
+			// Cut fileName from filePath  
+			for (; filePath[filePathLength] != L'\\'; filePathLength--);
 			Commands::Open::GetProjectConfigData(filePathLength, filePath);
 		}
 
