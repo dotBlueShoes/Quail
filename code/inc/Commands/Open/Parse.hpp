@@ -7,6 +7,13 @@
 
 namespace Commands::Open::Parse {
 
+	namespace ErrorMSG {
+		const char INVALID_QUEUE_SUBCOMMAND[] = "Error: Invalid command in queue declaration!";
+		const char INVALID_QUEUE_COMMAND[] = "Error: Command not matched!";
+		const char INVALID_CONSTANT_REFERENCE[] = "Error: Invalid constant reference in command context!";
+	}
+	 
+
 
 	using StrType = array<const charFile, 2, uint8>;
 	const StrType STR_TYPE_CONSTANT	= { " %" };
@@ -53,18 +60,35 @@ namespace Commands::Open::Parse {
 
 	block Write (
 		IN  					const StrType&		strType,
+		IN 						const u16& 			consoleX,
 		IN 						const uint8& 		paddingLength,
 		IN						const uint8& 		nameCount,
 		INREADS	(nameCount)		const byte* const 	name,
 		IN						const uint8& 		contextCount,
-		INREADS	(contextCount)	const byte* const 	context
+		INREADS	(contextCount)	byte* 		context
 	) {
+		const uint16 maxConsoleX = consoleX - 4 - nameCount - paddingLength;
+
+		uint16 condition = (3 + nameCount + paddingLength + contextCount) <= consoleX;
+		uint16 trimmedContext = (condition * contextCount) + (!condition * maxConsoleX);
+
+		// This makes it so next line when resized wont connect with this one.
+		context[trimmedContext - 1] *= condition;
+
+		// Thim makes a pretty "...".
+		context[trimmedContext - 2] *= condition;
+		context[trimmedContext - 2] += !condition * '.';
+		context[trimmedContext - 3] *= condition;
+		context[trimmedContext - 3] += !condition * '.';
+		context[trimmedContext - 4] *= condition;
+		context[trimmedContext - 4] += !condition * '.';
+
 		fwrite (strType.Pointer(), sizeof (char), strType.Length (), stdout);
 		fwrite (name, sizeof (char), nameCount, stdout);
 		fwrite (PADDING.Pointer(), sizeof (char), paddingLength, stdout);
 		fwrite (": ", sizeof (char), 2, stdout);
-		fwrite (context, sizeof (char), contextCount, stdout);
-		fwrite ("\n", sizeof (char), 2, stdout);
+		fwrite (context, sizeof (char), trimmedContext, stdout);
+		fwrite ("\n", sizeof (char), 1, stdout);
 	}
 
 	block WriteDirectory (
@@ -105,8 +129,8 @@ constant:	for (; contextIndex < rawContextCount; ++contextIndex) {
 
 			// THAT DETECTION SHOULD BE HAPPENING BEFORE THO !
 			// Closing REFERENCE was abscent!
-			printf("%s%s", "ERROR: ", "FILE_IS_ILL-FORMED!\n");
-			exit(1);
+			printf (ErrorMSG::INVALID_CONSTANT_REFERENCE);
+			exit (1);
 
 replace:	{ 
 				auto&& destination = context + contextCount;
@@ -159,8 +183,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 				context[contextCount] = current;
 			}
-
-			//printf("\nend!\n");
 		}
 
 
@@ -233,6 +255,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 	block ReadThroughWrite (
 		OUT	size& 			nextIndex,
+		IN	const u16& 		consoleX,
 		IN  const StrType&	strType,
 		IN	const uint8& 	valuesCount
 	) {
@@ -248,7 +271,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& name = memoryBlockA.data + nextIndex;
 			auto&& context = memoryBlockA.data + nextIndex + nameCount;
 
-			Write (strType, paddingLength, nameCount, name, rawContextCount, context);
+			Write (strType, consoleX, paddingLength, nameCount, name, rawContextCount, context);
 
 			nextIndex += nameCount + rawContextCount;
 		}
@@ -257,6 +280,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 	block ReadThroughConstructWrite (
 		OUT	size& 				nextIndex,
+		IN	const u16& 			consoleX,
 		IN  const StrType&		strType,
 		IN	const uint8& 		valuesCount,
 		IN	const uint8& 		constantsCount,
@@ -290,7 +314,7 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 			auto&& name = memoryBlockB.data;
 			auto&& context = memoryBlockB.data + nameCount;
 
-			Write (strType, paddingLength, nameCount, name, contextCount, context);
+			Write (strType, consoleX, paddingLength, nameCount, name, contextCount, context);
 
 			nextIndex += nameCount + rawContextCount;
 		}
@@ -401,7 +425,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		INREADS (projectLength) const charConsole* const 	subcmmdName
 	) {
 
-		//printf("WE'RE HERE!!!");
 		// 1. Get all command names as search indecies.
 		// 2. Get command_name's from queue context in an array.
 		// FOR EACH SUBCOMMAND
@@ -411,7 +434,8 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		auto onNoMatchFound = [](uint16& resultIndex, const uint8 elementsCount) { 
 			resultIndex = elementsCount + 1;
-			printf("hello");
+			printf (ErrorMSG::INVALID_QUEUE_COMMAND);
+			exit (1);
 		};
 
 		auto&& filesBuffor = memoryBlockA.data;
@@ -482,8 +506,8 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 				{
 					auto onQueueCommandMatchNoFound = [](uint16& resultIndex, const uint8 elementsCount) { 
-						printf("ERROR! invalid subcommand in queue declaration!");
-						exit(1);
+						printf (ErrorMSG::INVALID_QUEUE_SUBCOMMAND);
+						exit (1);
 					};
 
 					resultIndex = 0;
@@ -512,8 +536,6 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 						uint16 contextCount = 0;
 
-						//printf("call\n");
-
 						ConstructConstants (
 							rawContextCount, rawContext, 
 							constantsCount, constants, 
@@ -527,14 +549,11 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 						//fwrite (context, sizeof (char), contextCount, stdout);
 
 						std::system((const char *)(context));
-						
-						//printf("Matched!");
 					}
 				}
 			}
 
 
-			//printf("here?!");
 			exit(0);
 		}
 
@@ -567,7 +586,11 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 
 
-
+	block GetConsoleWidth (u16& x) {
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+    	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    	x = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	}
 
 
 
@@ -580,6 +603,9 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		size nextIndex = GetHeaderOffset ();
 
+		u16 consoleSizeX = 0;
+		GetConsoleWidth (consoleSizeX);
+
 		auto&& constants = memoryBlockC.data;
 		auto&& filePath = memoryBlockA.data + SPACE_SIZE_FILES_COUNT + SPACE_SIZE_DIRECTORY_LENGTH + 1;
 
@@ -590,9 +616,9 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 
 		// DISPLAY IMPORTS
 		ReadThroughSave (nextIndex, constants, constantsCount);
-		ReadThroughConstructWrite (nextIndex, STR_TYPE_IMPORT, importsCount, constantsCount, constants);
-		ReadThroughWrite (nextIndex, STR_TYPE_COMMAND, commandsCount);
-		ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
+		ReadThroughConstructWrite (nextIndex, consoleSizeX, STR_TYPE_IMPORT, importsCount, constantsCount, constants);
+		ReadThroughWrite (nextIndex, consoleSizeX, STR_TYPE_COMMAND, commandsCount);
+		ReadThroughWrite (nextIndex, consoleSizeX, STR_TYPE_PIPE, queuesCount);
 
 		fputc ('\n', stdout);
 		
@@ -609,6 +635,9 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		size allConstantsCount		= 0;
 		size nextIndex				= SPACE_SIZE_FILES_COUNT + GetDirectoryOffset ();
 
+		u16 consoleSizeX = 0;
+		GetConsoleWidth (consoleSizeX);
+
 		ReadThroughAllGetConstants (filesCount, allConstantsCount, allConstants);
 
 		WriteDirectory (filePathLength, filePath);
@@ -624,8 +653,8 @@ copy:		for (; contextIndex < rawContextCount; ++contextIndex, ++contextCount) {
 		
 			ReadThrough (nextIndex, constantsCount);
 			ReadThrough (nextIndex, importsCount);
-			ReadThroughConstructWrite (nextIndex, STR_TYPE_COMMAND, commandsCount, allConstantsCount, allConstants);
-			ReadThroughWrite (nextIndex, STR_TYPE_PIPE, queuesCount);
+			ReadThroughConstructWrite (nextIndex, consoleSizeX, STR_TYPE_COMMAND, commandsCount, allConstantsCount, allConstants);
+			ReadThroughWrite (nextIndex, consoleSizeX, STR_TYPE_PIPE, queuesCount);
 		}
 
 		fputc ('\n', stdout);
