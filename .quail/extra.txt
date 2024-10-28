@@ -1,2 +1,0 @@
-sample3 = explorer.exe "@project_dir@" "@project_dir_a@"
-|sample4=sample1

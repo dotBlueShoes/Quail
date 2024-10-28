@@ -1,8 +1,0 @@
-%project_dir_a = D:\Storage\Projects\Quail
-
-# ADD '.' functionallity under that sign we'll pass project_location.
-#!other = .quail\extra.txt
-
-!other = "@project_dir_a@\.quail\extra.txt"
-sample1 = explorer.exe "@project_dir@"
-|sample2=sample1
