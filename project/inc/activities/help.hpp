@@ -6,13 +6,15 @@
 namespace ACTIVITIES {
 
 	const c8* HELP_ALL =
-		"\n\t'quail' is a project-based alias utility software.\n"
-		"\n\t-h, --help"
-		"\n\t\tdisplays manual"
-		"\n\t-o, --open"
-		"\n\t\t..."
-		"\n\t-l, --list"
-		"\n\t\t..."
+		"\n'quail' is a project-based alias-like utility software.\n"
+		"\n-h, --help"
+		"\n    Displays manual. View basic application information and learn the basisic of use quail."
+		"\n-v, --version"
+		"\n    Shows current software version"
+		"\n-o, --open"
+		"\n    Runs a selected command. For a command to work it has to be previously defined inside a config file."
+		"\n-l, --list"
+		"\n    ..."
 		"\n\n"
 	;
 }
