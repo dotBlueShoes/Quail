@@ -6,6 +6,8 @@
 #include "locale/error_codes.hpp"
 #include "comparesearch.hpp"
 #include "base/log.hpp"
+//
+#include "activities/help.hpp"
 
 namespace ACTIVITIES::MATCH {
 
@@ -39,14 +41,28 @@ void Single (
 			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.size (),
 			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
 		);
+		
+		switch (index) {
 
-		// ERROR
-		if (index == ACTIVITIES::MINS_WITHOUT_ARGUMENTS_ERROR) {
-			ERROR ("\n\t`quail %s` Error! Invalid argument: %s\n\n", activity, activity);
+			case 0: {
+				printf ("%s", HELP_ALL);
+			} break;
+
+			case 1: {
+				// TODO ( display contents of main config file )
+				printf ("\n\tquail open!\n\n");
+			} break;
+
+			case 2: {
+				// TODO ( display contents of main config file )
+				printf ("\n\tquail list!\n\n");
+			} break;
+
+			default: {
+				ERROR ("\n\t`quail %s` Error! Invalid argument: %s\n\n", activity, activity);
+			} 
+
 		}
-
-		// SUCCESS
-		printf ("\n\tquail command: %s\n\n", ACTIVITIES::MINS_WITHOUT_ARGUMENTS[index]);
 	}
 	
 }
