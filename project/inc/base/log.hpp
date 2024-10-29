@@ -4,6 +4,8 @@
 #include "types.hpp"
 #include "io.hpp"
 
+#include <Windows.h>
+
 #ifdef ERROR
 	#undef ERROR
 #endif

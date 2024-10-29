@@ -3,11 +3,7 @@
 #pragma once
 #include "activities.hpp"
 //
-#include "locale/error_codes.hpp"
 #include "comparesearch.hpp"
-#include "base/log.hpp"
-//
-#include "activities/help.hpp"
 
 namespace ACTIVITIES::MATCH {
 
@@ -21,18 +17,24 @@ void Single (
 
 		ERROR ("\n\tError! Invalid argument: %s\n\n", activity);
 
-	} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength < ACTIVITIES::MAX_LENGTH) {
+	} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
 
-		// TODO MAX_activity
-		exit (0);
+		u32 index = 0;
+
+		COMPARESEARCH::ArrayPartFirstMatch ( 
+			activity, activityLength, sizeof (c8),
+			index, 
+			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.size (),
+			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
+		);
+
+		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index);
 
 	} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
 
 		ERROR ("\n\tError! Invalid argument: %s\n\n", activity);
 
-	}
-
-	{ // Matching with MIN activities
+	} else { // Matching with MIN activities
 		u32 index = 0;
 
 		COMPARESEARCH::ArrayPartFirstMatch ( 
@@ -42,27 +44,7 @@ void Single (
 			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
 		);
 		
-		switch (index) {
-
-			case 0: {
-				printf ("%s", HELP_ALL);
-			} break;
-
-			case 1: {
-				// TODO ( display contents of main config file )
-				printf ("\n\tquail open!\n\n");
-			} break;
-
-			case 2: {
-				// TODO ( display contents of main config file )
-				printf ("\n\tquail list!\n\n");
-			} break;
-
-			default: {
-				ERROR ("\n\t`quail %s` Error! Invalid argument: %s\n\n", activity, activity);
-			} 
-
-		}
+		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index);
 	}
 	
 }

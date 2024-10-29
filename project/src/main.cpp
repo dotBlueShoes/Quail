@@ -4,8 +4,11 @@
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"
+#include "instalation/main.hpp"
 
 s32 main (s32 argumentsCount, c8* arguments[]) {
+
+	INSTALLATION::CreateAll ();
 
 	switch (argumentsCount) {
 
