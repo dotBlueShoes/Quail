@@ -3,6 +3,9 @@
 #pragma once
 #include "base/types.hpp"
 #include "base/log.hpp"
+#include "base/io.hpp"
+
+#include "interpreter/open_main.hpp"
 
 namespace INSTALLATION {
 
@@ -51,7 +54,7 @@ namespace INSTALLATION {
 			&size
 		);
         	
-		wprintf (L"\nINFO: Successfully read property '%s' as: '%s'\n", PROPERTY_FILEPATH_W, data);
+		wprintf (L"\nINFO: Successfully read property '%s' as: '%s'", PROPERTY_FILEPATH_W, data);
 		free (data);
     	
 	}
@@ -78,8 +81,7 @@ namespace INSTALLATION {
 		);
 
 		if (error != ERROR_SUCCESS) {
-        	printf ("\n\tError. Creating key failed.\n\n");
-        	exit (1);
+        	ERROR ("\n\tError. Creating key failed.\n\n");
     	}
 
 		if (status == REG_CREATED_NEW_KEY) {
@@ -92,8 +94,7 @@ namespace INSTALLATION {
 
 		} else {
 
-			printf ("\n\tError. Unknown key-status\n\n");
-        	exit (1);
+			ERROR ("\n\tError. Unknown key-status\n\n");
 
 		}
 
@@ -107,8 +108,7 @@ namespace INSTALLATION {
 		);
 
     	if (error != ERROR_SUCCESS) {
-    	    printf ("\n\tError. Setting key value failed.\n\n");
-    	    exit (1);
+    	    ERROR ("\n\tError. Setting key value failed.\n\n");
     	}
 
 		RegCloseKey (key);
@@ -116,6 +116,7 @@ namespace INSTALLATION {
 	}
 
 	void CreateAll () {
+
 		CreateRegistryKey ();
 		LoadRegistryKeyValue ();
 
@@ -131,12 +132,30 @@ namespace INSTALLATION {
 			memcpy (configFilepath + (filepathLength / 2), CONFIG_W, CONFIG_LENGTH);
 		}
 
-		IO::Create (configFilepath);
+		if (IO::IsExisting (configFilepath)) {
+			printf ("\nINFO: File already exists.");
+		} else {
+			IO::Create (configFilepath);
+		}
 
+		FILE* mainConfig = nullptr;
+		IO::Read (configFilepath, mainConfig);
 		free (configFilepath);
 
-		IO::Read (configFilepath);
+		{
+			INTERPRETER::OPENMAIN::Interpreter interpreter { 0 };
+			INTERPRETER::OPENMAIN::parsingstage = INTERPRETER::OPENMAIN::Start;
 
+			while (interpreter.current != EOF) { // READ
+				interpreter.last = interpreter.current;
+				interpreter.current = getc (mainConfig);
+				INTERPRETER::OPENMAIN::parsingstage (interpreter);
+			}
+
+			printf ("\nINFO: File read successfully\n");
+		}
+
+		IO::Close (mainConfig);
 	}
 
 }
