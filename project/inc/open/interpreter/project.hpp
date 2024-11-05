@@ -3,6 +3,6 @@
 #pragma once
 #include "base/types.hpp"
 
-namespace INTERPRETER::OPENPROJECT {
+namespace OPEN::INTERPRETER::PROJECT {
 
 }

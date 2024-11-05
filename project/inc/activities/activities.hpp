@@ -8,6 +8,8 @@
 //
 #include "activities/version.hpp"
 #include "activities/help.hpp"
+//
+#include "open/main.hpp"
 
 namespace ACTIVITIES {
 
@@ -61,7 +63,8 @@ namespace ACTIVITIES {
 
 			case 0: { // OPEN
 				// TODO ( display contents of main config file )
-				printf ("\n\tquail open!\n\n");
+				//printf ("\n\tquail open!\n\n");
+				OPEN::Open();
 			} break;
 
 			case 1: { // LIST

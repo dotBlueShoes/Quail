@@ -35,3 +35,27 @@ using arr32 = array_t<T, u32, length>;
 
 template<class T, u32 length>
 using arr64 = array_t<T, u32, length>;
+
+void IsEqualS3_8 (
+	/* OUT */ u8& condition,
+	/* IN  */ const u8* const& a,
+	/* IN  */ const u8* const& b
+) {
+	for (u32 i = 0; condition == 0; ++i) {
+		condition += (a[i]	!= b[i]) << 2;  // 4
+		condition += a[i]	== '\0';		// 1
+		condition += b[i]	== '\0';		// 1
+	}
+}
+
+void IsEqualS3_16 (
+	/* OUT */ u8& condition,
+	/* IN  */ const u16* const& a,
+	/* IN  */ const u16* const& b
+) {
+	for (u32 i = 0; condition == 0; ++i) {
+		condition += (a[i]	!= b[i]) << 2;  // 4
+		condition += a[i]	== '\0';		// 1
+		condition += b[i]	== '\0';		// 1
+	}
+}
