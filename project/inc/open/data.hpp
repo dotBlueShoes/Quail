@@ -7,6 +7,12 @@
 
 namespace OPEN { 
 
+	template <typename T>
+	struct Map {
+		std::vector<T> key;
+		std::vector<T> value;
+	};
+
 	enum SPECIAL_CHARACTERS : c8 {
 		TYPE_PROJECT			= '^',
 		TYPE_INCLUDE 			= '&',
@@ -29,6 +35,9 @@ namespace OPEN {
 	u32 mainConfigFolderPathLength;
 	u32 mainConfigFilePathLength;
 	c16* mainConfigFilePath;
+
+	u32 currentConfigFolderLength;
+	c16* currentConfigFolder;
 
 	u32 temporaryLength;
 	u8 temporary[2048];
@@ -53,5 +62,6 @@ namespace OPEN {
 	}
 
 	std::vector<u8*> includes;
+	Map<u8*> projects;
 
 }

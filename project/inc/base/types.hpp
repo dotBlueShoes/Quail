@@ -59,3 +59,16 @@ void IsEqualS3_16 (
 		condition += b[i]	== '\0';		// 1
 	}
 }
+
+template <typename T>
+void Construct (
+	T*& newArray, 
+	const u32& aArrayLength, 
+	const void* const& aArray, 
+	const u32& bArrayLength, 
+	const void* const& bArray
+) {
+	newArray = (T*) malloc (aArrayLength + bArrayLength);
+	memcpy (newArray, aArray, aArrayLength);
+	memcpy (newArray + aArrayLength, bArray, bArrayLength);
+}

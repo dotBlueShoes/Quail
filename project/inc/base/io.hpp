@@ -28,7 +28,7 @@ namespace IO {
 		FILE*& file
 	) {
 		file = _wfopen(pathname, L"rb");
-		if (file == NULL) ERROR ("ERROR! File could not be opened file");
+		if (file == NULL) ERROR ("\nERROR: File could not be opened.\n\n");
 	}
 
 	void Close (

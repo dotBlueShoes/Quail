@@ -17,6 +17,8 @@ namespace OPEN::INTERPRETER {
 
 }
 
+	// //putc (interpreter.current, stdout);
+
 	// BUFFORS
 	//  1. Rules
 	//   CONSTANT (for every machine)
@@ -60,6 +62,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 }
 
 namespace OPEN::INTERPRETER::MAIN::PROJECT {
+	void Initialize ();
 	void Name		(const Interpreter&);
 	void Assign		(const Interpreter&);
 	void Context	(const Interpreter&);
@@ -72,15 +75,9 @@ namespace OPEN::INTERPRETER::MAIN {
 		switch (interpreter.current) {
 
 			case TYPE_INCLUDE: INCLUDE::Initialize (); break;
+			case TYPE_PROJECT: PROJECT::Initialize (); break;
+			default: { }
 
-			case TYPE_PROJECT: {
-
-			} break;
-
-			default: {
-
-			}
-			
 		}
 
 	}
@@ -147,30 +144,21 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 			case TYPE_VARIABLE:
 			case TYPE_SECRET:
 			case TYPE_ASSIGN:
-			case TYPE_COMMENT:
-			case TYPE_EOF: {
+			case TYPE_COMMENT:  {
 				ERROR ("\n\nERROR: Invalid syntax\n\n");
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_SPACE:
-			case TYPE_TAB: {
-				// nothing
-			} break;
-
+			case TYPE_TAB: break; // nothing
 			
+			case TYPE_EOF:
 			case TYPE_NEW_LINE: {
 
 				AddTempW (TYPE_EOS);
 
-				const u32 includeLength = temporaryLength + mainConfigFolderPathLength;
-				u8* include;
-
-				{ // Allocate & create FilePath string.
-					include = (u8*) malloc (includeLength);
-					memcpy (include, mainConfigFilePath, mainConfigFolderPathLength);
-					memcpy (include + mainConfigFolderPathLength, temporary, temporaryLength);
-				}
+				u8* include; // Allocate & create FilePath string.
+				Construct<u8> (include, currentConfigFolderLength, currentConfigFolder, temporaryLength, temporary);
 
 				{ // See if said FilePath already occurs. If not save it.
 					for (u16 i = 0; i < includes.size(); ++i) {
@@ -191,10 +179,141 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 
 			default: {
 				AddTempW (interpreter.current);
-				//putc (interpreter.current, stdout);
 			}
 
 		}
+	}
+
+}
+
+namespace OPEN::INTERPRETER::MAIN::PROJECT {
+
+	void Initialize () {
+		temporaryLength = 0;
+		parsingstage = PROJECT::Name;
+	}
+
+	void Name (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_NEW_LINE:
+			case TYPE_EOF: {
+				ERROR ("\n\nERROR: Invalid syntax\n\n");
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_ASSIGN: {
+
+				AddTemp (TYPE_EOS);
+
+				u8* project; // CPY. So it stays in memmory.
+				project = (u8*) malloc (temporaryLength);
+				memcpy (project, temporary, temporaryLength);
+
+				projects.key.push_back (project);
+				parsingstage = Assign;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+			}
+
+		}
+
+	}
+
+	void Assign (const Interpreter& interpreter) {
+		
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_NEW_LINE:
+			case TYPE_ASSIGN:
+			case TYPE_EOF: {
+				ERROR ("\n\nERROR: Invalid syntax\n\n");
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			default: {
+
+				{ // Set first character in C16 format.
+					temporaryLength = 2;
+					temporary[0] = interpreter.current;
+					temporary[1] = 0;
+				}
+
+				parsingstage = Context;
+			}
+
+		}
+
+	}
+
+	void Context (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN: {
+				ERROR ("\n\nERROR: Invalid syntax\n\n");
+			} break;
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE: {
+
+				AddTempW (TYPE_EOS);
+				u8* project; 
+
+				{ // Allocate & create FilePath string.
+					project = (u8*) malloc (temporaryLength);
+					memcpy (project, temporary, temporaryLength);
+				}
+
+				projects.value.push_back (project);
+				parsingstage = GetAllFiles;
+
+			}
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			default: {
+				AddTempW (interpreter.current);
+			}
+
+		}
+
 	}
 
 }

@@ -9,8 +9,14 @@ namespace ACTIVITIES::MATCH {
 
 void Single (
 	const c8* const& activity,
-	const u32& activityLength
+	const u32& activityLength,
+	const u32& depth,
+	const c8* const* const& commands
 ) {
+
+	//for (s32 i = 0; i < depth; ++i) {
+	//	printf ("%d: %s\n", i, commands[i]);
+	//}
 
 	// ERROR ( For mins length must be equal to 2. )
 	if (activityLength < ACTIVITIES::MIN_LENGTH) {
@@ -28,8 +34,6 @@ void Single (
 			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
 		);
 
-		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index);
-
 	} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
 
 		ERROR ("\n\tError! Invalid argument: %s\n\n", activity);
@@ -44,7 +48,7 @@ void Single (
 			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
 		);
 		
-		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index);
+		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index, depth, commands);
 	}
 	
 }

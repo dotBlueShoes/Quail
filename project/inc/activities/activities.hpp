@@ -57,14 +57,16 @@ namespace ACTIVITIES {
 	void MatchWithoutArguments (
 		const c8* const& activity,
 		const u32& activityLength,
-		const u32& index
+		const u32& index,
+		const u32& depth,
+		const c8* const* const& commands
 	) {
 		switch (index) {
 
 			case 0: { // OPEN
 				// TODO ( display contents of main config file )
 				//printf ("\n\tquail open!\n\n");
-				OPEN::Open();
+				OPEN::Open (depth, commands);
 			} break;
 
 			case 1: { // LIST
