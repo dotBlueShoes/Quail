@@ -53,10 +53,11 @@ namespace OPEN::INTERPRETER {
 
 
 namespace OPEN::INTERPRETER::MAIN {
-	void GetAllFiles	(const Interpreter& interpreter);
-	void Main 			(const Interpreter& interpreter);
-	void SpaceC8 		(const Interpreter& interpreter);
-	void SpaceC16 		(const Interpreter& interpreter);
+	void GetAllFiles	(const Interpreter&);
+	void Main 			(const Interpreter&);
+	void SpaceC8 		(const Interpreter&);
+	void SpaceC16 		(const Interpreter&);
+	void Comment 		(const Interpreter&);
 }
 
 namespace OPEN::INTERPRETER::MAIN::INCLUDE {
@@ -78,6 +79,7 @@ namespace OPEN::INTERPRETER::MAIN {
 
 		switch (interpreter.current) {
 
+			case TYPE_COMMENT: parsingstage = Comment; break;
 			case TYPE_INCLUDE: INCLUDE::Initialize (); break;
 			case TYPE_PROJECT: PROJECT::Initialize (); break;
 			default: { }
@@ -187,6 +189,22 @@ namespace OPEN::INTERPRETER::MAIN {
 
 		}
 
+	}
+
+	void Comment (const Interpreter& interpreter) {
+		switch (interpreter.current) {
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE:
+			case TYPE_EOF: {
+				parsingstage = GetAllFiles;
+			} break;
+
+			case TYPE_SPACE:
+			case TYPE_TAB: 
+			default: break; // nothing
+
+		}
 	}
 
 }
