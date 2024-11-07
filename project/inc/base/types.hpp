@@ -61,7 +61,7 @@ void IsEqualS3_16 (
 }
 
 template <typename T>
-void Construct (
+void Construct2 (
 	T*& newArray, 
 	const u32& aArrayLength, 
 	const void* const& aArray, 
@@ -71,4 +71,20 @@ void Construct (
 	newArray = (T*) malloc (aArrayLength + bArrayLength);
 	memcpy (newArray, aArray, aArrayLength);
 	memcpy (newArray + aArrayLength, bArray, bArrayLength);
+}
+
+template <typename T>
+void Construct3 (
+	T*& newArray, 
+	const u32& aArrayLength, 
+	const void* const& aArray, 
+	const u32& bArrayLength, 
+	const void* const& bArray,
+	const u32& cArrayLength, 
+	const void* const& cArray
+) {
+	newArray = (T*) malloc (aArrayLength + bArrayLength + cArrayLength);
+	memcpy (newArray, aArray, aArrayLength);
+	memcpy (newArray + aArrayLength, bArray, bArrayLength);
+	memcpy (newArray + aArrayLength + bArrayLength, cArray, cArrayLength);
 }

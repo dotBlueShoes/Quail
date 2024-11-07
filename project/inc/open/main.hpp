@@ -41,7 +41,6 @@ namespace OPEN {
 		INTERPRETER::parsingstage = INTERPRETER::MAIN::GetAllFiles;
 
 		while (interpreter.current != EOF) { // READ
-			interpreter.last = interpreter.current;
 			interpreter.current = getc (mainFile);
 			INTERPRETER::parsingstage (interpreter);
 		}
@@ -60,10 +59,9 @@ namespace OPEN {
 
 				INTERPRETER::parsingstage = INTERPRETER::MAIN::GetAllFiles;
 				interpreter.current = 0;
-				interpreter.last = 0;
+				interpreter.special = 0;
 
 				while (interpreter.current != EOF) { // READ
-					interpreter.last = interpreter.current;
 					interpreter.current = getc (config);
 					INTERPRETER::parsingstage (interpreter);
 				}
@@ -114,47 +112,46 @@ namespace OPEN {
 				COMPARESEARCH::ArrayPartFirstMatchVector ( 
 					command, commandLength, sizeof (c8),
 					index, 
-					projects.key.size (),
-					(void**)projects.key.data ()
+					projects.keys.size () - projectsOffset,
+					(void**)(projects.keys.data () + projectsOffset)
 				);
 
-				if (index == projects.key.size ()) {
+				index += projectsOffset; // Add what we removed. We offseted it before to search it the right way.
+				projectsOffset = projects.keys.size ();
+
+				if (index == projects.keys.size ()) {
 
 					ERROR ("\nERROR: Could not match with a command or a project.\n\n");
 
 				} else {
 
-					auto&& value = (c16*) (projects.value[index]);
-					printf ("INFO: ProjectFile [%d]:`%ls`\n", index, value);
+					const u32 configFilePathLength = (projects.pathLengths[index] + projects.configLengths[index]) / 2;
+					const auto&& configFilePath = (c16*) (projects.configs[index]);
+				
+					printf ("INFO: ProjectFile [%d]:`%ls`\n", index, configFilePath);
 
 					// And another one...
 					FILE* config = nullptr;
-					IO::Read (value, config);
+					IO::Read (configFilePath, config);
 
 					{
-						u32 directoryPathLength = 0;
+						u32 directoryPathLength = configFilePathLength;
 
 						{ // Get directoryPath from filePath
-							for (; value[directoryPathLength] != TYPE_EOS; ++directoryPathLength);
-							for (; value[directoryPathLength] != '\\'; --directoryPathLength);
+							for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
 							++directoryPathLength;
 						}
 
-						//printf ("INFO: %d\n", directoryPathLength);
-						//printf ("INFO: %lc\n", value[directoryPathLength]);
-						//printf ("INFO: %ls\n", value);
-
 						currentConfigFolderLength = directoryPathLength * 2;
-						currentConfigFolder = value;
+						currentConfigFolder = configFilePath;
 
 						interpreter.current = 0;
-						interpreter.last = 0;
+						interpreter.special = index;
 
 						GetFiles (interpreter, includesCounter, config);
 					}
 
 					IO::Close (config);
-					//printf ("INFO: B\n");
 
 				}
 			}
@@ -162,16 +159,17 @@ namespace OPEN {
 
 		//printf ("INFO: C\n");
 
-		for (s32 i = 0; i < projects.key.size(); ++i) {
+		for (s32 i = 0; i < projects.keys.size(); ++i) {
 
 			{
-				//auto&& value = (c16*) projects.value[i];
-				//auto&& key = (c8*) projects.key[i];
-				//printf ("INFO: ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
+				auto&& value = (c16*) projects.configs[i];
+				auto&& key = (c8*) projects.keys[i];
+				printf ("INFO: ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
 			}
 
-			free (projects.key[i]);
-			free (projects.value[i]);
+			free (projects.configs[i]);
+			free (projects.paths[i]);
+			free (projects.keys[i]);
 		}
 
 		//printf ("INFO: D\n");
