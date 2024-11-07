@@ -105,10 +105,6 @@ namespace OPEN {
 				u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 				u32 index = 0;
 
-				// Theres 2 issuses.
-				// 1. I cannot ad an error string at the end that would slow us down to much. // DONE
-				// HACK 2. What about strings that are shorter then the one i am looking for.
-
 				COMPARESEARCH::ArrayPartFirstMatchVector ( 
 					command, commandLength, sizeof (c8),
 					index, 
