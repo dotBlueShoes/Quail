@@ -194,14 +194,11 @@ namespace OPEN::INTERPRETER::MAIN {
 	void Comment (const Interpreter& interpreter) {
 		switch (interpreter.current) {
 
-			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
 				parsingstage = GetAllFiles;
 			} break;
 
-			case TYPE_SPACE:
-			case TYPE_TAB: 
 			default: break; // nothing
 
 		}
