@@ -2,6 +2,7 @@
 //
 #include "base/types.hpp"
 #include "base/log.hpp"
+#include "base/memory.hpp"
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"
@@ -9,8 +10,7 @@
 
 s32 main (s32 argumentsCount, c8* arguments[]) {
 
-	// Align fututre debug-logs
-	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout);
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
 
 	INSTALLATION::CreateAll ();
 
@@ -52,7 +52,9 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		
 	}
 
-	LOGINFO ("Finalized Execution\n\n");
+	LOGINFO ("Finalized Execution\n");
+	LOGMEMORY ();
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
 
 	return 0;
 }

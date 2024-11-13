@@ -36,6 +36,10 @@ using arr32 = array_t<T, u32, length>;
 template<class T, u32 length>
 using arr64 = array_t<T, u32, length>;
 
+
+// Equality String Test Called `3` with its u8 and u16 version.
+//  ...
+
 void IsEqualS3_8 (
 	/* OUT */ u8& condition,
 	/* IN  */ const u8* const& a,
@@ -58,33 +62,4 @@ void IsEqualS3_16 (
 		condition += a[i]	== '\0';		// 1
 		condition += b[i]	== '\0';		// 1
 	}
-}
-
-template <typename T>
-void Construct2 (
-	T*& newArray, 
-	const u32& aArrayLength, 
-	const void* const& aArray, 
-	const u32& bArrayLength, 
-	const void* const& bArray
-) {
-	newArray = (T*) malloc (aArrayLength + bArrayLength);
-	memcpy (newArray, aArray, aArrayLength);
-	memcpy (newArray + aArrayLength, bArray, bArrayLength);
-}
-
-template <typename T>
-void Construct3 (
-	T*& newArray, 
-	const u32& aArrayLength, 
-	const void* const& aArray, 
-	const u32& bArrayLength, 
-	const void* const& bArray,
-	const u32& cArrayLength, 
-	const void* const& cArray
-) {
-	newArray = (T*) malloc (aArrayLength + bArrayLength + cArrayLength);
-	memcpy (newArray, aArray, aArrayLength);
-	memcpy (newArray + aArrayLength, bArray, bArrayLength);
-	memcpy (newArray + aArrayLength + bArrayLength, cArray, cArrayLength);
 }

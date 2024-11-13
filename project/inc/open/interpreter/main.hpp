@@ -4,6 +4,7 @@
 #include "base/types.hpp"
 #include "../data.hpp"
 #include "types.hpp"
+#include "base/memory.hpp"
 
 namespace OPEN::INTERPRETER {
 
@@ -239,7 +240,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 				AddTempW (TYPE_EOS);
 
 				u8* include; // Allocate & create FilePath string.
-				Construct2<u8> (include, currentConfigFolderLength, currentConfigFolder, temporaryLength, temporary);
+				MEMORY::Construct2<u8> (include, currentConfigFolderLength, currentConfigFolder, temporaryLength, temporary);
 
 				{ // See if said FilePath already occurs. If not save it.
 					for (u16 i = 0; i < includes.size(); ++i) {
@@ -319,8 +320,8 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 				AddTemp (TYPE_EOS);
 
-				u8* project; // CPY. So it stays in memmory.
-				project = (u8*) malloc (temporaryLength);
+				// CPY. So it stays in memmory.
+				u8* project; ALLOCATE (u8, project, temporaryLength);
 				memcpy (project, temporary, temporaryLength);
 
 				projects.keys.push_back (project);
@@ -373,13 +374,13 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 					const auto& upperProject = projects.paths[interpreter.special];
 					//printf ("HERE: %ls\n", (c16*) upperProject);
 
-					Construct2<u8> (project, upperProjectLength, upperProject, temporaryLength, temporary);
+					MEMORY::Construct2<u8> (project, upperProjectLength, upperProject, temporaryLength, temporary);
 					projects.pathLengths.push_back (upperProjectLength + temporaryLength - 2); // minus EOS
 
 				} else {
 
 					{ // Allocate & create FilePath string.
-						project = (u8*) malloc (temporaryLength);
+						ALLOCATE (u8, project, temporaryLength);
 						memcpy (project, temporary, temporaryLength);
 					}
 
@@ -431,7 +432,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				const auto& path = projects.paths.back();
 
 				u8* project; // Allocate & create FilePath string.
-				Construct2<u8> (project, pathLength, path, temporaryLength, temporary);
+				MEMORY::Construct2<u8> (project, pathLength, path, temporaryLength, temporary);
 
 				{ // See if said FilePath already occurs. If not save it.
 					for (u16 i = 0; i < projects.configs.size(); ++i) {

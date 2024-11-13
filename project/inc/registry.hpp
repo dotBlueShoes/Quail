@@ -92,7 +92,7 @@ namespace REGISTRY {
 		}
 
 		// ALLOCATION
-        data = (c16*) malloc (size);
+		ALLOCATE (c16, data, size);
 
         status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 

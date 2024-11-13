@@ -3,13 +3,13 @@
 #pragma once
 #include "types.hpp"
 
-enum DEBUG_TYPE : u8 {
-	DEBUG_FLAG_LOGGING		= 1,
-	DEBUG_FLAG_MEMMORY		= 2,
-	DEBUG_FLAG_CLOCKS		= 3,
-	DEBUG_FLAG_POSTLOGGING	= 4,
-};
+#ifndef DEBUG_TYPE
+	#define DEBUG_FLAG_LOGGING 		1
+	#define DEBUG_FLAG_MEMORY 		2
+	#define DEBUG_FLAG_CLOCKS 		4
+	#define DEBUG_FLAG_POSTLOGGING 	8
+	#define DEBUG_TYPE 				15 // ALL ON
+#endif
 
-const u8 DEBUG_TYPE = 1;
-
+#define DDEBUG(type) DEBUG_TYPE & type
 #define DEBUG(type) if constexpr (DEBUG_TYPE & type == type)

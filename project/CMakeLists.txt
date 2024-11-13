@@ -5,6 +5,11 @@ file (GLOB_RECURSE HEADER_FILES
 )
 
 add_compile_definitions (_CRT_SECURE_NO_WARNINGS)
+add_compile_definitions (DEBUG_FLAG_LOGGING=${DEBUG_FLAG_LOGGING})
+add_compile_definitions (DEBUG_FLAG_MEMORY=${DEBUG_FLAG_MEMORY})
+add_compile_definitions (DEBUG_FLAG_CLOCKS=${DEBUG_FLAG_CLOCKS})
+add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
+add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
 
 if ( ${PROFILE} EQUAL 0 ) 
 

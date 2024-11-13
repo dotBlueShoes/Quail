@@ -163,21 +163,22 @@ namespace OPEN {
 				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
 			}
 
-			free (projects.configs[i]);
-			free (projects.paths[i]);
-			free (projects.keys[i]);
+			FREE (projects.configs[i]);
+			FREE (projects.paths[i]);
+			FREE (projects.keys[i]);
 		}
 
 		//printf ("INFO: D\n");
 
 		for (s32 i = 0; i < includes.size(); ++i) {
-			free (includes[i]);
+			FREE (includes[i]);
 		}
 
 		//printf ("INFO: E\n");
 
+		// SHOULD BE MOVED OUTSIDE THAT !!!!
 		IO::Close (mainConfig);
-		free (mainConfigFilePath);
+		FREE (mainConfigFilePath);
 
 		//printf ("INFO: F\n");
 	}
