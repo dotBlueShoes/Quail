@@ -2,9 +2,10 @@
 //
 #pragma once
 #include "base/types.hpp"
+#include "base/error.hpp"
 #include "../data.hpp"
 #include "types.hpp"
-#include "base/memory.hpp"
+
 
 namespace OPEN::INTERPRETER {
 

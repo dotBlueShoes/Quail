@@ -3,6 +3,10 @@
 #pragma once
 #include "debug.hpp"
 
+// NOTES
+//  Right now i only calculate number of allocations and deallocations
+//  in future if i would be using other allocators than malloc a much greater system would be needed.
+
 #if DDEBUG (DEBUG_FLAG_MEMORY)
 
 	s32 allocationsCounter = 0;
@@ -12,7 +16,7 @@
 		#include "log.hpp"
 
 		#define LOGMEMORY() { \
-			LOGERROR ("Missed Dellocations: %d\n", allocationsCounter); \
+			LOGWARN ("Missed Deallocations: %d\n", allocationsCounter); \
 		}
 
 	#else
