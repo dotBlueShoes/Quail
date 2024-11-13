@@ -19,16 +19,16 @@ namespace IO {
 		const c16* const& pathname
 	) {
 		std::ofstream outfile (pathname);
-		outfile << "my text here!" << std::endl;
-		outfile.close();
+		//outfile << "hello world" << std::endl;
+		outfile.close ();
 	}
 
 	void Read (
 		const c16* const& pathname,
 		FILE*& file
 	) {
-		file = _wfopen(pathname, L"rb");
-		if (file == NULL) ERROR ("\nERROR: File could not be opened.\n\n");
+		file = _wfopen (pathname, L"rb");
+		if (file == NULL) ERROR ("File could not be opened.\n\n");
 	}
 
 	void Close (

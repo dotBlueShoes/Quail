@@ -70,8 +70,7 @@ namespace ACTIVITIES {
 			} break;
 
 			case 1: { // LIST
-				// TODO ( display contents of main config file )
-				printf ("\n\tquail list!\n\n");
+				LOGINFO ("`quail list`!\n\n"); // TODO ( display contents of main config file )
 			} break;
 
 			case 2: { // HELP
@@ -83,7 +82,7 @@ namespace ACTIVITIES {
 			} break;
 
 			default: {
-				ERROR ("\n\tError. `quail %s` Invalid argument: %s\n\n", activity, activity);
+				ERROR ("`quail %s` Invalid argument: %s\n\n", activity, activity);
 			} 
 
 		}

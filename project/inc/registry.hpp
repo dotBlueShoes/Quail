@@ -39,21 +39,15 @@ namespace REGISTRY {
 		);
 
 		if (error != ERROR_SUCCESS) {
-        	ERROR ("\n\tError. Creating key failed.\n\n");
+        	ERROR ("Creating key failed.\n\n");
     	}
 
 		if (status == REG_CREATED_NEW_KEY) {
-
-			printf ("\nINFO: Key Created");
-
+			LOGINFO ("Key Created\n");
 		} else if (status == REG_OPENED_EXISTING_KEY) {
-
-			printf ("\nINFO: Key Openned");
-
+			LOGINFO ("Key Openned\n");
 		} else {
-
-			ERROR ("\n\tError. Unknown key-status\n\n");
-
+			ERROR ("Unknown key-status\n\n");
 		}
 
 		error = RegSetValueExW (
@@ -66,7 +60,7 @@ namespace REGISTRY {
 		);
 
     	if (error != ERROR_SUCCESS) {
-    	    ERROR ("\n\tError. Setting key value failed.\n\n");
+    	    ERROR ("Setting key value failed.\n\n");
     	}
 
 		RegCloseKey (key);
@@ -93,7 +87,7 @@ namespace REGISTRY {
 		
     	if ((status != ERROR_SUCCESS) && (size < 1)) {
 
-			wprintf (L"\n\tError. Could not read key value: %d\n\n", size);
+			WERROR ("Could not read key value: %d\n\n", size);
 
 		}
 
@@ -109,7 +103,7 @@ namespace REGISTRY {
 			&size
 		);
         	
-		wprintf (L"\nINFO: Successfully read property '%s' as: '%s'", PROPERTY_FILEPATH_W, data);
+		LOGWINFO ("Successfully read property '%s' as: '%s'\n", PROPERTY_FILEPATH_W, data);
 
 		OPEN::mainConfigFolderPathLength = size;
     	OPEN::mainConfigFilePath = data;

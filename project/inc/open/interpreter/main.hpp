@@ -144,7 +144,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("\n\nERROR: Invalid syntax\n\n");
+				ERROR ("Invalid syntax\n\n");
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -175,7 +175,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("\n\nERROR: Invalid syntax\n\n");
+				ERROR ("Invalid syntax\n\n");
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -226,7 +226,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 			case TYPE_SECRET:
 			case TYPE_ASSIGN:
 			case TYPE_COMMENT:  {
-				ERROR ("\n\nERROR: Invalid syntax\n\n");
+				ERROR ("Invalid syntax\n\n");
 			} break;
 
 			case TYPE_SPACE:
@@ -252,7 +252,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 					parsingstage = GetAllFiles;
 					break;
 
-		error:		ERROR ("\n\nERROR: Said file is arleady being included: `%ls`\n", (c16*)include);
+		error:		ERROR ("Said file is arleady being included: `%ls`\n", (c16*)include);
 
 				}
 
@@ -288,7 +288,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				parsingstage = Name;
 			} break;
 
-			default: ERROR ("\n\nERROR: Invalid syntax\n\n");
+			default: ERROR ("Invalid syntax\n\n");
 
 		}
 
@@ -308,7 +308,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("\n\nERROR: Invalid syntax\n\n");
+				ERROR ("Invalid syntax\n\n");
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -353,7 +353,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_EOF:
 			case TYPE_NEW_LINE: {
-				ERROR ("\n\nERROR: Invalid syntax\n\n");
+				ERROR ("Invalid syntax\n\n");
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -417,7 +417,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_SPACE:
 			case TYPE_TAB: {
-				ERROR ("\n\nERROR: Invalid syntax '%d'\n\n", interpreter.current);
+				ERROR ("Invalid syntax '%d'\n\n", interpreter.current);
 			} break;
 
 			
@@ -445,7 +445,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 					parsingstage = GetAllFiles;
 					break;
 
-		error:		ERROR ("\n\nERROR: Said project file is arleady being loaded: `%ls`\n", (c16*)path);
+		error:		ERROR ("Said project file is arleady being loaded: `%ls`\n", (c16*)path);
 
 				}
 

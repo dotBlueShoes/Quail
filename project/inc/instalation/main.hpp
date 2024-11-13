@@ -31,7 +31,7 @@ namespace INSTALLATION {
 
 			if (IO::IsExisting (configFilepath)) {
 
-				printf ("\nINFO: File already exists.\n");
+				LOGINFO ("File already exists.\n");
 
 			} else {
 

@@ -1,12 +1,16 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //
 #include "base/types.hpp"
+#include "base/log.hpp"
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"
 #include "instalation/main.hpp"
 
 s32 main (s32 argumentsCount, c8* arguments[]) {
+
+	// Align fututre debug-logs
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout);
 
 	INSTALLATION::CreateAll ();
 
@@ -15,7 +19,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		case 0:
 		case 1: {
 
-			printf ("\n\t%s\n\n", LOCALE::ERROR_NO_ACTIVITY);
+			ERROR ("%s\n\n", LOCALE::ERROR_NO_ACTIVITY);
 
 		} break;
 
@@ -48,7 +52,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		
 	}
 
-	printf ("INFO: Finalized Execution\n\n");
+	LOGINFO ("Finalized Execution\n\n");
 
 	return 0;
 }

@@ -45,7 +45,7 @@ namespace OPEN {
 			INTERPRETER::parsingstage (interpreter);
 		}
 
-		printf ("INFO: ConfigFile read successfully\n");
+		LOGINFO ("ConfigFile read successfully\n");
 
 		{ // Main Config
 			while (includesCounter != includes.size()) {
@@ -66,7 +66,7 @@ namespace OPEN {
 					INTERPRETER::parsingstage (interpreter);
 				}
 
-				wprintf (L"INFO: IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
+				LOGWINFO ("IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
 				IO::Close (config);
 
 				++includesCounter;
@@ -117,14 +117,14 @@ namespace OPEN {
 
 				if (index == projects.keys.size ()) {
 
-					ERROR ("\nERROR: Could not match with a command or a project.\n\n");
+					ERROR ("Could not match with a command or a project.\n\n");
 
 				} else {
 
 					const u32 configFilePathLength = (projects.pathLengths[index] + projects.configLengths[index]) / 2;
 					const auto&& configFilePath = (c16*) (projects.configs[index]);
 				
-					printf ("INFO: ProjectFile [%d]:`%ls`\n", index, configFilePath);
+					LOGINFO ("ProjectFile [%d]:`%ls`\n", index, configFilePath);
 
 					// And another one...
 					FILE* config = nullptr;
@@ -160,7 +160,7 @@ namespace OPEN {
 			{
 				auto&& value = (c16*) projects.configs[i];
 				auto&& key = (c8*) projects.keys[i];
-				printf ("INFO: ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
+				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
 			}
 
 			free (projects.configs[i]);

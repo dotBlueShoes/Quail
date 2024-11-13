@@ -18,15 +18,15 @@ void Single (
 	//	printf ("%d: %s\n", i, commands[i]);
 	//}
 
-	// ERROR ( For mins length must be equal to 2. )
 	if (activityLength < ACTIVITIES::MIN_LENGTH) {
 
-		ERROR ("\n\tError! Invalid argument: %s\n\n", activity);
+		ERROR ("Invalid argument: %s\n\n", activity);
 
 	} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
 
 		u32 index = 0;
 
+		// Match with MAX's
 		COMPARESEARCH::ArrayPartFirstMatch ( 
 			activity, activityLength, sizeof (c8),
 			index, 
@@ -34,13 +34,17 @@ void Single (
 			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
 		);
 
+		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index, depth, commands);
+
 	} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
 
-		ERROR ("\n\tError! Invalid argument: %s\n\n", activity);
+		ERROR ("Invalid argument: %s\n\n", activity);
 
-	} else { // Matching with MIN activities
+	} else {
+
 		u32 index = 0;
 
+		// Match with MIN's
 		COMPARESEARCH::ArrayPartFirstMatch ( 
 			activity, activityLength, sizeof (c8),
 			index, 
@@ -49,6 +53,7 @@ void Single (
 		);
 		
 		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index, depth, commands);
+		
 	}
 	
 }
