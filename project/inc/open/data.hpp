@@ -18,15 +18,25 @@ namespace OPEN {
 		PATH_RELATIVE = 1,
 	};
 
+	struct ProjectsCape {
+
+		struct Special {
+			u8 type : 1;
+			u8 includesCount: 7;
+		} special;
+
+		u32 configLength;
+		u32 pathLength;
+		
+	};
+
 	template <typename T>
 	struct Projects {
-		std::vector<T> 		keys;
-		std::vector<T> 		paths;
-		std::vector<T> 		configs;
-		
-		std::vector<u32>	configLengths;
-		std::vector<u32>	pathLengths;
-		std::vector<u8>		types;
+
+		std::vector<T> 				keys;
+		std::vector<T> 				paths;
+		std::vector<T> 				configs;
+		std::vector<ProjectsCape> 	capes;
 	};
 
 	enum SPECIAL_CHARACTERS : c8 {

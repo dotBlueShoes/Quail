@@ -33,7 +33,7 @@ namespace OPEN {
 	// 4. Jeśli depth jest równy więcej niż 1 to znaczy że mamy do czynienia z subprojektami
 	// 
 
-	void GetFiles (
+	void GetIncludes (
 		INTERPRETER::Interpreter& interpreter,
 		u32& includesCounter,
 		FILE*& mainFile
@@ -76,92 +76,135 @@ namespace OPEN {
 		//printf ("INFO: A\n");
 	}
 
+
+	void GetProjects (
+		INTERPRETER::Interpreter& interpreter,
+		u32& includesCounter,
+		const c8* const& command
+	) {
+		
+		u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
+		u32 index = 0;
+
+		COMPARESEARCH::ArrayPartFirstMatchVector ( 
+			command, commandLength, sizeof (c8),
+			index, 
+			projects.keys.size () - projectsOffset,
+			(void**)(projects.keys.data () + projectsOffset)
+		);
+
+		index += projectsOffset; // Add what we removed. We offseted it before to search it the right way.
+		projectsOffset = projects.keys.size ();
+
+		if (index == projects.keys.size ()) {
+
+			ERROR ("Could not match with any project.\n\n");
+
+		} else {
+
+			const auto& configLength = projects.capes[index].configLength;
+			const auto& pathLength = projects.capes[index].pathLength;
+
+			const u32 configFilePathLength = (pathLength + configLength) / 2;
+			const auto&& configFilePath = (c16*) (projects.configs[index]);
+				
+			LOGINFO ("ProjectFile [%d]:`%ls`\n", index, configFilePath);
+
+			// And another one...
+			FILE* config = nullptr;
+			IO::Read (configFilePath, config);
+
+			{
+				u32 directoryPathLength = configFilePathLength;
+
+				{ // Get directoryPath from filePath
+					for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
+					++directoryPathLength;
+				}
+
+				currentConfigFolderLength = directoryPathLength * 2;
+				currentConfigFolder = configFilePath;
+
+				interpreter.current = 0;
+				interpreter.special = index;
+
+				GetIncludes (interpreter, includesCounter, config);
+			}
+
+			IO::Close (config);
+
+		}
+	}
+
+
 	void Open (
 		const u32& depth,
 		const c8* const* const& commands
 	) {
 
 		FILE* mainConfig = nullptr;
+		INTERPRETER::Interpreter interpreter { 0 };
 		IO::Read (mainConfigFilePath, mainConfig);
 		u32 includesCounter = 0;
 
-		{ 
-			INTERPRETER::Interpreter interpreter { 0 };
+		{ // 1st READ
+
+			const u32 lastDepth = depth - 1;
 
 			{// MAIN CONFIG
 				currentConfigFolderLength = mainConfigFolderPathLength;
 				currentConfigFolder = mainConfigFilePath;
 
-				GetFiles (interpreter, includesCounter, mainConfig);
+				GetIncludes (interpreter, includesCounter, mainConfig);
 			}
-			
-			// PROJECTS & SUBPROJECTS & COMMANDS & QUEUES
-			for (int iDepth = 0; iDepth < depth; ++iDepth) {
 
-				// TODO: Here open selected project and get it's subprojects and includes
-				// żeby to zrobić potrzebuje tutaj match'nąć z załadowanymi projects
-
+			for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
 				const auto& command = commands[iDepth];
-				u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
-				u32 index = 0;
-
-				COMPARESEARCH::ArrayPartFirstMatchVector ( 
-					command, commandLength, sizeof (c8),
-					index, 
-					projects.keys.size () - projectsOffset,
-					(void**)(projects.keys.data () + projectsOffset)
-				);
-
-				index += projectsOffset; // Add what we removed. We offseted it before to search it the right way.
-				projectsOffset = projects.keys.size ();
-
-				if (index == projects.keys.size ()) {
-
-					ERROR ("Could not match with a command or a project.\n\n");
-
-				} else {
-
-					const u32 configFilePathLength = (projects.pathLengths[index] + projects.configLengths[index]) / 2;
-					const auto&& configFilePath = (c16*) (projects.configs[index]);
-				
-					LOGINFO ("ProjectFile [%d]:`%ls`\n", index, configFilePath);
-
-					// And another one...
-					FILE* config = nullptr;
-					IO::Read (configFilePath, config);
-
-					{
-						u32 directoryPathLength = configFilePathLength;
-
-						{ // Get directoryPath from filePath
-							for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
-							++directoryPathLength;
-						}
-
-						currentConfigFolderLength = directoryPathLength * 2;
-						currentConfigFolder = configFilePath;
-
-						interpreter.current = 0;
-						interpreter.special = index;
-
-						GetFiles (interpreter, includesCounter, config);
-					}
-
-					IO::Close (config);
-
-				}
+				GetProjects (interpreter, includesCounter, command);
 			}
+
+			{ // Has to be a either a project / subproject / command / queue.
+				const auto& command = commands[lastDepth];
+				GetProjects (interpreter, includesCounter, command);
+			}
+
+		}
+
+		{ // 2nd Read
+
+			// We're reading from back to begin. This gives as more control over what we read
+			//  during this proces. We're able to create cascading CONSTANTS thanks to this method.
+
+			for (s32 i = projects.keys.size(); i > 0; --i) {
+				const auto index = i - 1;
+
+				const auto&& value = (c16*) projects.configs[index];
+				const auto&& key = (c8*) projects.keys[index];
+
+				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", index, key, value);
+
+				// TODO
+				// we need to store the amount of includes a project has 
+				// to do so i created `projects.capes[i].special.includesCount` but it has to be populated first.
+
+				// 1. Go thorugh each project-include
+				// 2. Go through each project
+				// 3. Read them using INTERPRETER::MAIN::Main
+				// Where we will read
+				// Constants, Secrets, Varaibles, Commands, Queues
+			}
+
 		}
 
 		//printf ("INFO: C\n");
 
 		for (s32 i = 0; i < projects.keys.size(); ++i) {
 
-			{
-				auto&& value = (c16*) projects.configs[i];
-				auto&& key = (c8*) projects.keys[i];
-				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
-			}
+			//{
+			//	auto&& value = (c16*) projects.configs[i];
+			//	auto&& key = (c8*) projects.keys[i];
+			//	LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
+			//}
 
 			FREE (projects.configs[i]);
 			FREE (projects.paths[i]);

@@ -7,7 +7,7 @@
 
 namespace ACTIVITIES::MATCH {
 
-void Single (
+void Activity (
 	const c8* const& activity,
 	const u32& activityLength,
 	const u32& depth,
@@ -34,7 +34,7 @@ void Single (
 			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
 		);
 
-		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index, depth, commands);
+		ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
 
 	} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
 
@@ -52,7 +52,7 @@ void Single (
 			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
 		);
 		
-		ACTIVITIES::MatchWithoutArguments (activity, activityLength, index, depth, commands);
+		ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
 		
 	}
 	

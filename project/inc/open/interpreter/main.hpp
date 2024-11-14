@@ -81,7 +81,7 @@ namespace OPEN::INTERPRETER::MAIN {
 
 		switch (interpreter.current) {
 
-			case TYPE_COMMENT: parsingstage = Comment; break;
+			case TYPE_COMMENT: parsingstage = Comment; specialStage = GetAllFiles; break;
 			case TYPE_INCLUDE: INCLUDE::Initialize (); break;
 			case TYPE_PROJECT: PROJECT::Initialize (); break;
 			default: { }
@@ -92,8 +92,6 @@ namespace OPEN::INTERPRETER::MAIN {
 
 	void Main (const Interpreter& interpreter) {
 
-		//putc (interpreter.current, stdout);
-
 		switch (interpreter.current) {
 
 			case TYPE_NEW_LINE:
@@ -103,11 +101,18 @@ namespace OPEN::INTERPRETER::MAIN {
 				putc (interpreter.current, stdout);
 			} break;
 
+			case TYPE_INCLUDE: 
+			case TYPE_PROJECT: 
 			case TYPE_COMMENT: {
-
+				// We're Skipping them and todoso we're simply treating them as comments here.
+				parsingstage = Comment; specialStage = Main;
 			} break;
 
 			case TYPE_CONSTANT: {
+
+			} break;
+
+			case TYPE_SECRET: {
 
 			} break;
 
@@ -115,11 +120,11 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			} break;
 
-			case TYPE_QUEUE: {
+			case TYPE_COMMAND: {
 
 			} break;
 
-			case TYPE_COMMAND: {
+			case TYPE_QUEUE: {
 
 			} break;
 
@@ -198,7 +203,7 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				parsingstage = GetAllFiles;
+				parsingstage = specialStage;
 			} break;
 
 			default: break; // nothing
@@ -274,6 +279,10 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 	void Initialize () {
 		temporaryLength = 0;
 		parsingstage = PROJECT::Type;
+
+		// ADDs new CAPE with each project found.
+		OPEN::ProjectsCape temporaryCape { 0 };
+		projects.capes.push_back (temporaryCape);
 	}
 
 	void Type (const Interpreter& interpreter) {
@@ -281,12 +290,14 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 		switch (interpreter.current) {
 
 			case TYPE_ABSOLUTE: {
-				projects.types.push_back (PATH_ABSOLUTE);
+				auto&& current = projects.capes.back();
+				current.special.type = PATH_ABSOLUTE;
 				parsingstage = Name;
 			} break;
 
 			case TYPE_RELATIVE: {
-				projects.types.push_back (PATH_RELATIVE);
+				auto&& current = projects.capes.back();
+				current.special.type = PATH_RELATIVE;
 				parsingstage = Name;
 			} break;
 
@@ -368,15 +379,17 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				// TODO:
 				//  Find parent project if there is one and attach it's path to this one if its relative type
 
-				if (projects.types.back() == PATH_RELATIVE) {
+				auto&& current = projects.capes.back();
+
+				if (current.special.type == PATH_RELATIVE) {
 
 					// Get Parent Project
-					const auto& upperProjectLength = projects.pathLengths[interpreter.special];
+					const auto& upperProjectLength = projects.capes[interpreter.special].pathLength;
 					const auto& upperProject = projects.paths[interpreter.special];
 					//printf ("HERE: %ls\n", (c16*) upperProject);
 
 					MEMORY::Construct2<u8> (project, upperProjectLength, upperProject, temporaryLength, temporary);
-					projects.pathLengths.push_back (upperProjectLength + temporaryLength - 2); // minus EOS
+					current.pathLength = upperProjectLength + temporaryLength - 2; // minus EOS
 
 				} else {
 
@@ -385,7 +398,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 						memcpy (project, temporary, temporaryLength);
 					}
 
-					projects.pathLengths.push_back (temporaryLength - 2); // minus EOS
+					current.pathLength = temporaryLength - 2; // minus EOS
 
 				}
 				
@@ -429,7 +442,9 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 				AddTempW (TYPE_EOS);
 
-				const auto& pathLength = projects.pathLengths.back();
+				auto&& current = projects.capes.back();
+
+				const auto& pathLength = current.pathLength;
 				const auto& path = projects.paths.back();
 
 				u8* project; // Allocate & create FilePath string.
@@ -442,7 +457,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 						if (condition == 2) goto error;
 					}
 
-		success:	projects.configLengths.push_back (temporaryLength - 2); // minus EOS
+		success:	current.configLength = temporaryLength - 2; // minus EOS
 					projects.configs.push_back (project);
 					parsingstage = GetAllFiles;
 					break;

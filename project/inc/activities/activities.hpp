@@ -54,7 +54,7 @@ namespace ACTIVITIES {
 	const u8 MAXS_WITH_ARGUMENTS_ERROR 		(MAXS_WITH_ARGUMENTS.size () - 1);
 
 
-	void MatchWithoutArguments (
+	void TranslateIndex (
 		const c8* const& activity,
 		const u32& activityLength,
 		const u32& index,
