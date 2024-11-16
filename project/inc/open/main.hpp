@@ -116,6 +116,7 @@ namespace OPEN {
 
 			{
 				u32 directoryPathLength = configFilePathLength;
+				u32 projectIncludesCounter = includesCounter;
 
 				{ // Get directoryPath from filePath
 					for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
@@ -129,6 +130,11 @@ namespace OPEN {
 				interpreter.special = index;
 
 				GetIncludes (interpreter, includesCounter, config);
+
+				{ // Store the amount of include files a project has.
+					projects.capes[index].special.includesCount = includesCounter - projectIncludesCounter;
+				}
+
 			}
 
 			IO::Close (config);
@@ -168,20 +174,27 @@ namespace OPEN {
 				GetProjects (interpreter, includesCounter, command);
 			}
 
+			//LOGINFO ("All included files: %d\n", includesCounter);
+
 		}
 
 		{ // 2nd Read
 
+			LOGINFO ("2nd Read\n");
+
 			// We're reading from back to begin. This gives as more control over what we read
 			//  during this proces. We're able to create cascading CONSTANTS thanks to this method.
 
-			for (s32 i = projects.keys.size(); i > 0; --i) {
-				const auto index = i - 1;
+			// I do not need to read projects that are not parent project of a selected subproject !
+			//  I connot go through all the keys instead should only go througth the ones I went before when matched.
 
-				const auto&& value = (c16*) projects.configs[index];
-				const auto&& key = (c8*) projects.keys[index];
+			for (s32 iProject = projects.keys.size(); iProject > 0; --iProject) {
+				const auto pIndex = iProject - 1;
 
-				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", index, key, value);
+				const auto&& value = (c16*) projects.configs[pIndex];
+				const auto&& key = (c8*) projects.keys[pIndex];
+
+				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", pIndex, key, value);
 
 				// TODO
 				// we need to store the amount of includes a project has 
@@ -192,7 +205,32 @@ namespace OPEN {
 				// 3. Read them using INTERPRETER::MAIN::Main
 				// Where we will read
 				// Constants, Secrets, Varaibles, Commands, Queues
+
+				for (s32 iInclude = 0; iInclude < projects.capes[pIndex].special.includesCount; ++iInclude) {
+					const auto iIndex = includesCounter - iInclude - 1;
+					const auto&& include = (c16*) includes[iIndex];
+
+					LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
+				}
+
+				includesCounter -= projects.capes[pIndex].special.includesCount;
+
 			}
+
+			{ // Main config
+
+				LOGINFO ("MainConfig\n");
+				// Prob.. I don't store those do i?
+	
+				for (s32 iInclude = includesCounter; iInclude > 0; --iInclude){ 
+					const auto iIndex = iInclude - 1;
+					const auto&& include = (c16*) includes[iIndex];
+
+					LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
+				}
+
+			}
+			
 
 		}
 

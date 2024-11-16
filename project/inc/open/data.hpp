@@ -20,9 +20,9 @@ namespace OPEN {
 
 	struct ProjectsCape {
 
-		struct Special {
-			u8 type : 1;
-			u8 includesCount: 7;
+		struct Special {			// 0 - 255
+			u8 type : 1;			// 0 v 128
+			u8 includesCount: 7;	// 0 - 127
 		} special;
 
 		u32 configLength;

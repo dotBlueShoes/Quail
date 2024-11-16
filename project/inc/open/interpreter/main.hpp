@@ -281,8 +281,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 		parsingstage = PROJECT::Type;
 
 		// ADDs new CAPE with each project found.
-		OPEN::ProjectsCape temporaryCape { 0 };
-		projects.capes.push_back (temporaryCape);
+		projects.capes.push_back ( OPEN::ProjectsCape { 0 } );
 	}
 
 	void Type (const Interpreter& interpreter) {
