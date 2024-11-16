@@ -10,17 +10,6 @@
 
 namespace OPEN {
 
-	// TODO
-	//  Add comments so we can comment out things and test things easier.
-	//  issue with -> ./run -o Example sub
-	//   1. relative vs full paths. Right now we're using fill paths we will need to implement relative paths
-	//    therefore a way to identify them is needed maybe like `&+`, `&-` and `^+`, `^-` so both includes and projects can work this way.
-	//    ISSUE! -> to psuje konwencje robiąc z 2 bufforów 4 sprawimy że nie będziemy mogli zrozumieć kolejności przy 2 czytaniu.
-	//   2. I need to possess the project DIRECTORY without it's quail directory. Therefore maybe project should have 2 contents
-	//    somethink along the lines `^project 'project-dir' `relative-path-to-.quail.txt``
-
-
-
 	// Do funkcji `Open` trafiają teraz argumenty, które zmieniają działanie tej funkcji.
 	// 1. Otwieramy MainConfig
 	// 2. Jeśli depth jest równy 0 to znaczy że czytamy tylko includy bez projects i chcemy docelowo tylko 
@@ -45,7 +34,7 @@ namespace OPEN {
 			INTERPRETER::parsingstage (interpreter);
 		}
 
-		LOGINFO ("ConfigFile read successfully\n");
+		//LOGINFO ("ConfigFile read successfully\n");
 
 		{ // Main Config
 			while (includesCounter != includes.size()) {
@@ -67,23 +56,17 @@ namespace OPEN {
 					INTERPRETER::parsingstage (interpreter);
 				}
 
-				LOGWINFO ("IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
-				//IO::Close (config);
+				LOGWINFO (">> IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
 
 				++includesCounter;
 			}
 		}
-
-		//printf ("INFO: A\n");
 	}
 
 
-	void GetProjects (
-		INTERPRETER::Interpreter& interpreter,
-		u32& includesCounter,
+	auto FindProject (
 		const c8* const& command
 	) {
-		
 		u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 		u32 index = 0;
 
@@ -97,51 +80,53 @@ namespace OPEN {
 		index += projectsOffset; // Add what we removed. We offseted it before to search it the right way.
 		projectsOffset = projects.keys.size ();
 
-		if (index == projects.keys.size ()) {
+		return index;
+	}
+	
 
-			ERROR ("Could not match with any project.\n\n");
+	void GetProjects (
+		INTERPRETER::Interpreter& interpreter,
+		u32& includesCounter,
+		const u32& index
+	) {
 
-		} else {
+		const auto& configLength = projects.capes[index].configLength;
+		const auto& pathLength = projects.capes[index].pathLength;
 
-			const auto& configLength = projects.capes[index].configLength;
-			const auto& pathLength = projects.capes[index].pathLength;
-
-			const u32 configFilePathLength = (pathLength + configLength) / 2;
-			const auto&& configFilePath = (c16*) (projects.configs[index]);
+		const u32 configFilePathLength = (pathLength + configLength) / 2;
+		const auto&& configFilePath = (c16*) (projects.configs[index]);
 				
-			LOGINFO ("ProjectFile [%d]:`%ls`\n", index, configFilePath);
+		LOGINFO ("> ProjectFile [%d]:`%ls`\n", index, configFilePath);
 
-			// And another one...
-			FILE* config = nullptr;
-			IO::Read (configFilePath, config);
-			files.push_back (config);
+		// And another one...
+		FILE* config = nullptr;
+		IO::Read (configFilePath, config);
+		files.push_back (config);
 
-			{
-				u32 directoryPathLength = configFilePathLength;
-				u32 projectIncludesCounter = includesCounter;
+		{
 
-				{ // Get directoryPath from filePath
-					for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
-					++directoryPathLength;
-				}
+			u32 directoryPathLength = configFilePathLength;
+			u32 projectIncludesCounter = includesCounter;
 
-				currentConfigFolderLength = directoryPathLength * 2;
-				currentConfigFolder = configFilePath;
-
-				interpreter.current = 0;
-				interpreter.special = index;
-
-				GetIncludes (interpreter, includesCounter, config);
-
-				{ // Store the amount of include files a project has.
-					projects.capes[index].special.includesCount = includesCounter - projectIncludesCounter;
-				}
-
+			{ // Get directoryPath from filePath
+				for (; configFilePath[directoryPathLength] != '\\'; --directoryPathLength);
+				++directoryPathLength;
 			}
 
-			//IO::Close (config);
+			currentConfigFolderLength = directoryPathLength * 2;
+			currentConfigFolder = configFilePath;
+
+			interpreter.current = 0;
+			interpreter.special = index;
+
+			GetIncludes (interpreter, includesCounter, config);
+
+			{ // Store the amount of include files a project has.
+				projects.capes[index].special.includesCount = includesCounter - projectIncludesCounter;
+			}
 
 		}
+
 	}
 
 
@@ -153,6 +138,7 @@ namespace OPEN {
 		FILE* mainConfig = nullptr;
 		INTERPRETER::Interpreter interpreter { 0 };
 		u32 includesCounter = 0;
+		u8 openType = OPEN_TYPE_LISTING;
 
 		IO::Read (mainConfigFilePath, mainConfig);
 		files.push_back (mainConfig);
@@ -171,15 +157,26 @@ namespace OPEN {
 
 			for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
 				const auto& command = actions[iDepth];
-				GetProjects (interpreter, includesCounter, command);
+				
+				u32 index = FindProject (command);
+
+				if (index == projects.keys.size ()) {
+					ERROR ("Could not match with any project.\n\n");
+				} else { GetProjects (interpreter, includesCounter, index); }
 			}
 
 			{ // Has to be a either a project / subproject / command / queue.
 				const auto& command = actions[lastDepth];
-				GetProjects (interpreter, includesCounter, command);
-			}
 
-			//LOGINFO ("All included files: %d\n", includesCounter);
+				u32 index = FindProject (command);
+
+				if (index == projects.keys.size ()) {
+
+					LOGWARN ("We are looking for a command not a listing.\n\n");
+					openType = OPEN_TYPE_COMMAND;
+
+				} else { GetProjects (interpreter, includesCounter, index); }
+			}
 
 		}
 
@@ -187,59 +184,6 @@ namespace OPEN {
 
 			LOGINFO ("2nd Read\n");
 
-			// We're reading from back to begin. This gives as more control over what we read
-			//  during this proces. We're able to create cascading CONSTANTS thanks to this method.
-
-			// I do not need to read projects that are not parent project of a selected subproject !
-			//  I connot go through all the keys instead should only go througth the ones I went before when matched.
-
-			//... wrong wrong
-			// i only need to know which project path and which include path to read when.
-
-			//for (s32 iProject = projects.keys.size(); iProject > 0; --iProject) {
-			//	const auto pIndex = iProject - 1;
-			//
-			//	const auto&& value = (c16*) projects.configs[pIndex];
-			//	const auto&& key = (c8*) projects.keys[pIndex];
-			//
-			//	LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", pIndex, key, value);
-			//
-			//	// TODO
-			//	// we need to store the amount of includes a project has 
-			//	// to do so i created `projects.capes[i].special.includesCount` but it has to be populated first.
-			//
-			//	// 1. Go thorugh each project-include
-			//	// 2. Go through each project
-			//	// 3. Read them using INTERPRETER::MAIN::Main
-			//	// Where we will read
-			//	// Constants, Secrets, Varaibles, Commands, Queues
-			//
-			//	for (s32 iInclude = 0; iInclude < projects.capes[pIndex].special.includesCount; ++iInclude) {
-			//		const auto iIndex = includesCounter - iInclude - 1;
-			//		const auto&& include = (c16*) includes[iIndex];
-			//
-			//		LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
-			//	}
-			//
-			//	includesCounter -= projects.capes[pIndex].special.includesCount;
-			//
-			//}
-			//
-			//{ // Main config
-			//
-			//	LOGINFO ("MainConfig\n");
-			//	// Prob.. I don't store those do i?
-			//
-			//	for (s32 iInclude = includesCounter; iInclude > 0; --iInclude){ 
-			//		const auto iIndex = iInclude - 1;
-			//		const auto&& include = (c16*) includes[iIndex];
-			//
-			//		LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
-			//	}
-			//
-			//}
-
-			// 2nd READ
 			for (u32 iFile = files.size (); iFile > 0; --iFile) {
 
 				//LOGINFO ("CALL!\n");
@@ -257,37 +201,49 @@ namespace OPEN {
 
 			}
 
+			// DISPLAYS ALL CONSTANTS
 			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
 			// 	const auto&& value = (c16*) constants.values[iConstant];
 			// 	const auto&& key = (c8*) constants.keys[iConstant];
 			// 	//LOGINFO ("Constant: %s: %ls\n", key, value);
 			// }
 
-			for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
-				const auto&& value = (c16*) commands.values[iCommand];
-				const auto&& key = (c8*) commands.keys[iCommand];
-				LOGINFO ("Command: %s: %ls\n", key, value);
-			}
-			
+			// DISPLAYS ALL COMMANDS
+			//for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
+			//	const auto&& value = (c16*) commands.values[iCommand];
+			//	const auto&& key = (c8*) commands.keys[iCommand];
+			//	LOGINFO ("Command: %s: %ls\n", key, value);
+			//}
+
+			// Currently I am loading all constants, varaibles, secrets
+			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessery needed.
+			//  It would be much smarter to only load strings that are being used by a specific command or a queue of commands.
+			//   - Its a different approach completly. We would look for a command then it's constants, varaibles, secrets
+			//    and we would assemble the whole command part by part. However `Queues` and `Lists` would be much more difficult.
+			//    It also does not seem to be a big optimalization too.
 
 		}
 
-		//printf ("INFO: C\n");
+		if (openType) { // EXECUTE
+			LOGINFO ("Execute.\n");
+
+			// TODO
+			//  Find last action in commands, match. execute commands value.
+
+		} else { 		// LISTING
+			LOGINFO ("LISTING.\n");
+
+			// TODO
+			//  1. List commands key and value.
+			//  1. List queues key and value.
+
+		}
 
 		for (s32 i = 0; i < projects.keys.size(); ++i) {
-
-			//{
-			//	auto&& value = (c16*) projects.configs[i];
-			//	auto&& key = (c8*) projects.keys[i];
-			//	LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", i, key, value);
-			//}
-
 			FREE (projects.configs[i]);
 			FREE (projects.paths[i]);
 			FREE (projects.keys[i]);
 		}
-
-		//printf ("INFO: D\n");
 
 		for (s32 i = 0; i < includes.size(); ++i) {
 			FREE (includes[i]);
@@ -298,18 +254,17 @@ namespace OPEN {
 			FREE (constants.keys[i]);
 		}
 
-		//printf ("INFO: E\n");
-
-		// SHOULD BE MOVED OUTSIDE THAT !!!!
-		//IO::Close (mainConfig);
+		for (s32 i = 0; i < commands.keys.size(); ++i) {
+			FREE (commands.values[i]);
+			FREE (commands.keys[i]);
+		}
 
 		for (u32 iFile = 0; iFile < files.size(); ++iFile) {
 			IO::Close (files[iFile]);
 		}
 
+		// ? That should be somewhere else ?
 		FREE (mainConfigFilePath);
-
-		//printf ("INFO: F\n");
 	}
 
 }

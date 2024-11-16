@@ -18,6 +18,11 @@ namespace OPEN {
 		PATH_RELATIVE = 1,
 	};
 
+	enum OPEN_TYPE : u8 {
+		OPEN_TYPE_LISTING = 0,
+		OPEN_TYPE_COMMAND = 1,
+	};
+
 	struct ProjectsCape {
 
 		struct Special {			// 0 - 255
