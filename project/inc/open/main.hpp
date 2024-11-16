@@ -56,6 +56,7 @@ namespace OPEN {
 
 				FILE* config = nullptr;
 				IO::Read (string, config);
+				files.push_back (config);
 
 				INTERPRETER::parsingstage = INTERPRETER::MAIN::GetAllFiles;
 				interpreter.current = 0;
@@ -67,7 +68,7 @@ namespace OPEN {
 				}
 
 				LOGWINFO ("IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
-				IO::Close (config);
+				//IO::Close (config);
 
 				++includesCounter;
 			}
@@ -113,6 +114,7 @@ namespace OPEN {
 			// And another one...
 			FILE* config = nullptr;
 			IO::Read (configFilePath, config);
+			files.push_back (config);
 
 			{
 				u32 directoryPathLength = configFilePathLength;
@@ -137,7 +139,7 @@ namespace OPEN {
 
 			}
 
-			IO::Close (config);
+			//IO::Close (config);
 
 		}
 	}
@@ -150,8 +152,11 @@ namespace OPEN {
 
 		FILE* mainConfig = nullptr;
 		INTERPRETER::Interpreter interpreter { 0 };
-		IO::Read (mainConfigFilePath, mainConfig);
 		u32 includesCounter = 0;
+
+		IO::Read (mainConfigFilePath, mainConfig);
+		files.push_back (mainConfig);
+		
 
 		{ // 1st READ
 
@@ -188,48 +193,75 @@ namespace OPEN {
 			// I do not need to read projects that are not parent project of a selected subproject !
 			//  I connot go through all the keys instead should only go througth the ones I went before when matched.
 
-			for (s32 iProject = projects.keys.size(); iProject > 0; --iProject) {
-				const auto pIndex = iProject - 1;
+			//... wrong wrong
+			// i only need to know which project path and which include path to read when.
 
-				const auto&& value = (c16*) projects.configs[pIndex];
-				const auto&& key = (c8*) projects.keys[pIndex];
+			//for (s32 iProject = projects.keys.size(); iProject > 0; --iProject) {
+			//	const auto pIndex = iProject - 1;
+			//
+			//	const auto&& value = (c16*) projects.configs[pIndex];
+			//	const auto&& key = (c8*) projects.keys[pIndex];
+			//
+			//	LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", pIndex, key, value);
+			//
+			//	// TODO
+			//	// we need to store the amount of includes a project has 
+			//	// to do so i created `projects.capes[i].special.includesCount` but it has to be populated first.
+			//
+			//	// 1. Go thorugh each project-include
+			//	// 2. Go through each project
+			//	// 3. Read them using INTERPRETER::MAIN::Main
+			//	// Where we will read
+			//	// Constants, Secrets, Varaibles, Commands, Queues
+			//
+			//	for (s32 iInclude = 0; iInclude < projects.capes[pIndex].special.includesCount; ++iInclude) {
+			//		const auto iIndex = includesCounter - iInclude - 1;
+			//		const auto&& include = (c16*) includes[iIndex];
+			//
+			//		LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
+			//	}
+			//
+			//	includesCounter -= projects.capes[pIndex].special.includesCount;
+			//
+			//}
+			//
+			//{ // Main config
+			//
+			//	LOGINFO ("MainConfig\n");
+			//	// Prob.. I don't store those do i?
+			//
+			//	for (s32 iInclude = includesCounter; iInclude > 0; --iInclude){ 
+			//		const auto iIndex = iInclude - 1;
+			//		const auto&& include = (c16*) includes[iIndex];
+			//
+			//		LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
+			//	}
+			//
+			//}
 
-				LOGINFO ("ProjectFile [%d]:`%s` (%ls) read successfully\n", pIndex, key, value);
+			// 2nd READ
+			for (u32 iFile = files.size (); iFile > 0; --iFile) {
 
-				// TODO
-				// we need to store the amount of includes a project has 
-				// to do so i created `projects.capes[i].special.includesCount` but it has to be populated first.
+				//LOGINFO ("CALL!\n");
+				const auto& config = files[iFile - 1];
+				rewind (config);
 
-				// 1. Go thorugh each project-include
-				// 2. Go through each project
-				// 3. Read them using INTERPRETER::MAIN::Main
-				// Where we will read
-				// Constants, Secrets, Varaibles, Commands, Queues
+				INTERPRETER::parsingstage = INTERPRETER::MAIN::Main;
+				interpreter.current = 0;
+				interpreter.special = 0;
 
-				for (s32 iInclude = 0; iInclude < projects.capes[pIndex].special.includesCount; ++iInclude) {
-					const auto iIndex = includesCounter - iInclude - 1;
-					const auto&& include = (c16*) includes[iIndex];
-
-					LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
+				while (interpreter.current != EOF) { // READ
+					interpreter.current = getc (config);
+					INTERPRETER::parsingstage (interpreter);
 				}
-
-				includesCounter -= projects.capes[pIndex].special.includesCount;
 
 			}
 
-			{ // Main config
-
-				LOGINFO ("MainConfig\n");
-				// Prob.. I don't store those do i?
-	
-				for (s32 iInclude = includesCounter; iInclude > 0; --iInclude){ 
-					const auto iIndex = iInclude - 1;
-					const auto&& include = (c16*) includes[iIndex];
-
-					LOGINFO ("\tIncludeFile [%d]: %ls\n", iIndex, include);
-				}
-
-			}
+			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
+			// 	const auto&& value = (c16*) constants.values[iConstant];
+			// 	const auto&& key = (c8*) constants.keys[iConstant];
+			// 	//LOGINFO ("CONST: %s: %ls\n", key, value);
+			// }
 			
 
 		}
@@ -255,10 +287,20 @@ namespace OPEN {
 			FREE (includes[i]);
 		}
 
+		for (s32 i = 0; i < constants.keys.size(); ++i) {
+			FREE (constants.values[i]);
+			FREE (constants.keys[i]);
+		}
+
 		//printf ("INFO: E\n");
 
 		// SHOULD BE MOVED OUTSIDE THAT !!!!
-		IO::Close (mainConfig);
+		//IO::Close (mainConfig);
+
+		for (u32 iFile = 0; iFile < files.size(); ++iFile) {
+			IO::Close (files[iFile]);
+		}
+
 		FREE (mainConfigFilePath);
 
 		//printf ("INFO: F\n");

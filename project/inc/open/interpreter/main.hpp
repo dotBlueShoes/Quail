@@ -6,6 +6,8 @@
 #include "../data.hpp"
 #include "types.hpp"
 
+#include "comparesearch.hpp"
+
 
 namespace OPEN::INTERPRETER {
 
@@ -75,6 +77,18 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 	void Config		(const Interpreter&);
 }
 
+namespace OPEN::INTERPRETER::MAIN::CONSTANT {
+	void Initialize ();
+	void Name		(const Interpreter&);
+	void Value		(const Interpreter&);
+
+	// Cascading interpolation
+	void CascadeConstant ();
+	void Constant 	(const Interpreter&);
+	void Variable 	(const Interpreter&);
+	void Secret 	(const Interpreter&);
+}
+
 namespace OPEN::INTERPRETER::MAIN {
 
 	void GetAllFiles (const Interpreter& interpreter) {
@@ -98,7 +112,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SPACE:
 			case TYPE_TAB:
 			case TYPE_EOF: {
-				putc (interpreter.current, stdout);
+				//putc (interpreter.current, stdout);
 			} break;
 
 			case TYPE_INCLUDE: 
@@ -109,27 +123,27 @@ namespace OPEN::INTERPRETER::MAIN {
 			} break;
 
 			case TYPE_CONSTANT: {
-
+				CONSTANT::Initialize ();
 			} break;
 
 			case TYPE_SECRET: {
-
+				//LOGINFO ("Detected Secret!\n");
 			} break;
 
 			case TYPE_VARIABLE: {
-
+				//LOGINFO ("Detected Variable!\n");
 			} break;
 
 			case TYPE_COMMAND: {
-
+				//LOGINFO ("Detected Command!\n");
 			} break;
 
 			case TYPE_QUEUE: {
-
+				//LOGINFO ("Detected Queue!\n");
 			} break;
 
 			default: { 
-				putc (interpreter.current, stdout);
+				//putc (interpreter.current, stdout);
 			}
 
 		}
@@ -151,7 +165,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax\n\n");
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space8", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -177,17 +191,51 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_INCLUDE:
 			case TYPE_COMMAND:
 			case TYPE_QUEUE:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN: 
 			case TYPE_CONSTANT:
 			case TYPE_VARIABLE:
-			case TYPE_SECRET:
-			case TYPE_COMMENT:
-			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax\n\n");
+			case TYPE_SECRET: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space16", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_SPACE:
 			case TYPE_TAB: break; // nothing
+
+			default: {
+				SetFirstTempW (interpreter.current);
+				parsingstage = specialStage;
+			}
+
+		}
+
+	}
+
+	// CASCADING VARIANT
+	void SpaceCC16 (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE:
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space16", interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_CONSTANT: CONSTANT::CascadeConstant (); break;
+
+			//case TYPE_VARIABLE: {} break;
+			//case TYPE_SECRET: {} break;
 
 			default: {
 				SetFirstTempW (interpreter.current);
@@ -233,7 +281,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 			case TYPE_SECRET:
 			case TYPE_ASSIGN:
 			case TYPE_COMMENT:  {
-				ERROR ("Invalid syntax\n\n");
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "include:context", interpreter.current);
 			} break;
 
 			case TYPE_SPACE:
@@ -300,7 +348,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				parsingstage = Name;
 			} break;
 
-			default: ERROR ("Invalid syntax\n\n");
+			default: ERROR ("Invalid syntax '%s' [%d] \n\n", "project:type", interpreter.current);
 
 		}
 
@@ -320,7 +368,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("Invalid syntax\n\n");
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "name:value", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -365,7 +413,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_EOF:
 			case TYPE_NEW_LINE: {
-				ERROR ("Invalid syntax\n\n");
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:path", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -431,7 +479,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_SPACE:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%d'\n\n", interpreter.current);
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:config", interpreter.current);
 			} break;
 
 			
@@ -474,5 +522,184 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 		}
 
 	}
+
+}
+
+namespace OPEN::INTERPRETER::MAIN::CONSTANT {
+
+	void Initialize () {
+		temporaryLength = 0;
+		parsingstage = CONSTANT::Name;
+	}
+
+	void CascadeConstant () {
+		// Detection of a cascading constant
+		//  we'll be finding the constant from the ones we already read and attach it.
+		parsingstage = Constant;
+		specialStage = Value;
+		cascadingLength = 0;
+	}
+
+	void Name (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_NEW_LINE:
+			case TYPE_EOF: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:name", interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_ASSIGN: {
+
+				AddTemp (TYPE_EOS);
+
+				u8* name; ALLOCATE (u8, name, temporaryLength);
+				memcpy (name, temporary, temporaryLength);
+
+				constants.keys.push_back (name);
+
+				temporaryLength = 0; // RESET
+
+				specialStage = Value;
+				parsingstage = MAIN::SpaceCC16;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+			}
+
+		}
+
+	}
+
+	void Value (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN:
+			case TYPE_TAB: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:value", interpreter.current);
+			} break;
+
+			
+			case TYPE_EOF:
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE: {
+
+				AddTempW (TYPE_EOS);
+
+				u8* value; ALLOCATE (u8, value, temporaryLength);
+				memcpy (value, temporary, temporaryLength);
+
+				constants.valueLengths.push_back (temporaryLength - 2);
+				constants.values.push_back (value);
+				parsingstage = Main;
+
+			} break;
+
+			
+			case TYPE_CONSTANT: CascadeConstant (); break;
+
+			//case TYPE_VARIABLE:
+			//case TYPE_SECRET: { 
+			//	cascadingLength = 0;
+			//	AddTempW (interpreter.current);
+			//} break;
+
+			default: {
+				AddTempW (interpreter.current);
+			}
+
+		}
+
+	}
+
+	void Constant (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_VARIABLE:
+			case TYPE_SECRET: 
+			case TYPE_EOF:
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE:
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN:
+			case TYPE_TAB: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:constant", interpreter.current);
+			} break;
+
+			case TYPE_CONSTANT: {
+
+				AddTemp (TYPE_EOS);
+				++cascadingLength;
+
+				// Remove key that we stored from the constant so that we can later emplace cascading value.
+				temporaryLength = temporaryLength - cascadingLength;
+				auto&& key = (u8*)(temporary + temporaryLength);
+
+				{ // Cascading in Action. Match key, get key value, store.
+					u32 index = 0;
+
+					COMPARESEARCH::ArrayPartFirstMatchVector ( 
+						key, cascadingLength, sizeof (c8),
+						index, 
+						constants.keys.size (),
+						(void**)(constants.keys.data ())
+					);
+
+					if (index == constants.keys.size ()) {
+						ERROR ("Invalid constant reference.\n\n");
+					}
+
+					const auto& foundLength = constants.valueLengths[index];
+					const auto& found = constants.values[index];
+
+					memcpy (key, found, foundLength);
+					temporaryLength += foundLength;
+
+				}
+
+				parsingstage = specialStage;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+				++cascadingLength;
+			}
+
+		}
+
+	}
+
+	//void Variable (const Interpreter& interpreter) {
+	//	
+	//}
+	//void Secret (const Interpreter& interpreter) {
+	//	
+	//}
 
 }

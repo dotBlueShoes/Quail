@@ -32,11 +32,16 @@ namespace OPEN {
 
 	template <typename T>
 	struct Projects {
-
 		std::vector<T> 				keys;
 		std::vector<T> 				paths;
 		std::vector<T> 				configs;
 		std::vector<ProjectsCape> 	capes;
+	};
+
+	struct Constants {
+		std::vector<u8*> keys;
+		std::vector<u8*> values;
+		std::vector<u32> valueLengths;
 	};
 
 	enum SPECIAL_CHARACTERS : c8 {
@@ -70,8 +75,10 @@ namespace OPEN {
 	c16* currentConfigFolder;
 
 	// All the commands information.
+	std::vector<FILE*> files;
 	std::vector<u8*> includes;
 	Projects<u8*> projects;
+	Constants constants;
 
 	// We're using those 2 to form a string that later 
 	// copied and pushed to a specific vector.
@@ -85,7 +92,7 @@ namespace OPEN {
 
 	void SetFirstTemp (const c8& value) {
 		temporary[0] = value;
-		temporaryLength = 0;
+		temporaryLength = 1;
 	}
 
 	void SetFirstTempW (const c8& value) {
@@ -112,5 +119,9 @@ namespace OPEN {
 		temporary[temporaryLength] = (u8)(value >> 0);
 		++temporaryLength;
 	}
+
+	//// Cascading values require storing data
+	u32 cascadingLength;
+	//u8 cascading[256];
 
 }
