@@ -89,6 +89,15 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 	void Secret 	(const Interpreter&);
 }
 
+namespace OPEN::INTERPRETER::MAIN::COMMAND {
+	void Initialize ();
+	void Name		(const Interpreter&);
+	void Value		(const Interpreter&);
+	//void Constant (const Interpreter&);
+	//void Variable (const Interpreter&);
+	//void Secret 	(const Interpreter&);
+}
+
 namespace OPEN::INTERPRETER::MAIN {
 
 	void GetAllFiles (const Interpreter& interpreter) {
@@ -122,9 +131,7 @@ namespace OPEN::INTERPRETER::MAIN {
 				parsingstage = Comment; specialStage = Main;
 			} break;
 
-			case TYPE_CONSTANT: {
-				CONSTANT::Initialize ();
-			} break;
+			case TYPE_CONSTANT: CONSTANT::Initialize (); break;
 
 			case TYPE_SECRET: {
 				//LOGINFO ("Detected Secret!\n");
@@ -134,9 +141,7 @@ namespace OPEN::INTERPRETER::MAIN {
 				//LOGINFO ("Detected Variable!\n");
 			} break;
 
-			case TYPE_COMMAND: {
-				//LOGINFO ("Detected Command!\n");
-			} break;
+			case TYPE_COMMAND: COMMAND::Initialize (); break;
 
 			case TYPE_QUEUE: {
 				//LOGINFO ("Detected Queue!\n");
@@ -529,7 +534,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 
 	void Initialize () {
 		temporaryLength = 0;
-		parsingstage = CONSTANT::Name;
+		parsingstage = Name;
 	}
 
 	void CascadeConstant () {
@@ -701,5 +706,95 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 	//void Secret (const Interpreter& interpreter) {
 	//	
 	//}
+
+}
+
+namespace OPEN::INTERPRETER::MAIN::COMMAND {
+
+	void Initialize () {
+		temporaryLength = 0;
+		parsingstage = Name;
+	}
+
+	void Name (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_NEW_LINE:
+			case TYPE_EOF: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:name", interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_ASSIGN: {
+
+				AddTemp (TYPE_EOS);
+
+				u8* name; ALLOCATE (u8, name, temporaryLength);
+				memcpy (name, temporary, temporaryLength);
+
+				commands.keys.push_back (name);
+
+				temporaryLength = 0; // RESET
+
+				specialStage = Value;
+				parsingstage = MAIN::SpaceC16;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+			}
+
+		}
+	}
+
+	void Value (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			//case TYPE_COMMENT:
+			case TYPE_ASSIGN:
+			case TYPE_TAB: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:value", interpreter.current);
+			} break;
+
+			
+			case TYPE_EOF:
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE: {
+
+				AddTempW (TYPE_EOS);
+
+				u8* value; ALLOCATE (u8, value, temporaryLength);
+				memcpy (value, temporary, temporaryLength);
+
+				commands.values.push_back (value);
+				parsingstage = Main;
+
+			} break;
+
+			default: {
+				AddTempW (interpreter.current);
+			}
+
+		}
+
+	}
 
 }

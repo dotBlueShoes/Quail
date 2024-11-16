@@ -44,6 +44,11 @@ namespace OPEN {
 		std::vector<u32> valueLengths;
 	};
 
+	struct Commands {
+		std::vector<u8*> keys;
+		std::vector<u8*> values;
+	};
+
 	enum SPECIAL_CHARACTERS : c8 {
 		TYPE_PROJECT			= '^',
 		TYPE_INCLUDE 			= '&',
@@ -79,6 +84,7 @@ namespace OPEN {
 	std::vector<u8*> includes;
 	Projects<u8*> projects;
 	Constants constants;
+	Commands commands;
 
 	// We're using those 2 to form a string that later 
 	// copied and pushed to a specific vector.

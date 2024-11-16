@@ -147,7 +147,7 @@ namespace OPEN {
 
 	void Open (
 		const u32& depth,
-		const c8* const* const& commands
+		const c8* const* const& actions
 	) {
 
 		FILE* mainConfig = nullptr;
@@ -170,12 +170,12 @@ namespace OPEN {
 			}
 
 			for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
-				const auto& command = commands[iDepth];
+				const auto& command = actions[iDepth];
 				GetProjects (interpreter, includesCounter, command);
 			}
 
 			{ // Has to be a either a project / subproject / command / queue.
-				const auto& command = commands[lastDepth];
+				const auto& command = actions[lastDepth];
 				GetProjects (interpreter, includesCounter, command);
 			}
 
@@ -260,8 +260,14 @@ namespace OPEN {
 			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
 			// 	const auto&& value = (c16*) constants.values[iConstant];
 			// 	const auto&& key = (c8*) constants.keys[iConstant];
-			// 	//LOGINFO ("CONST: %s: %ls\n", key, value);
+			// 	//LOGINFO ("Constant: %s: %ls\n", key, value);
 			// }
+
+			for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
+				const auto&& value = (c16*) commands.values[iCommand];
+				const auto&& key = (c8*) commands.keys[iCommand];
+				LOGINFO ("Command: %s: %ls\n", key, value);
+			}
 			
 
 		}
