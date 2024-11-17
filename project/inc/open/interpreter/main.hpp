@@ -82,11 +82,15 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 	void Name		(const Interpreter&);
 	void Value		(const Interpreter&);
 
-	// Cascading interpolation
-	void CascadeConstant ();
+	
+}
+
+namespace OPEN::INTERPRETER::MAIN::CASCADE {
+	void Initialize ();
 	void Constant 	(const Interpreter&);
-	void Variable 	(const Interpreter&);
-	void Secret 	(const Interpreter&);
+
+	//void Variable 	(const Interpreter&);
+	//void Secret 	(const Interpreter&);
 }
 
 namespace OPEN::INTERPRETER::MAIN::COMMAND {
@@ -237,7 +241,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SPACE:
 			case TYPE_TAB: break; // nothing
 
-			case TYPE_CONSTANT: CONSTANT::CascadeConstant (); break;
+			case TYPE_CONSTANT: specialStage = CONSTANT::Value; CASCADE::Initialize (); break;
 
 			//case TYPE_VARIABLE: {} break;
 			//case TYPE_SECRET: {} break;
@@ -530,19 +534,85 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 }
 
+namespace OPEN::INTERPRETER::MAIN::CASCADE {
+
+	// Detection of a cascading constant
+	//  we'll be finding the constant from the ones we already read and attach it.
+	void Initialize () {
+		parsingstage = Constant;
+		cascadingLength = 0;
+	}
+
+	void Constant (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_VARIABLE:
+			case TYPE_SECRET: 
+			case TYPE_EOF:
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE:
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_COMMENT:
+			case TYPE_ASSIGN:
+			case TYPE_TAB: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:constant", interpreter.current);
+			} break;
+
+			case TYPE_CONSTANT: {
+
+				AddTemp (TYPE_EOS);
+				++cascadingLength;
+
+				// Remove key that we stored from the constant so that we can later emplace cascading value.
+				temporaryLength = temporaryLength - cascadingLength;
+				auto&& key = (u8*)(temporary + temporaryLength);
+
+				{ // Cascading in Action. Match key, get key value, store.
+					u32 index = 0;
+
+					COMPARESEARCH::ArrayPartFirstMatchVector ( 
+						key, cascadingLength, sizeof (c8),
+						index, 
+						constants.keys.size (),
+						(void**)(constants.keys.data ())
+					);
+
+					if (index == constants.keys.size ()) {
+						ERROR ("Invalid constant: %s\n\n", key);
+					}
+
+					const auto& foundLength = constants.valueLengths[index];
+					const auto& found = constants.values[index];
+
+					memcpy (key, found, foundLength);
+					temporaryLength += foundLength;
+
+				}
+
+				parsingstage = specialStage;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+				++cascadingLength;
+			}
+
+		}
+
+	}
+
+}
+
 namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 
 	void Initialize () {
 		temporaryLength = 0;
 		parsingstage = Name;
-	}
-
-	void CascadeConstant () {
-		// Detection of a cascading constant
-		//  we'll be finding the constant from the ones we already read and attach it.
-		parsingstage = Constant;
-		specialStage = Value;
-		cascadingLength = 0;
 	}
 
 	void Name (const Interpreter& interpreter) {
@@ -621,7 +691,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 			} break;
 
 			
-			case TYPE_CONSTANT: CascadeConstant (); break;
+			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
 
 			//case TYPE_VARIABLE:
 			//case TYPE_SECRET: { 
@@ -636,76 +706,6 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 		}
 
 	}
-
-	void Constant (const Interpreter& interpreter) {
-
-		switch (interpreter.current) {
-
-			case TYPE_VARIABLE:
-			case TYPE_SECRET: 
-			case TYPE_EOF:
-			case TYPE_CARRIAGE_RETURN:
-			case TYPE_NEW_LINE:
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_COMMENT:
-			case TYPE_ASSIGN:
-			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:constant", interpreter.current);
-			} break;
-
-			case TYPE_CONSTANT: {
-
-				AddTemp (TYPE_EOS);
-				++cascadingLength;
-
-				// Remove key that we stored from the constant so that we can later emplace cascading value.
-				temporaryLength = temporaryLength - cascadingLength;
-				auto&& key = (u8*)(temporary + temporaryLength);
-
-				{ // Cascading in Action. Match key, get key value, store.
-					u32 index = 0;
-
-					COMPARESEARCH::ArrayPartFirstMatchVector ( 
-						key, cascadingLength, sizeof (c8),
-						index, 
-						constants.keys.size (),
-						(void**)(constants.keys.data ())
-					);
-
-					if (index == constants.keys.size ()) {
-						ERROR ("Invalid constant reference.\n\n");
-					}
-
-					const auto& foundLength = constants.valueLengths[index];
-					const auto& found = constants.values[index];
-
-					memcpy (key, found, foundLength);
-					temporaryLength += foundLength;
-
-				}
-
-				parsingstage = specialStage;
-
-			} break;
-
-			default: {
-				AddTemp (interpreter.current);
-				++cascadingLength;
-			}
-
-		}
-
-	}
-
-	//void Variable (const Interpreter& interpreter) {
-	//	
-	//}
-	//void Secret (const Interpreter& interpreter) {
-	//	
-	//}
 
 }
 
@@ -774,6 +774,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:value", interpreter.current);
 			} break;
 
+			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
 			
 			case TYPE_EOF:
 			case TYPE_CARRIAGE_RETURN:

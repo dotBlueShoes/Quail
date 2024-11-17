@@ -96,7 +96,7 @@ namespace OPEN {
 		const u32 configFilePathLength = (pathLength + configLength) / 2;
 		const auto&& configFilePath = (c16*) (projects.configs[index]);
 				
-		LOGINFO ("> ProjectFile [%d]:`%ls`\n", index, configFilePath);
+		LOGINFO ("> ProjectFile [%d]:`%ls` read successfully\n", index, configFilePath);
 
 		// And another one...
 		FILE* config = nullptr;
@@ -209,11 +209,11 @@ namespace OPEN {
 			// }
 
 			// DISPLAYS ALL COMMANDS
-			//for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
-			//	const auto&& value = (c16*) commands.values[iCommand];
-			//	const auto&& key = (c8*) commands.keys[iCommand];
-			//	LOGINFO ("Command: %s: %ls\n", key, value);
-			//}
+			for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
+				const auto&& value = (c16*) commands.values[iCommand];
+				const auto&& key = (c8*) commands.keys[iCommand];
+				LOGINFO ("Command: %s: %ls\n", key, value);
+			}
 
 			// Currently I am loading all constants, varaibles, secrets
 			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessery needed.
@@ -228,14 +228,40 @@ namespace OPEN {
 			LOGINFO ("Execute.\n");
 
 			// TODO
-			//  Find last action in commands, match. execute commands value.
+			//  DONE 1. Encapsulate constants/variables/secrets in values of commands.
+			//  2. Find last action in commands, match. execute commands value.
+
+			const u32 lastDepth = depth - 1;
+			const auto& action = actions[lastDepth];
+			u32 index = 0;
+
+			{ // Find Command in Commands
+				u16 commandLength = 0; for (; action[commandLength] != TYPE_EOS; ++commandLength);
+
+				COMPARESEARCH::ArrayPartFirstMatchVector ( 
+					action, commandLength, sizeof (c8),
+					index, 
+					commands.keys.size (),
+					(void**)(commands.keys.data ())
+				);
+
+				if (index == commands.keys.size ()) {
+					ERROR ("Not a valid command\n");
+				} else {
+
+					auto&& command = (c16*) commands.values[index];
+					LOGINFO ("id: [%d]: %ls\n", index, command);
+					_wsystem (command);
+
+				}
+			}
 
 		} else { 		// LISTING
 			LOGINFO ("LISTING.\n");
 
 			// TODO
 			//  1. List commands key and value.
-			//  1. List queues key and value.
+			//  2. List queues key and value.
 
 		}
 
