@@ -6,6 +6,7 @@
 #include "base/io.hpp"
 
 #include "registry.hpp"
+#include "envars.hpp"
 
 namespace INSTALLATION {
 
@@ -21,13 +22,23 @@ namespace INSTALLATION {
 			const auto& filepathLength	= OPEN::mainConfigFolderPathLength;
 
 			const u32 configFilepathLength = filepathLength + 1 + REGISTRY::CONFIG_LENGTH;
-			c16* configFilepath = (c16*) malloc (configFilepathLength); // ALLOCATION
+			c16* configFilepath; ALLOCATE (c16, configFilepath, configFilepathLength);// = (c16*) malloc (configFilepathLength); // ALLOCATION
 
 			{ // CONSTRUCT
 				memcpy (configFilepath, filepath, filepathLength);
 				configFilepath[(filepathLength / 2) - 1] = L'\\';
 				memcpy (configFilepath + (filepathLength / 2), REGISTRY::CONFIG_W, REGISTRY::CONFIG_LENGTH);
 			}
+
+			{ // FREE AND SWAP
+				FREE (OPEN::mainConfigFilePath);
+				OPEN::mainConfigFilePathLength = configFilepathLength;
+				OPEN::mainConfigFilePath = configFilepath;
+			}
+
+			//LOGINFO ("%d, %d\n", OPEN::mainConfigFolderPathLength, OPEN::mainConfigFilePathLength);
+
+			ENVARS::AddQuailToPath (OPEN::mainConfigFolderPathLength, OPEN::mainConfigFilePath);
 
 			if (IO::IsExisting (configFilepath)) {
 
@@ -38,11 +49,6 @@ namespace INSTALLATION {
 				IO::Create (configFilepath);
 
 			}
-
-			// FREE AND SWAP
-			free (OPEN::mainConfigFilePath);
-			OPEN::mainConfigFilePathLength = configFilepathLength;
-			OPEN::mainConfigFilePath = configFilepath;
 
 		}
 
