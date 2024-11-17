@@ -65,9 +65,9 @@ namespace OPEN {
 
 
 	auto FindProject (
-		const c8* const& command
+		const c8* const& command,
+		const u16& commandLength
 	) {
-		u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 		u32 index = 0;
 
 		COMPARESEARCH::ArrayPartFirstMatchVector ( 
@@ -142,11 +142,12 @@ namespace OPEN {
 
 		IO::Read (mainConfigFilePath, mainConfig);
 		files.push_back (mainConfig);
-		
+
+		const u32 lastDepth = depth - 1;
+		const auto& lastAction = actions[lastDepth];
+		u16 lastActionLength = 0; for (; lastAction[lastActionLength] != TYPE_EOS; ++lastActionLength);
 
 		{ // 1st READ
-
-			const u32 lastDepth = depth - 1;
 
 			{// MAIN CONFIG
 				currentConfigFolderLength = mainConfigFolderPathLength;
@@ -157,8 +158,9 @@ namespace OPEN {
 
 			for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
 				const auto& command = actions[iDepth];
+				u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 				
-				u32 index = FindProject (command);
+				u32 index = FindProject (command, commandLength);
 
 				if (index == projects.keys.size ()) {
 					ERROR ("Could not match with any project.\n\n");
@@ -166,9 +168,7 @@ namespace OPEN {
 			}
 
 			{ // Has to be a either a project / subproject / command / queue.
-				const auto& command = actions[lastDepth];
-
-				u32 index = FindProject (command);
+				u32 index = FindProject (lastAction, lastActionLength);
 
 				if (index == projects.keys.size ()) {
 
@@ -227,19 +227,11 @@ namespace OPEN {
 		if (openType) { // EXECUTE
 			LOGINFO ("Execute.\n");
 
-			// TODO
-			//  DONE 1. Encapsulate constants/variables/secrets in values of commands.
-			//  2. Find last action in commands, match. execute commands value.
-
-			const u32 lastDepth = depth - 1;
-			const auto& action = actions[lastDepth];
 			u32 index = 0;
 
 			{ // Find Command in Commands
-				u16 commandLength = 0; for (; action[commandLength] != TYPE_EOS; ++commandLength);
-
 				COMPARESEARCH::ArrayPartFirstMatchVector ( 
-					action, commandLength, sizeof (c8),
+					lastAction, lastActionLength, sizeof (c8),
 					index, 
 					commands.keys.size (),
 					(void**)(commands.keys.data ())
@@ -249,7 +241,7 @@ namespace OPEN {
 					ERROR ("Not a valid command\n");
 				} else {
 
-					auto&& command = (c16*) commands.values[index];
+					const auto&& command = (c16*) commands.values[index];
 					LOGINFO ("id: [%d]: %ls\n", index, command);
 					_wsystem (command);
 
@@ -259,8 +251,13 @@ namespace OPEN {
 		} else { 		// LISTING
 			LOGINFO ("LISTING.\n");
 
+			for (u32 i = 0; i < commands.keys.size (); ++i) {
+				const auto&& value = (c16* )commands.values[i];
+				const auto&& key = (c8* )commands.keys[i];
+				printf ("\t%s: %ls\n", key, value);
+			}
+
 			// TODO
-			//  1. List commands key and value.
 			//  2. List queues key and value.
 
 		}
