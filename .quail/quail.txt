@@ -1,0 +1,6 @@
+
+%name = Quail
+%project_dir = C:\Projects\Quail
+%quail_dir = C:\Program Files\dotBlueShoes\Quail
+
+!cpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%'

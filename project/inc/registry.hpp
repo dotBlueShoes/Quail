@@ -17,6 +17,64 @@ namespace REGISTRY {
 	const c16 CONFIG_W[]				= L"config.txt";
 	const u32 CONFIG_LENGTH				= sizeof (CONFIG_W);
 
+	void AddQuailToPath (
+		const u16& quailLength,
+		const c16* const& quail
+	) {
+		
+		const c16* keyPath = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
+
+		const c16* name = L"path";
+
+		c16* env; ALLOCATE (c16, env, 2048);
+		DWORD envSize = -1;
+		
+		HKEY hKey;
+
+		// OPEN
+    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, keyPath, 0, KEY_ALL_ACCESS, &hKey);
+
+    	if (error != ERROR_SUCCESS) {
+			ERROR ("Could not open key at `%ls`\n", keyPath);
+		}
+
+		// GET
+		error = RegGetValueW (hKey, NULL, name, RRF_RT_ANY, NULL, env, &envSize);
+
+		if (error != ERROR_SUCCESS) {
+			ERROR ("Could not get `%ls` value.\n", name);
+		} 
+
+		{ // Adding quail
+			auto&& binary = ((u8*) env) + envSize; //642;
+			auto&& begin = (c16*) binary - 2;
+
+			wmemset (begin + 0, L';', 2);					// Replace `\0` with `;`.
+			memcpy  (begin + 1, quail, quailLength);		// Add Quail
+			wmemset (begin + (quailLength / 2), L'\0', 2); 	// Replace `\\` with `\0`.
+
+			envSize = envSize +quailLength + 1;
+
+			//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
+		}
+
+		// SET
+    	error = RegSetValueExW (hKey, name, 0, REG_SZ, (LPBYTE)env, envSize);
+		
+		if (error != ERROR_SUCCESS) {
+			ERROR ("Could not set `%ls` value with `%ls`\n", name, env);
+		}
+
+		// Update all other applications because we did just edited enviroment varaibles!
+		SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
+		LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
+
+		// FREE
+    	RegCloseKey (hKey);
+		FREE (env);
+
+	}
+
 	void CreateKeys () {
 
 		const auto& filepath 		= DEFAULT_FILEPATH_W;
@@ -75,6 +133,7 @@ namespace REGISTRY {
     	c16* data;
     	DWORD size = 0;
 
+		// First get required size for memory allocation.
     	status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			REGISTRY_PATH_W, 
@@ -94,11 +153,13 @@ namespace REGISTRY {
 		// ALLOCATION
 		ALLOCATE (c16, data, size);
 
+		// Second get data.
         status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			REGISTRY_PATH_W, 
 			PROPERTY_FILEPATH_W, 
-			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, NULL, 
+			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
+			NULL, 
 			data,
 			&size
 		);

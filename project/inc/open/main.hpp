@@ -202,11 +202,11 @@ namespace OPEN {
 			}
 
 			// DISPLAYS ALL CONSTANTS
-			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
-			// 	const auto&& value = (c16*) constants.values[iConstant];
-			// 	const auto&& key = (c8*) constants.keys[iConstant];
-			// 	//LOGINFO ("Constant: %s: %ls\n", key, value);
-			// }
+			for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
+				const auto&& value = (c16*) constants.values[iConstant];
+				const auto&& key = (c8*) constants.keys[iConstant];
+				LOGINFO ("Constant: %s: %ls\n", key, value);
+			}
 
 			// DISPLAYS ALL COMMANDS
 			for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {

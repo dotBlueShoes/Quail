@@ -36,16 +36,13 @@ namespace INSTALLATION {
 				OPEN::mainConfigFilePath = configFilepath;
 			}
 
-			//LOGINFO ("%d, %d\n", OPEN::mainConfigFolderPathLength, OPEN::mainConfigFilePathLength);
-
-			ENVARS::AddQuailToPath (OPEN::mainConfigFolderPathLength, OPEN::mainConfigFilePath);
-
 			if (IO::IsExisting (configFilepath)) {
 
 				LOGINFO ("File already exists.\n");
 
 			} else {
 
+				REGISTRY::AddQuailToPath (OPEN::mainConfigFolderPathLength, OPEN::mainConfigFilePath);
 				IO::Create (configFilepath);
 
 			}

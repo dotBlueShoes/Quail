@@ -780,6 +780,10 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE: {
 
+				// Not really needed.
+				// AddTempW (' ');
+				// AddTempW ('&');
+
 				AddTempW (TYPE_EOS);
 
 				u8* value; ALLOCATE (u8, value, temporaryLength);

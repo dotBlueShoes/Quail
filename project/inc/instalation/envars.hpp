@@ -18,7 +18,7 @@ namespace ENVARS {
 	) {
 		const c16 header[] = L"PATH=";
 
-		c16* env; ALLOCATE (c16, env, 2048); //= new char[2048]; // fingers crossed this is enough
+		c16* env; ALLOCATE (c16, env, 2048);
 
 		memcpy (env, header, 12);
 		wcscat (env, _wgetenv (L"PATH"));
