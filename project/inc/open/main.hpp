@@ -145,7 +145,7 @@ namespace OPEN {
 
 		const u32 lastDepth = depth - 1;
 		const auto& lastAction = actions[lastDepth];
-		u16 lastActionLength = 0; for (; lastAction[lastActionLength] != TYPE_EOS; ++lastActionLength);
+		u16 lastActionLength = 0; 
 
 		{ // 1st READ
 
@@ -156,26 +156,31 @@ namespace OPEN {
 				GetIncludes (interpreter, includesCounter, mainConfig);
 			}
 
-			for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
-				const auto& command = actions[iDepth];
-				u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
-				
-				u32 index = FindProject (command, commandLength);
+			if (depth != 0) {
 
-				if (index == projects.keys.size ()) {
-					ERROR ("Could not match with any project.\n\n");
-				} else { GetProjects (interpreter, includesCounter, index); }
-			}
+				for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
+					const auto& command = actions[iDepth];
+					u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 
-			{ // Has to be a either a project / subproject / command / queue.
-				u32 index = FindProject (lastAction, lastActionLength);
+					u32 index = FindProject (command, commandLength);
 
-				if (index == projects.keys.size ()) {
+					if (index == projects.keys.size ()) {
+						ERROR ("Could not match with any project.\n\n");
+					} else { GetProjects (interpreter, includesCounter, index); }
+				}
 
-					LOGWARN ("We are looking for a command not a listing.\n\n");
-					openType = OPEN_TYPE_COMMAND;
+				{ // Has to be a either a project / subproject / command / queue.
+					for (; lastAction[lastActionLength] != TYPE_EOS; ++lastActionLength);
+					u32 index = FindProject (lastAction, lastActionLength);
 
-				} else { GetProjects (interpreter, includesCounter, index); }
+					if (index == projects.keys.size ()) {
+
+						LOGWARN ("We are looking for a command not a listing.\n\n");
+						openType = OPEN_TYPE_COMMAND;
+
+					} else { GetProjects (interpreter, includesCounter, index); }
+				}
+
 			}
 
 		}
@@ -256,10 +261,17 @@ namespace OPEN {
 
 			putc ('\n', stdout);
 
+			// Display only subprojects of a project
+			for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
+				const auto&& value = (c16* )projects.paths[i];
+				const auto&& key = (c8* )projects.keys[i];
+				printf ("\t%c%s: %ls\n", TYPE_PROJECT, key, value);
+			}
+
 			for (u32 i = 0; i < commands.keys.size (); ++i) {
 				const auto&& value = (c16* )commands.values[i];
 				const auto&& key = (c8* )commands.keys[i];
-				printf ("\t%s: %ls\n", key, value);
+				printf ("\t%c%s: %ls\n", TYPE_COMMAND, key, value);
 			}
 
 			putc ('\n', stdout);
