@@ -2,5 +2,19 @@
 %name = Quail
 %project_dir = C:\Projects\Quail
 %quail_dir = C:\Program Files\dotBlueShoes\Quail
+%vcvarsall_dir = C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 
-!cpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%'
+%pr = x64-win-release
+%pd = x64-win-debug
+
+!terminal = wt -w 1 nt --title %name% -d "%project_dir%" --tabColor "#FF0000"
+!directory = explorer.exe "%project_dir%"
+
+!cpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%' '%pd%'
+!ccpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%' '%pr%'
+
+!bld = powershell.exe "%project_dir%\.quail\build" "%project_dir%" '%vcvarsall_dir%' '%pd%'
+!bbld = powershell.exe "%project_dir%\.quail\build" "%project_dir%" '%vcvarsall_dir%' '%pr%'
+
+#!exe = powershell.exe "%project_dir%\.quail\exe_with_res.ps1" "%project_dir%/build/%pd%/project/" '%name%'
+#!eexe = powershell.exe "%project_dir%\.quail\exe_with_res.ps1" "%project_dir%/build/%pr%/project/" '%name%'

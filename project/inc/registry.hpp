@@ -67,7 +67,7 @@ namespace REGISTRY {
 
 		// Update all other applications because we did just edited enviroment varaibles!
 		SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
-		LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
+		DEBUG (DEBUG_FLAG_LOGGING) LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
 
 		// FREE
     	RegCloseKey (hKey);
@@ -101,9 +101,9 @@ namespace REGISTRY {
     	}
 
 		if (status == REG_CREATED_NEW_KEY) {
-			LOGINFO ("Key Created\n");
+			DEBUG (DEBUG_FLAG_LOGGING) { LOGINFO ("Key Created\n"); }
 		} else if (status == REG_OPENED_EXISTING_KEY) {
-			LOGINFO ("Key Openned\n");
+			DEBUG (DEBUG_FLAG_LOGGING) { LOGINFO ("Key Openned\n"); }
 		} else {
 			ERROR ("Unknown key-status\n\n");
 		}

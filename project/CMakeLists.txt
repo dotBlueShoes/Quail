@@ -9,15 +9,16 @@ add_compile_definitions (DEBUG_FLAG_LOGGING=${DEBUG_FLAG_LOGGING})
 add_compile_definitions (DEBUG_FLAG_MEMORY=${DEBUG_FLAG_MEMORY})
 add_compile_definitions (DEBUG_FLAG_CLOCKS=${DEBUG_FLAG_CLOCKS})
 add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
-add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
 
 if ( ${PROFILE} EQUAL 0 ) 
 
 	message ("Debug Compilation!")
+	add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
 	
 elseif ( ${PROFILE} EQUAL 1 )
 
 	message ("Release Compilation!")
+	add_compile_definitions (DEBUG_TYPE=0)
 	
 endif ()
 

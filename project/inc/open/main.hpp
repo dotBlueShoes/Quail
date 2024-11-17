@@ -202,18 +202,18 @@ namespace OPEN {
 			}
 
 			// DISPLAYS ALL CONSTANTS
-			for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
-				const auto&& value = (c16*) constants.values[iConstant];
-				const auto&& key = (c8*) constants.keys[iConstant];
-				LOGINFO ("Constant: %s: %ls\n", key, value);
-			}
+			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
+			// 	const auto&& value = (c16*) constants.values[iConstant];
+			// 	const auto&& key = (c8*) constants.keys[iConstant];
+			// 	LOGINFO ("Constant: %s: %ls\n", key, value);
+			// }
 
-			// DISPLAYS ALL COMMANDS
-			for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
-				const auto&& value = (c16*) commands.values[iCommand];
-				const auto&& key = (c8*) commands.keys[iCommand];
-				LOGINFO ("Command: %s: %ls\n", key, value);
-			}
+			// // DISPLAYS ALL COMMANDS
+			// for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
+			// 	const auto&& value = (c16*) commands.values[iCommand];
+			// 	const auto&& key = (c8*) commands.keys[iCommand];
+			// 	LOGINFO ("Command: %s: %ls\n", key, value);
+			// }
 
 			// Currently I am loading all constants, varaibles, secrets
 			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessery needed.
@@ -251,14 +251,18 @@ namespace OPEN {
 		} else { 		// LISTING
 			LOGINFO ("LISTING.\n");
 
+			// TODO
+			//  2. List queues key and value.
+
+			putc ('\n', stdout);
+
 			for (u32 i = 0; i < commands.keys.size (); ++i) {
 				const auto&& value = (c16* )commands.values[i];
 				const auto&& key = (c8* )commands.keys[i];
 				printf ("\t%s: %ls\n", key, value);
 			}
 
-			// TODO
-			//  2. List queues key and value.
+			putc ('\n', stdout);
 
 		}
 

@@ -1,9 +1,10 @@
 param (
 	[string]$project_dir = "",
-	[string]$quail_dir = ""
+	[string]$quail_dir = "",
+	[string]$profile = ""
 )
 
-$ori = "'$project_dir\build\x64-win-debug\project\Quail.exe'";
+$ori = "'$project_dir\build\$profile\project\Quail.exe'";
 $dst = "'$quail_dir\Quail.exe'";
 
 $block = { 
