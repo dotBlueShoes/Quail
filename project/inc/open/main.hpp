@@ -261,18 +261,25 @@ namespace OPEN {
 
 			putc ('\n', stdout);
 
+			HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
+
+			// save previous color using. then restore. https://stackoverflow.com/questions/17125440/c-win32-console-color
+			SetConsoleTextAttribute (console, 15);
+
 			// Display only subprojects of a project
 			for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
 				const auto&& value = (c16* )projects.paths[i];
 				const auto&& key = (c8* )projects.keys[i];
-				printf ("\t%c%s: %ls\n", TYPE_PROJECT, key, value);
+				printf ("    %c%s: %ls\n", TYPE_PROJECT, key, value);
 			}
 
 			for (u32 i = 0; i < commands.keys.size (); ++i) {
 				const auto&& value = (c16* )commands.values[i];
 				const auto&& key = (c8* )commands.keys[i];
-				printf ("\t%c%s: %ls\n", TYPE_COMMAND, key, value);
+				printf ("    %c%s: %ls\n", TYPE_COMMAND, key, value);
 			}
+
+			SetConsoleTextAttribute (console, 7);
 
 			putc ('\n', stdout);
 
