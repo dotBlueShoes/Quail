@@ -130,6 +130,48 @@ namespace OPEN {
 	}
 
 
+	void Display (
+		const HANDLE& console,
+		const c16* const& value,
+		const c8* const& key,
+		const c8& symbol,
+		const u8& color
+	) {
+		// Name Padding, Line Padding
+		const c8 NP[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+		const c8 LP[] = "    ";
+
+		const u16 NAME_PADDING_SIZE = 18;
+		const u16 LINE_PADDING_SIZE = 120;
+
+		// When padding is negative change it to equal 0.
+		s16 nps = NAME_PADDING_SIZE - strlen (key); nps *= (nps > 0);
+		s16 lps = LINE_PADDING_SIZE - 2 - nps - strlen (key) - 1 - strlen (LP) - 3; 
+
+		s16 valueSize = wcslen (value);
+		s16 lineEndSize = lps - valueSize;
+
+		if (lineEndSize < 0) { valueSize = lps; lineEndSize = 4;
+		} else { lineEndSize = 0; }
+
+		{ // Writes
+			fwrite (LP, 	 sizeof (c8),	strlen (LP),	stdout);
+			putc   (symbol, stdout);
+
+			SetConsoleTextAttribute (console, color);
+			fwrite (key, 	 sizeof (c8), 	strlen (key), 	stdout);
+			SetConsoleTextAttribute (console, 15);
+
+			fwrite (NP, 	 sizeof (c8), 	nps, 			stdout);
+			fwrite (": ", 	 sizeof (c8), 	2, 				stdout);
+			fwrite (value, 	 sizeof (c16), 	valueSize, 		stdout);
+			fwrite ("...\0", sizeof (c16), 	lineEndSize, 	stdout); // Shouldn't '\0' be after '\n' ?
+			putc   ('\n', stdout);
+		}
+		
+	}
+
+
 	void Open (
 		const u32& depth,
 		const c8* const* const& actions
@@ -268,15 +310,17 @@ namespace OPEN {
 
 			// Display only subprojects of a project
 			for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
-				const auto&& value = (c16* )projects.paths[i];
-				const auto&& key = (c8* )projects.keys[i];
-				printf ("    %c%s: %ls\n", TYPE_PROJECT, key, value);
+				const auto&& value = (c16*) projects.paths[i];
+				const auto&& key = (c8*) projects.keys[i];
+
+				Display (console, value, key, TYPE_PROJECT, 14);
 			}
 
 			for (u32 i = 0; i < commands.keys.size (); ++i) {
-				const auto&& value = (c16* )commands.values[i];
-				const auto&& key = (c8* )commands.keys[i];
-				printf ("    %c%s: %ls\n", TYPE_COMMAND, key, value);
+				const auto&& value = (c16*) commands.values[i];
+				const auto&& key = (c8*) commands.keys[i];
+
+				Display (console, value, key, TYPE_COMMAND, 11);
 			}
 
 			SetConsoleTextAttribute (console, 7);

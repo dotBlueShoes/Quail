@@ -10,18 +10,18 @@
 %pr = x64-win-release
 %pd = x64-win-debug
 
+# BASIC
+
 !config = start "" notepad %project_dir%\.quail\quail.txt
 !terminal = wt -w 1 nt --title %name% -d "%project_dir%" --tabColor "%color%"
 !directory = explorer.exe "%project_dir%"
 !code = start "" "C:\Program Files\Microsoft VS Code\Code.exe" "%project_dir%"
 !git= github "%project_dir%"
 
+# BUILDING
 
-!cpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%' '%pd%'
-!ccpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%' '%pr%'
+!cpy = powershell.exe "%project_dir%\.quail\cb" '%project_dir%' '%quail_dir%' '%pd%'
+!ccpy = powershell.exe "%project_dir%\.quail\cb" '%project_dir%' '%quail_dir%' '%pr%'
 
-!bld = powershell.exe "%project_dir%\.quail\build" "%project_dir%" '%vcvarsall_dir%' '%pd%'
-!bbld = powershell.exe "%project_dir%\.quail\build" "%project_dir%" '%vcvarsall_dir%' '%pr%'
-
-#!exe = powershell.exe "%project_dir%\.quail\exe_with_res.ps1" "%project_dir%/build/%pd%/project/" '%name%'
-#!eexe = powershell.exe "%project_dir%\.quail\exe_with_res.ps1" "%project_dir%/build/%pr%/project/" '%name%'
+!bld = powershell.exe "%project_dir%\.quail\build" '%project_dir%' '%vcvarsall_dir%' '%pd%'
+!bbld = powershell.exe "%project_dir%\.quail\build" '%project_dir%' '%vcvarsall_dir%' '%pr%'
