@@ -14,10 +14,6 @@ void Activity (
 	const c8* const* const& commands
 ) {
 
-	//for (s32 i = 0; i < depth; ++i) {
-	//	printf ("%d: %s\n", i, commands[i]);
-	//}
-
 	if (activityLength < ACTIVITIES::MIN_LENGTH) {
 
 		ERROR ("Invalid argument: %s\n\n", activity);

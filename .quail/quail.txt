@@ -1,15 +1,20 @@
 
 %name = Quail
 %project_dir = C:\Projects\Quail
+%color = #FF0000
+
 %quail_dir = C:\Program Files\dotBlueShoes\Quail
 %vcvarsall_dir = C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
+%vscode = C:\Program Files\Microsoft VS Code\Code.exe
 
 %pr = x64-win-release
 %pd = x64-win-debug
 
-!config = notepad %project_dir%\.quail\quail.txt
-!terminal = wt -w 1 nt --title %name% -d "%project_dir%" --tabColor "#FF0000"
+!config = start "" notepad %project_dir%\.quail\quail.txt
+!terminal = wt -w 1 nt --title %name% -d "%project_dir%" --tabColor "%color%"
 !directory = explorer.exe "%project_dir%"
+!code = start "" "C:\Program Files\Microsoft VS Code\Code.exe" "%project_dir%"
+!git= github "%project_dir%"
 
 
 !cpy = powershell.exe %project_dir%\.quail\cb '%project_dir%' '%quail_dir%' '%pd%'

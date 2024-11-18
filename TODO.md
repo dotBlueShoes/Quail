@@ -10,7 +10,7 @@
 11. apply tolower on all arguments `--open`. + on read keys from config 
 12. proper styling display with -> registry keys and values.
 	project-header, command-header, footer, line-format, line-size, key-padding-size
-13. expirement with text color.
+13. experiment with text color.
 
 
 // LATER. secrets, variables, comamnds, queues

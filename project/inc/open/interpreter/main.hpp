@@ -200,7 +200,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_INCLUDE:
 			case TYPE_COMMAND:
 			case TYPE_QUEUE:
-			case TYPE_COMMENT:
+			//case TYPE_COMMENT:
 			case TYPE_ASSIGN: 
 			case TYPE_CONSTANT:
 			case TYPE_VARIABLE:
@@ -232,9 +232,9 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_INCLUDE:
 			case TYPE_COMMAND:
 			case TYPE_QUEUE:
-			case TYPE_COMMENT:
+			//case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space16", interpreter.current);
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space-cascade16", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
