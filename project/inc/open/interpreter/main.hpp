@@ -196,17 +196,14 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			case TYPE_EOF:
 			case TYPE_NEW_LINE:
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			//case TYPE_COMMENT:
-			case TYPE_ASSIGN: 
-			case TYPE_CONSTANT:
-			case TYPE_VARIABLE:
-			case TYPE_SECRET: {
+			case TYPE_ASSIGN: {
 				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space16", interpreter.current);
 			} break;
+
+			// !!! ERROR this also means that '%' character will make us move to COMMAND::Value 
+			//  HOWEVER THIS INTERPRETER IS USED IN PROJECT!
+			// !!! HACK when working with Queues i will need a new Spacec16 variant as this refers to COMMAND:VALUE
+			case TYPE_CONSTANT: specialStage = COMMAND::Value; CASCADE::Initialize (); break;
 
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_SPACE:
@@ -228,10 +225,10 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			case TYPE_EOF:
 			case TYPE_NEW_LINE:
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
+			//case TYPE_PROJECT:
+			//case TYPE_INCLUDE:
+			//case TYPE_COMMAND:
+			//case TYPE_QUEUE:
 			//case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
 				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space-cascade16", interpreter.current);
@@ -392,7 +389,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				u8* project; ALLOCATE (u8, project, temporaryLength);
 				memcpy (project, temporary, temporaryLength);
 
-				ToLowCase ((c8*)project, temporaryLength); // Conversion
+				//ToLowCase ((c8*)project, temporaryLength); // Conversion
 
 				projects.keys.push_back (project);
 
@@ -549,10 +546,11 @@ namespace OPEN::INTERPRETER::MAIN::CASCADE {
 
 		switch (interpreter.current) {
 
+			case TYPE_CARRIAGE_RETURN: break;
+
 			case TYPE_VARIABLE:
 			case TYPE_SECRET: 
 			case TYPE_EOF:
-			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE:
 			case TYPE_PROJECT:
 			case TYPE_INCLUDE:

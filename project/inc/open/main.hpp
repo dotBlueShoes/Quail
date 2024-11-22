@@ -70,7 +70,7 @@ namespace OPEN {
 	) {
 		u32 index = 0;
 
-		COMPARESEARCH::ArrayPartFirstMatchVector ( 
+		COMPARESEARCH::ArrayPartFirstMatchVectorLowCase ( 
 			command, commandLength, sizeof (c8),
 			index, 
 			projects.keys.size () - projectsOffset,
@@ -129,6 +129,62 @@ namespace OPEN {
 
 	}
 
+	void PredefineConstants () { // ADD Predefined Constants
+		auto&& pathLength = projects.capes[projectId].pathLength;
+		auto&& path = (c16*) projects.paths[projectId];
+
+		auto&& key = (c8*) projects.keys[projectId];
+		u32 keyLength = 0; for (; key[keyLength] != '\0'; ++keyLength); ++keyLength; // + termination sign
+
+		{ // "_name"
+			const u8 temp[] { "_name" }; // Const defintion.
+			const u32 tempLength = sizeof (temp);
+
+			// Cpy -> We can easly deallocate it with others later.
+			u8* projectName; ALLOCATE (u8, projectName, tempLength);
+			memcpy (projectName, temp, tempLength);
+
+			constants.keys.push_back (projectName);
+		}
+
+		{ // value
+
+			{ // Convertion c8* to c16*
+				SetFirstTempW (key[0]);
+				for (u32 i = 1; i < keyLength; ++i) {
+					AddTempW (key[i]);
+				}
+			}
+
+			u8* projectName; ALLOCATE (u8, projectName, temporaryLength);
+			memcpy (projectName, temporary, temporaryLength);
+
+			constants.values.push_back (projectName);
+			constants.valueLengths.push_back (temporaryLength - 2); // minus EOF
+		}
+
+		{ // "_path"
+			const u8 temp[] { "_path" }; // Const defintion.
+			const u32 tempLength = sizeof (temp);
+
+			// Cpy -> We can easly deallocate it with others later.
+			u8* projectPath; ALLOCATE (u8, projectPath, tempLength);
+			memcpy (projectPath, temp, tempLength);
+
+			constants.keys.push_back (projectPath);
+		}
+
+		{ // value (copy but with removal of '/' sign at the end)
+			u8* projectPath; ALLOCATE (u8, projectPath, pathLength); // should alloc one less char.
+			memcpy (projectPath, path, pathLength - 2);
+
+			projectPath[pathLength - 2] = 0;
+			projectPath[pathLength - 1] = 0;
+
+			constants.values.push_back (projectPath);
+			constants.valueLengths.push_back (pathLength - 2); // minus EOF
+		}
+	}
 
 	void Display (
 		const HANDLE& console,
@@ -205,11 +261,12 @@ namespace OPEN {
 					u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 					ToLowCase (command, commandLength); // Conversion
 
-					u32 index = FindProject (command, commandLength);
+					//u32 index = FindProject (command, commandLength);
+					projectId = FindProject (command, commandLength); // Store information about what module we're in.
 
-					if (index == projects.keys.size ()) {
+					if (projectId == projects.keys.size ()) {
 						ERROR ("Could not match with any project.\n\n");
-					} else { GetProjects (interpreter, includesCounter, index); }
+					} else { GetProjects (interpreter, includesCounter, projectId); }
 				}
 
 				{ // Has to be a either a project / subproject / command / queue.
@@ -222,8 +279,13 @@ namespace OPEN {
 						LOGWARN ("We are looking for a command not a listing.\n\n");
 						openType = OPEN_TYPE_COMMAND;
 
-					} else { GetProjects (interpreter, includesCounter, index); }
+					} else { 
+						projectId = index; // Store information about what module we're in.
+						GetProjects (interpreter, includesCounter, index); 
+					}
 				}
+
+				PredefineConstants ();
 
 			}
 

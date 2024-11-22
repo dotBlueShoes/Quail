@@ -100,6 +100,7 @@ namespace OPEN {
 	//  projects by a number that represents previously added projects at lower depth
 	//  so that we always check with newly added projects when looking for subprojects.
 	u32 projectsOffset = 0;
+	u32 projectId = -1;
 
 	void SetFirstTemp (const c8& value) {
 		temporary[0] = value;
