@@ -59,7 +59,7 @@ namespace ACTIVITIES {
 		const u32& activityLength,
 		const u32& index,
 		const u32& depth,
-		const c8* const* const& commands
+		c8** const& commands
 	) {
 		switch (index) {
 

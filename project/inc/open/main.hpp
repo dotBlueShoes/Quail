@@ -174,7 +174,7 @@ namespace OPEN {
 
 	void Open (
 		const u32& depth,
-		const c8* const* const& actions
+		c8** const& actions
 	) {
 
 		FILE* mainConfig = nullptr;
@@ -186,7 +186,7 @@ namespace OPEN {
 		files.push_back (mainConfig);
 
 		const u32 lastDepth = depth - 1;
-		const auto& lastAction = actions[lastDepth];
+		auto&& lastAction = actions[lastDepth];
 		u16 lastActionLength = 0; 
 
 		{ // 1st READ
@@ -201,8 +201,9 @@ namespace OPEN {
 			if (depth != 0) {
 
 				for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
-					const auto& command = actions[iDepth];
+					auto&& command = actions[iDepth];
 					u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
+					ToLowCase (command, commandLength); // Conversion
 
 					u32 index = FindProject (command, commandLength);
 
@@ -213,6 +214,7 @@ namespace OPEN {
 
 				{ // Has to be a either a project / subproject / command / queue.
 					for (; lastAction[lastActionLength] != TYPE_EOS; ++lastActionLength);
+					ToLowCase (lastAction, lastActionLength); // Conversion
 					u32 index = FindProject (lastAction, lastActionLength);
 
 					if (index == projects.keys.size ()) {

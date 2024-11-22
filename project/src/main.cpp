@@ -19,7 +19,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		case 0:
 		case 1: {
 
-			ERROR ("%s\n\n", LOCALE::ERROR_NO_ACTIVITY);
+			printf ("\n    %s\n\n", LOCALE::ERROR_NO_ACTIVITY);
 
 		} break;
 
@@ -29,7 +29,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 			auto commands = arguments + 2;
 		
 			u32 argumentLength = 0; for (; argument[argumentLength] != 0; ++argumentLength);
-			ACTIVITIES::MATCH::Activity (argument, argumentLength, depth, commands);
+			ACTIVITIES::MATCH::Activity (argumentLength, argument, depth, commands);
 		}
 		
 	}

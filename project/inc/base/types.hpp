@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <wchar.h>
 #include <array>
+#include <ctype.h>
 
 using c8  = char;
 using c16 = wchar_t;
@@ -61,5 +62,14 @@ void IsEqualS3_16 (
 		condition += (a[i]	!= b[i]) << 2;  // 4
 		condition += a[i]	== '\0';		// 1
 		condition += b[i]	== '\0';		// 1
+	}
+}
+
+void ToLowCase (
+	c8* const& data,
+	const u32& length
+) {
+	for (u32 i = 0; i < length; ++i) {
+		data[i] = tolower (data[i]);
 	}
 }

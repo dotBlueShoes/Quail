@@ -392,6 +392,8 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				u8* project; ALLOCATE (u8, project, temporaryLength);
 				memcpy (project, temporary, temporaryLength);
 
+				ToLowCase ((c8*)project, temporaryLength); // Conversion
+
 				projects.keys.push_back (project);
 
 				specialStage = Path;

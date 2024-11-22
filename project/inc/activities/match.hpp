@@ -8,10 +8,10 @@
 namespace ACTIVITIES::MATCH {
 
 void Activity (
-	const c8* const& activity,
 	const u32& activityLength,
+	c8*& activity,
 	const u32& depth,
-	const c8* const* const& commands
+	c8** const& commands
 ) {
 
 	if (activityLength < ACTIVITIES::MIN_LENGTH) {
@@ -19,6 +19,8 @@ void Activity (
 		ERROR ("Invalid argument: %s\n\n", activity);
 
 	} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
+
+		ToLowCase (activity, activityLength); // Conversion
 
 		u32 index = 0;
 
@@ -37,6 +39,8 @@ void Activity (
 		ERROR ("Invalid argument: %s\n\n", activity);
 
 	} else {
+
+		ToLowCase (activity, activityLength); // Conversion
 
 		u32 index = 0;
 
