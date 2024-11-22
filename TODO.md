@@ -10,6 +10,8 @@
 	project-header, command-header, footer, line-format, line-size, key-padding-size
 14. Adding Quail configuration data using --add command: like `quail -a module "Name" "ProjectPath"`.
 15. Edit Quail configuration data using --edit command: like `quail -e module "Name" "ProjectPath"`.
-16. add _project_dir and _name constants as default
+17. Installer CMake build + quail configuration ibld, ibbld, irun, irrun
+18. Secrets vs Defines
+19. Decide on 2-Read path + global.conf - so that we can define both at the very end and the begining constants, secrets and varaibles
 
 // LATER. secrets, variables, comamnds, queues

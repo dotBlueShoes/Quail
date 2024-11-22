@@ -13,7 +13,7 @@
 # BASIC (check pwsh instead powershell.exe)
 # - terminal does not work in admin mode.
 
-!config 		= start "" notepad %_path%\.quail\quail.txt
+!config 		= start "" notepad++ %_path%\.quail\quail.txt
 !terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
 !directory 		= explorer.exe "%_path%"
 !code 			= start "" "C:\Program Files\Microsoft VS Code\Code.exe" "%_path%"
