@@ -285,7 +285,7 @@ namespace OPEN {
 					}
 				}
 
-				PredefineConstants ();
+				if (projectId != -1) PredefineConstants ();
 
 			}
 
