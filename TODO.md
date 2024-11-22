@@ -13,5 +13,7 @@
 17. Installer CMake build + quail configuration ibld, ibbld, irun, irrun
 18. Secrets vs Defines
 19. Decide on 2-Read path + global.conf - so that we can define both at the very end and the begining constants, secrets and varaibles
+20. FIX ADMIN REQUIRED BUG
+21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 
 // LATER. secrets, variables, comamnds, queues
