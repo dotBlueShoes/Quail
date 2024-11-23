@@ -16,4 +16,4 @@
 20. FIX ADMIN REQUIRED BUG
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 
-// LATER. secrets, variables, comamnds, queues
+// LATER. variables, queues

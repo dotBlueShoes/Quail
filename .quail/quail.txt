@@ -5,7 +5,7 @@
 
 %quail_dir 		= C:\Program Files\dotBlueShoes\Quail
 %vcvarsall_dir 	= C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
-%vscode 		= C:\Program Files\Microsoft VS Code\Code.exe
+%vscode_dir 	= C:\Program Files\Microsoft VS Code\Code.exe
 
 %pr 			= x64-win-release
 %pd 			= x64-win-debug
@@ -16,7 +16,7 @@
 !config 		= start "" notepad++ %_path%\.quail\quail.txt
 !terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
 !directory 		= explorer.exe "%_path%"
-!code 			= start "" "C:\Program Files\Microsoft VS Code\Code.exe" "%_path%"
+!code 			= start "" "%vscode_dir%" "%_path%"
 !github			= github "%_path%"
 
 # BUILDING

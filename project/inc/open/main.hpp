@@ -129,12 +129,13 @@ namespace OPEN {
 
 	}
 
-	void PredefineConstants () { // ADD Predefined Constants
-		auto&& pathLength = projects.capes[projectId].pathLength;
-		auto&& path = (c16*) projects.paths[projectId];
-
-		auto&& key = (c8*) projects.keys[projectId];
-		u32 keyLength = 0; for (; key[keyLength] != '\0'; ++keyLength); ++keyLength; // + termination sign
+	// Adds "_path" and "_name" constants for use in config.
+	void AddHiddenConstants ( 
+		const u32& pathLength,
+		const c16* const& path,
+		const u32& nameLength,
+		const c8* const& name
+	) {
 
 		{ // "_name"
 			const u8 temp[] { "_name" }; // Const defintion.
@@ -150,9 +151,9 @@ namespace OPEN {
 		{ // value
 
 			{ // Convertion c8* to c16*
-				SetFirstTempW (key[0]);
-				for (u32 i = 1; i < keyLength; ++i) {
-					AddTempW (key[i]);
+				SetFirstTempW (name[0]);
+				for (u32 i = 1; i < nameLength; ++i) {
+					AddTempW (name[i]);
 				}
 			}
 
@@ -186,6 +187,7 @@ namespace OPEN {
 		}
 	}
 
+	// Prints the quail-actions in a customized manner with said color.
 	void Display (
 		const HANDLE& console,
 		const c16* const& value,
@@ -244,6 +246,7 @@ namespace OPEN {
 		const u32 lastDepth = depth - 1;
 		auto&& lastAction = actions[lastDepth];
 		u16 lastActionLength = 0; 
+		u32 spaceFiles = 0;
 
 		{ // 1st READ
 
@@ -252,21 +255,25 @@ namespace OPEN {
 				currentConfigFolder = mainConfigFilePath;
 
 				GetIncludes (interpreter, includesCounter, mainConfig);
+				spaceFiles = includesCounter; // Store information about current module files amount.
 			}
 
 			if (depth != 0) {
 
 				for (u32 iDepth = 0; iDepth < lastDepth; ++iDepth) { // PROJECTS / SUBPROJECTS ONLY.
 					auto&& command = actions[iDepth];
+
 					u16 commandLength = 0; for (; command[commandLength] != TYPE_EOS; ++commandLength);
 					ToLowCase (command, commandLength); // Conversion
 
-					//u32 index = FindProject (command, commandLength);
 					projectId = FindProject (command, commandLength); // Store information about what module we're in.
 
 					if (projectId == projects.keys.size ()) {
 						ERROR ("Could not match with any project.\n\n");
-					} else { GetProjects (interpreter, includesCounter, projectId); }
+					} else { 	
+						GetProjects (interpreter, includesCounter, projectId); 
+						spaceFiles = projects.capes[projectId].special.includesCount; // Store information about current module files amount.
+					}
 				}
 
 				{ // Has to be a either a project / subproject / command / queue.
@@ -280,12 +287,21 @@ namespace OPEN {
 						openType = OPEN_TYPE_COMMAND;
 
 					} else { 
-						projectId = index; // Store information about what module we're in.
-						GetProjects (interpreter, includesCounter, index); 
+						projectId = index; 												// Store information about what module we're in.
+						GetProjects (interpreter, includesCounter, index); 				// Get module's include files and read it's modules.
+						spaceFiles = projects.capes[projectId].special.includesCount; 	// Store information about current module files amount.
 					}
 				}
 
-				if (projectId != -1) PredefineConstants ();
+				if (projectId != -1) { 
+
+					auto&& pathLength = projects.capes[projectId].pathLength;
+					auto&& path = (c16*) projects.paths[projectId];
+					auto&& name = (c8*) projects.keys[projectId];
+					u32 nameLength = 0; for (; name[nameLength] != '\0'; ++nameLength); ++nameLength; // + termination sign
+
+					AddHiddenConstants (pathLength, path, nameLength, name);
+				}
 
 			}
 
@@ -295,9 +311,13 @@ namespace OPEN {
 
 			LOGINFO ("2nd Read\n");
 
-			for (u32 iFile = files.size (); iFile > 0; --iFile) {
+			// By calculating so we only 2-read those files instead of the whole tree.
+			//  Going from the last included file up to the sub/project file.
+			//  -1 stands for the project file.
+			const u32 projectFiles = files.size () - spaceFiles - 1;
 
-				//LOGINFO ("CALL!\n");
+			for (u32 iFile = files.size (); iFile > projectFiles; --iFile) {
+
 				const auto& config = files[iFile - 1];
 				rewind (config);
 
@@ -319,12 +339,13 @@ namespace OPEN {
 			// 	LOGINFO ("Constant: %s: %ls\n", key, value);
 			// }
 
-			// // DISPLAYS ALL COMMANDS
-			// for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
-			// 	const auto&& value = (c16*) commands.values[iCommand];
-			// 	const auto&& key = (c8*) commands.keys[iCommand];
-			// 	LOGINFO ("Command: %s: %ls\n", key, value);
-			// }
+			// DISPLAYS ALL COMMANDS
+			//LOGINFO ("WUT: %zd, %d\n", commands.keys.size(), spaceFiles - 1);
+			//for (s32 iCommand = 0; iCommand < commands.keys.size(); ++iCommand) {
+			//	const auto&& value = (c16*) commands.values[iCommand];
+			//	const auto&& key = (c8*) commands.keys[iCommand];
+			//	LOGINFO ("Command: %s: %ls\n", key, value);
+			//}
 
 			// Currently I am loading all constants, varaibles, secrets
 			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessery needed.
@@ -335,8 +356,7 @@ namespace OPEN {
 
 		}
 
-		if (openType) { // EXECUTE
-			LOGINFO ("Execute.\n");
+		if (openType) { LOGINFO ("Execution\n");
 
 			u32 index = 0;
 
@@ -351,44 +371,36 @@ namespace OPEN {
 				if (index == commands.keys.size ()) {
 					ERROR ("Not a valid command\n");
 				} else {
-
 					const auto&& command = (c16*) commands.values[index];
 					LOGINFO ("id: [%d]: %ls\n", index, command);
 					_wsystem (command);
-
 				}
 			}
 
-		} else { 		// LISTING
-			LOGINFO ("LISTING.\n");
+		} else { LOGINFO ("Listing\n");
 
 			// TODO
-			//  2. List queues key and value.
-
-			putc ('\n', stdout);
+			// 2. List queues key and value.
+			// 3. save previous color using. then restore. https://stackoverflow.com/questions/17125440/c-win32-console-color
 
 			HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
-
-			// save previous color using. then restore. https://stackoverflow.com/questions/17125440/c-win32-console-color
 			SetConsoleTextAttribute (console, 15);
+			putc ('\n', stdout);
 
 			// Display only subprojects of a project
 			for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
 				const auto&& value = (c16*) projects.paths[i];
 				const auto&& key = (c8*) projects.keys[i];
-
 				Display (console, value, key, TYPE_PROJECT, 14);
 			}
 
 			for (u32 i = 0; i < commands.keys.size (); ++i) {
 				const auto&& value = (c16*) commands.values[i];
 				const auto&& key = (c8*) commands.keys[i];
-
 				Display (console, value, key, TYPE_COMMAND, 11);
 			}
 
 			SetConsoleTextAttribute (console, 7);
-
 			putc ('\n', stdout);
 
 		}
