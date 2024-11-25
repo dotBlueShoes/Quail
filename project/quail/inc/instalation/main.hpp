@@ -1,9 +1,9 @@
 // Created 2024.10.29 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
-#include "base/log.hpp"
-#include "base/io.hpp"
+#include <blue/types.hpp>
+#include <blue/log.hpp>
+#include <blue/io.hpp>
 
 #include "registry.hpp"
 #include "envars.hpp"

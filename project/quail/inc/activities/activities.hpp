@@ -1,8 +1,8 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
-#include "base/log.hpp"
+#include <blue/types.hpp>
+#include <blue/log.hpp>
 //
 #include "locale/error_codes.hpp"
 //

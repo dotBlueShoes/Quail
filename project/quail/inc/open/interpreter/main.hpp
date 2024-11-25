@@ -1,10 +1,9 @@
 // Created 2024.11.02 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
-#include "base/error.hpp"
+#include "blue/types.hpp"
+#include "blue/error.hpp"
 #include "../data.hpp"
-#include "types.hpp"
 
 #include "comparesearch.hpp"
 

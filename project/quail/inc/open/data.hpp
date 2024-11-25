@@ -1,7 +1,7 @@
 // Created 2024.11.05 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
+#include <blue/types.hpp>
 
 #include <vector>
 

@@ -1,8 +1,8 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //
-#include "base/types.hpp"
-#include "base/log.hpp"
-#include "base/memory.hpp"
+#include <blue/types.hpp>
+#include <blue/log.hpp>
+#include <blue/memory.hpp>
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"

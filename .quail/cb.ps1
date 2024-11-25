@@ -4,7 +4,7 @@ param (
 	[string]$profile = ""
 )
 
-$ori = "'$project_dir\build\$profile\project\Quail.exe'";
+$ori = "'$project_dir\build\$profile\project\quail\Quail.exe'";
 $dst = "'$quail_dir\Quail.exe'";
 
 $block = { 
@@ -36,5 +36,7 @@ $block = {
 	} while ($true);
 }
 
-#Start-Process $PSHOME\powershell -ArgumentList "-NoExit -command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)" # Keep console open.
-Start-Process $PSHOME\powershell -ArgumentList "-command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)"
+# Keep console open varaint
+# Start-Process powershell -ArgumentList "-NoExit -command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)" 
+
+Start-Process powershell -ArgumentList "-command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)"

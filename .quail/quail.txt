@@ -6,12 +6,12 @@
 %quail_dir 		= C:\Program Files\dotBlueShoes\Quail
 %vcvarsall_dir 	= C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 %vscode_dir 	= C:\Program Files\Microsoft VS Code\Code.exe
+%shell			= pwsh -c
 
 %pr 			= x64-win-release
 %pd 			= x64-win-debug
 
-# BASIC (check pwsh instead powershell.exe)
-# - terminal does not work in admin mode.
+# BASIC
 
 !config 		= start "" notepad++ %_path%\.quail\quail.txt
 !terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
@@ -19,10 +19,15 @@
 !code 			= start "" "%vscode_dir%" "%_path%"
 !github			= github "%_path%"
 
+# CMAKE
+
+!refresh_cmake	= %shell% "%_path%\.quail\cmake_refresh.bat" "%_path%" '%vcvarsall_dir%'
+!clear_cmake	= %shell% "%_path%\.quail\cmake_clear.ps1" "%_path%\build"
+
 # BUILDING
 
-!cpy 			= powershell.exe "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pd%'
-!ccpy 			= powershell.exe "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pr%'
+!cpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pd%'
+!ccpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pr%'
 
-!bld 			= powershell.exe "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
-!bbld 			= powershell.exe "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+!bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
+!bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'

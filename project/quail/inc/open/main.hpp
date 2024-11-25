@@ -1,12 +1,11 @@
 // Created 2024.11.05 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
-#include "base/io.hpp"
+#include <blue/types.hpp>
+#include <blue/io.hpp>
 
 #include "interpreter/main.hpp"
 #include "data.hpp"
-#include "comparesearch.hpp"
 
 namespace OPEN {
 
@@ -249,6 +248,14 @@ namespace OPEN {
 		u32 spaceFiles = 0;
 
 		{ // 1st READ
+
+			{ // GLOBAL CONFIG
+				// TODO: global.txt
+				// We will be alwayas reading this file 1st at 1st read and 1st at second read.
+				// and we want discard it's contents. Making it a global-data container that can be used across multiple modules
+				// For example we can define all the "unity_dir", "vsc_dir", "godot_dir" and so on inside this file
+				// and then only leave definitions inside the project-quail file itself.
+			}
 
 			{// MAIN CONFIG
 				currentConfigFolderLength = mainConfigFolderPathLength;

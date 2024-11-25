@@ -1,5 +1,6 @@
-// Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
+// Created 2024.11.25 by Matthew Strumiłło (dotBlueShoes)
 //
+
 #pragma once
 #include <stdint.h>
 #include <wchar.h>
@@ -21,7 +22,6 @@ using s64 = int64_t;
 
 using r32 = float;
 using r64 = double;
-
 template<class T, class S, S length>
 using array_t = std::array<T, length>;
 

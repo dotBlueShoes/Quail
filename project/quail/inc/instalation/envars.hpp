@@ -1,10 +1,10 @@
 // Created 2024.11.17 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include "base/types.hpp"
-#include "base/log.hpp"
-#include "base/memory.hpp"
-#include "base/error.hpp"
+#include <blue/types.hpp>
+#include <blue/log.hpp>
+#include <blue/memory.hpp>
+#include <blue/error.hpp>
 
 namespace ENVARS {
 
