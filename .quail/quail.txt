@@ -8,6 +8,11 @@
 %vscode_dir 	= C:\Program Files\Microsoft VS Code\Code.exe
 %shell			= pwsh -c
 
+#?quail_dir		= Path to Quail directory.
+#?vcvarsall_dir	= Path to vcvarsall directory.
+#?vscode_dir	= Path to vscode executable.
+#?shell			= Prefered shell for e.g. "pwsh - c".
+
 %pr 			= x64-win-release
 %pd 			= x64-win-debug
 
@@ -31,3 +36,6 @@
 
 !bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
 !bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+
+|run			= bld,cpy
+|rrun			= bbld,ccpy

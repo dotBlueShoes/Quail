@@ -59,7 +59,6 @@ namespace OPEN::INTERPRETER::MAIN {
 	void GetAllFiles	(const Interpreter&);
 	void Main 			(const Interpreter&);
 	void SpaceC8 		(const Interpreter&);
-	void SpaceC16 		(const Interpreter&);
 	void Comment 		(const Interpreter&);
 }
 
@@ -71,6 +70,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 namespace OPEN::INTERPRETER::MAIN::PROJECT {
 	void Initialize ();
 	void Type		(const Interpreter&);
+	void SpaceC16 	(const Interpreter&);
 	void Name		(const Interpreter&);
 	void Path		(const Interpreter&);
 	void Config		(const Interpreter&);
@@ -80,25 +80,25 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 	void Initialize ();
 	void Name		(const Interpreter&);
 	void Value		(const Interpreter&);
-
-	
 }
 
 namespace OPEN::INTERPRETER::MAIN::CASCADE {
 	void Initialize ();
 	void Constant 	(const Interpreter&);
-
-	//void Variable 	(const Interpreter&);
-	//void Secret 	(const Interpreter&);
 }
 
 namespace OPEN::INTERPRETER::MAIN::COMMAND {
 	void Initialize ();
+	void SpaceC16 	(const Interpreter&);
 	void Name		(const Interpreter&);
 	void Value		(const Interpreter&);
-	//void Constant (const Interpreter&);
-	//void Variable (const Interpreter&);
-	//void Secret 	(const Interpreter&);
+}
+
+namespace OPEN::INTERPRETER::MAIN::QUEUE {
+	void Initialize ();
+	void SpaceC16 	(const Interpreter&);
+	void Name		(const Interpreter&);
+	void Value		(const Interpreter&);
 }
 
 namespace OPEN::INTERPRETER::MAIN {
@@ -136,19 +136,14 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			case TYPE_CONSTANT: CONSTANT::Initialize (); break;
 
-			case TYPE_SECRET: {
-				//LOGINFO ("Detected Secret!\n");
-			} break;
+			case TYPE_SECRET: LOGINFO ("Detected Secret!\n");
+				break;
 
-			case TYPE_VARIABLE: {
-				//LOGINFO ("Detected Variable!\n");
-			} break;
+			case TYPE_VARIABLE: //LOGINFO ("Detected Variable!\n");
+				break;
 
 			case TYPE_COMMAND: COMMAND::Initialize (); break;
-
-			case TYPE_QUEUE: {
-				//LOGINFO ("Detected Queue!\n");
-			} break;
+			case TYPE_QUEUE: QUEUE::Initialize (); break;
 
 			default: { 
 				//putc (interpreter.current, stdout);
@@ -182,34 +177,6 @@ namespace OPEN::INTERPRETER::MAIN {
 
 			default: {
 				SetFirstTemp (interpreter.current);
-				parsingstage = specialStage;
-			}
-
-		}
-
-	}
-
-	void SpaceC16 (const Interpreter& interpreter) {
-
-		switch (interpreter.current) {
-
-			case TYPE_EOF:
-			case TYPE_NEW_LINE:
-			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space16", interpreter.current);
-			} break;
-
-			// !!! ERROR this also means that '%' character will make us move to COMMAND::Value 
-			//  HOWEVER THIS INTERPRETER IS USED IN PROJECT!
-			// !!! HACK when working with Queues i will need a new Spacec16 variant as this refers to COMMAND:VALUE
-			case TYPE_CONSTANT: specialStage = COMMAND::Value; CASCADE::Initialize (); break;
-
-			case TYPE_CARRIAGE_RETURN:
-			case TYPE_SPACE:
-			case TYPE_TAB: break; // nothing
-
-			default: {
-				SetFirstTempW (interpreter.current);
 				parsingstage = specialStage;
 			}
 
@@ -359,6 +326,32 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 	}
 
+	void SpaceC16 (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE:
+			case TYPE_ASSIGN:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:space16", interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			default: {
+				SetFirstTempW (interpreter.current);
+				parsingstage = specialStage;
+			}
+
+		}
+
+	}
+
 	void Name (const Interpreter& interpreter) {
 
 		switch (interpreter.current) {
@@ -393,7 +386,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				projects.keys.push_back (project);
 
 				specialStage = Path;
-				parsingstage = MAIN::SpaceC16;
+				parsingstage = SpaceC16;
 
 			} break;
 
@@ -459,7 +452,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				projects.paths.push_back (project);
 				
 				specialStage = Config;
-				parsingstage = MAIN::SpaceC16;
+				parsingstage = SpaceC16;
 
 			} break;
 
@@ -715,6 +708,31 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 		parsingstage = Name;
 	}
 
+	void SpaceC16 (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE:
+			case TYPE_ASSIGN: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:space16", interpreter.current);
+			} break;
+
+			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			default: {
+				SetFirstTempW (interpreter.current);
+				parsingstage = specialStage;
+			}
+
+		}
+
+	}
+
 	void Name (const Interpreter& interpreter) {
 
 		switch (interpreter.current) {
@@ -748,7 +766,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 				temporaryLength = 0; // RESET
 
 				specialStage = Value;
-				parsingstage = MAIN::SpaceC16;
+				parsingstage = SpaceC16;
 
 			} break;
 
@@ -767,7 +785,6 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_INCLUDE:
 			case TYPE_COMMAND:
 			case TYPE_QUEUE:
-			//case TYPE_COMMENT:
 			case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:value", interpreter.current);
@@ -778,10 +795,6 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_EOF:
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE: {
-
-				// Not really needed.
-				// AddTempW (' ');
-				// AddTempW ('&');
 
 				AddTempW (TYPE_EOS);
 
@@ -795,6 +808,121 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 
 			default: {
 				AddTempW (interpreter.current);
+			}
+
+		}
+
+	}
+
+}
+
+namespace OPEN::INTERPRETER::MAIN::QUEUE {
+
+	void Initialize () {
+		temporaryLength = 0;
+		parsingstage = Name;
+	}
+
+	void SpaceC16 (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE:
+			case TYPE_ASSIGN: {
+				ERROR ("Invalid syntax '%s' ['%lc'-%d] \n\n", "queue:space16", interpreter.current, interpreter.current);
+			} break;
+
+			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			default: {
+				SetFirstTemp (interpreter.current);
+				parsingstage = specialStage;
+			}
+
+		}
+
+	}
+
+	void Name (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_CONSTANT:
+			case TYPE_VARIABLE:
+			case TYPE_SECRET:
+			case TYPE_COMMENT:
+			case TYPE_NEW_LINE:
+			case TYPE_EOF: {
+				ERROR ("Invalid syntax '%s' ['%lc'-%d] \n\n", "queue:name", interpreter.current, interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_ASSIGN: {
+
+				AddTemp (TYPE_EOS);
+
+				u8* name; ALLOCATE (u8, name, temporaryLength);
+				memcpy (name, temporary, temporaryLength);
+
+				queues.keys.push_back (name);
+
+				temporaryLength = 0; // RESET
+
+				specialStage = Value;
+				parsingstage = SpaceC16;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
+			}
+
+		}
+	}
+
+	void Value (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_PROJECT:
+			case TYPE_INCLUDE:
+			case TYPE_COMMAND:
+			case TYPE_QUEUE:
+			case TYPE_ASSIGN:
+			case TYPE_TAB: {
+				ERROR ("Invalid syntax '%s' [%d] \n\n", "queue:value", interpreter.current);
+			} break;
+
+			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
+			
+			case TYPE_EOF:
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE: {
+
+				AddTemp (TYPE_EOS);
+
+				u8* value; ALLOCATE (u8, value, temporaryLength);
+				memcpy (value, temporary, temporaryLength);
+
+				queues.values.push_back (value);
+				parsingstage = Main;
+
+			} break;
+
+			default: {
+				AddTemp (interpreter.current);
 			}
 
 		}

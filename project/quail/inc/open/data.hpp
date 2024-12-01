@@ -54,6 +54,11 @@ namespace OPEN {
 		std::vector<u8*> values;
 	};
 
+	struct Queues {
+		std::vector<u8*> keys;
+		std::vector<u8*> values;
+	};
+
 	enum SPECIAL_CHARACTERS : c8 {
 		TYPE_PROJECT			= '^',
 		TYPE_INCLUDE 			= '&',
@@ -73,6 +78,7 @@ namespace OPEN {
 		TYPE_EOS				= '\0',
 		TYPE_CARRIAGE_RETURN	= 13,
 		TYPE_SPACE 				= ' ',
+		TYPE_SEPARATOR 			= ',',
 	};
 
 	// Have on top information about main config filePath.
@@ -90,6 +96,7 @@ namespace OPEN {
 	Projects<u8*> projects;
 	Constants constants;
 	Commands commands;
+	Queues queues;
 
 	// We're using those 2 to form a string that later 
 	// copied and pushed to a specific vector.

@@ -186,6 +186,25 @@ namespace OPEN {
 		}
 	}
 
+
+	void DisplayQueueCmd (
+		const HANDLE& console,
+		const c8* const& key,
+		const c8& symbol,
+		const u8& color
+	) {
+		const c8 LP[] = "    ";
+
+		fwrite (LP, 	 sizeof (c8),	strlen (LP),	stdout);
+
+		printf ("...executing [%c", symbol);
+		SetConsoleTextAttribute (console, color);
+		fwrite (key, 	 sizeof (c8), 	strlen (key), 	stdout);
+		SetConsoleTextAttribute (console, 7);
+
+		printf ("]\n");
+	}
+
 	// Prints the quail-actions in a customized manner with said color.
 	void Display (
 		const HANDLE& console,
@@ -222,6 +241,47 @@ namespace OPEN {
 			fwrite (NP, 	 sizeof (c8), 	nps, 			stdout);
 			fwrite (": ", 	 sizeof (c8), 	2, 				stdout);
 			fwrite (value, 	 sizeof (c16), 	valueSize, 		stdout);
+			fwrite ("...\0", sizeof (c16), 	lineEndSize, 	stdout); // Shouldn't '\0' be after '\n' ?
+			putc   ('\n', stdout);
+		}
+		
+	}
+
+	void Display (
+		const HANDLE& console,
+		const c8* const& value,
+		const c8* const& key,
+		const c8& symbol,
+		const u8& color
+	) {
+		// Name Padding, Line Padding
+		const c8 NP[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+		const c8 LP[] = "    ";
+
+		const u16 NAME_PADDING_SIZE = 18;
+		const u16 LINE_PADDING_SIZE = 120;
+
+		// When padding is negative change it to equal 0.
+		s16 nps = NAME_PADDING_SIZE - strlen (key); nps *= (nps > 0);
+		s16 lps = LINE_PADDING_SIZE - 2 - nps - strlen (key) - 1 - strlen (LP) - 3; 
+
+		s16 valueSize = strlen (value);
+		s16 lineEndSize = lps - valueSize;
+
+		if (lineEndSize < 0) { valueSize = lps; lineEndSize = 4;
+		} else { lineEndSize = 0; }
+
+		{ // Writes
+			fwrite (LP, 	 sizeof (c8),	strlen (LP),	stdout);
+			putc   (symbol, stdout);
+
+			SetConsoleTextAttribute (console, color);
+			fwrite (key, 	 sizeof (c8), 	strlen (key), 	stdout);
+			SetConsoleTextAttribute (console, 15);
+
+			fwrite (NP, 	 sizeof (c8), 	nps, 			stdout);
+			fwrite (": ", 	 sizeof (c8), 	2, 				stdout);
+			fwrite (value, 	 sizeof (c8), 	valueSize, 		stdout);
 			fwrite ("...\0", sizeof (c16), 	lineEndSize, 	stdout); // Shouldn't '\0' be after '\n' ?
 			putc   ('\n', stdout);
 		}
@@ -363,6 +423,8 @@ namespace OPEN {
 
 		}
 
+		HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
+
 		if (openType) { LOGINFO ("Execution\n");
 
 			u32 index = 0;
@@ -375,8 +437,72 @@ namespace OPEN {
 					(void**)(commands.keys.data ())
 				);
 
-				if (index == commands.keys.size ()) {
-					ERROR ("Not a valid command\n");
+				if (index == commands.keys.size ()) { // Not a command
+
+					index = 0;
+
+					COMPARESEARCH::ArrayPartFirstMatchVector ( 
+						lastAction, lastActionLength, sizeof (c8),
+						index, 
+						queues.keys.size (),
+						(void**)(queues.keys.data ())
+					);
+
+					if (index == queues.keys.size ()) { // Not a queue
+						ERROR ("Not a valid command or queue!\n");
+					} else {
+						const auto&& queue = (c8*) queues.values[index];
+						LOGINFO ("queue-id: [%d]: %s\n", index, queue);
+
+						// 1. calculate amout of ',' characters
+						// 2. add + 1 -> this is the number of commands we're be calling
+						// 3. reserve an a array to hold ',' positions
+						// 4. for each command do execution.
+
+						auto&& buffor = (u32*) temporary;
+						u32 substrings = 1, queueLength = 0;
+
+						for (; queue[queueLength] != TYPE_EOS; ++queueLength) {
+							if (queue[queueLength] == TYPE_SEPARATOR) {
+								buffor[substrings] = queueLength + 1;
+								++substrings;
+							}
+						}
+
+						buffor[substrings] = queueLength + 1;
+						buffor[0] = 0;
+
+						for (u32 i = 0; i < substrings; ++i) {
+
+							auto& start = buffor[i];
+							auto&& command = queue + start;
+							auto length = buffor[i + 1] - start - 1;
+
+							LOGINFO ("queue-comamnd: [%d-%d]: %.*s.\n", i, length, length, command);
+
+							index = 0;
+
+							COMPARESEARCH::ArrayPartFirstMatchVector ( 
+								command, length, sizeof (c8),
+								index, 
+								commands.keys.size (),
+								(void**)(commands.keys.data ())
+							);
+
+							LOGINFO ("index: %d, %zd\n", index, commands.keys.size ());
+
+							if (index == commands.keys.size ()) { // Not a queue
+								LOGINFO ("Not a valid command or queue!\n");
+							} else {
+								const auto&& comm = (c16*) commands.values[index];
+								LOGINFO ("id: [%d]: %ls\n", index, comm);
+								DisplayQueueCmd (console, (c8*) commands.keys[index], TYPE_COMMAND, 11);
+								_wsystem (comm);
+							}
+						}
+
+					}
+
 				} else {
 					const auto&& command = (c16*) commands.values[index];
 					LOGINFO ("id: [%d]: %ls\n", index, command);
@@ -390,7 +516,6 @@ namespace OPEN {
 			// 2. List queues key and value.
 			// 3. save previous color using. then restore. https://stackoverflow.com/questions/17125440/c-win32-console-color
 
-			HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute (console, 15);
 			putc ('\n', stdout);
 
@@ -405,6 +530,12 @@ namespace OPEN {
 				const auto&& value = (c16*) commands.values[i];
 				const auto&& key = (c8*) commands.keys[i];
 				Display (console, value, key, TYPE_COMMAND, 11);
+			}
+
+			for (u32 i = 0; i < queues.keys.size (); ++i) {
+				const auto&& value = (c8*) queues.values[i];
+				const auto&& key = (c8*) queues.keys[i];
+				Display (console, value, key, TYPE_QUEUE, 12);
 			}
 
 			SetConsoleTextAttribute (console, 7);
@@ -430,6 +561,11 @@ namespace OPEN {
 		for (s32 i = 0; i < commands.keys.size(); ++i) {
 			FREE (commands.values[i]);
 			FREE (commands.keys[i]);
+		}
+
+		for (s32 i = 0; i < queues.keys.size(); ++i) {
+			FREE (queues.values[i]);
+			FREE (queues.keys[i]);
 		}
 
 		for (u32 iFile = 0; iFile < files.size(); ++iFile) {
