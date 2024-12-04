@@ -19,6 +19,11 @@ namespace OPEN::INTERPRETER {
 	Stage parsingstage = nullptr;
 	Stage specialStage = nullptr;
 
+
+	#define ERROR_INTERPRETER(typeStr, character) { \
+		ERROR ("Invalid syntax '%s' ['%c'-%d] \n\n", typeStr, character, character); \
+	}
+
 }
 
 	// //putc (interpreter.current, stdout);
@@ -168,7 +173,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space8", interpreter.current);
+				ERROR_INTERPRETER ("main:space8", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -197,7 +202,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			//case TYPE_QUEUE:
 			//case TYPE_COMMENT:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "main:space-cascade16", interpreter.current);
+				ERROR_INTERPRETER ("main:space-cascade16", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -253,7 +258,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 			case TYPE_SECRET:
 			case TYPE_ASSIGN:
 			case TYPE_COMMENT:  {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "include:context", interpreter.current);
+				ERROR_INTERPRETER ("include:context", interpreter.current);
 			} break;
 
 			case TYPE_SPACE:
@@ -268,11 +273,20 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 				u8* include; // Allocate & create FilePath string.
 				MEMORY::Construct2<u8> (include, currentConfigFolderLength, currentConfigFolder, temporaryLength, temporary);
 
-				{ // See if said FilePath already occurs. If not save it.
+				// Previously this code was cheching whether a said file was arleady included and if so returned an error.
+				//  However we've created an abstract structure that holds includes to a specific project therefore
+				//  the error was abandoned. Because of that an include file if specified more then once will be read more then once
+				//  that is an issue that should be solved in the future. For now no matter what we need to save that inlucde
+				//  so that sub projects that are using said include file just as their parent project did can work correctly.
+
+				{ 
 					for (u16 i = 0; i < includes.size(); ++i) {
 						u8 condition = 0;
 						IsEqualS3_16 (condition, (u16*)include, (u16*)includes[i]);
-						if (condition == 2) goto error;
+						if (condition == 2) {
+							LOGWARN ("Said file is arleady being included: `%ls`\n", (c16*)include);
+							goto success; //goto error;
+						}
 					}
 
 		success:	includes.push_back (include);
@@ -320,7 +334,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				parsingstage = Name;
 			} break;
 
-			default: ERROR ("Invalid syntax '%s' [%d] \n\n", "project:type", interpreter.current);
+			default: ERROR_INTERPRETER ("project:type", interpreter.current);
 
 		}
 
@@ -336,12 +350,18 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_CONSTANT:
 			case TYPE_VARIABLE:
 			case TYPE_SECRET: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:space16", interpreter.current);
+				ERROR_INTERPRETER ("project:spacedot16", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_SPACE:
 			case TYPE_TAB: break; // nothing
+
+			case '/':		// Skip '/' or '\' sign at the beggining.
+			case '\\': { 	//  this also helps with subprojects that are in the same folder as parent project.
+				parsingstage = specialStage;
+				temporaryLength = 0;
+			} break;
 
 			default: {
 				SetFirstTempW (interpreter.current);
@@ -366,7 +386,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "name:value", interpreter.current);
+				ERROR_INTERPRETER ("project:name", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -380,8 +400,6 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 				// CPY. So it stays in memmory.
 				u8* project; ALLOCATE (u8, project, temporaryLength);
 				memcpy (project, temporary, temporaryLength);
-
-				//ToLowCase ((c8*)project, temporaryLength); // Conversion
 
 				projects.keys.push_back (project);
 
@@ -413,7 +431,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_EOF:
 			case TYPE_NEW_LINE: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:path", interpreter.current);
+				ERROR_INTERPRETER ("project:path", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -479,7 +497,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_ASSIGN:
 			case TYPE_SPACE:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "project:config", interpreter.current);
+				ERROR_INTERPRETER ("project:config", interpreter.current);
 			} break;
 
 			
@@ -551,7 +569,7 @@ namespace OPEN::INTERPRETER::MAIN::CASCADE {
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:constant", interpreter.current);
+				ERROR_INTERPRETER ("constant:constant", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: {
@@ -621,7 +639,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:name", interpreter.current);
+				ERROR_INTERPRETER ("constant:name", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -663,7 +681,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 			case TYPE_COMMENT:
 			case TYPE_ASSIGN:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "constant:value", interpreter.current);
+				ERROR_INTERPRETER ("constant:value", interpreter.current);
 			} break;
 
 			
@@ -715,7 +733,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_EOF:
 			case TYPE_NEW_LINE:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:space16", interpreter.current);
+				ERROR_INTERPRETER ("command:space16", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
@@ -747,7 +765,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:name", interpreter.current);
+				ERROR_INTERPRETER ("command:name", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -787,7 +805,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_QUEUE:
 			case TYPE_ASSIGN:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "command:value", interpreter.current);
+				ERROR_INTERPRETER ("command:value", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
@@ -830,7 +848,7 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 			case TYPE_EOF:
 			case TYPE_NEW_LINE:
 			case TYPE_ASSIGN: {
-				ERROR ("Invalid syntax '%s' ['%lc'-%d] \n\n", "queue:space16", interpreter.current, interpreter.current);
+				ERROR_INTERPRETER ("queue:space16", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
@@ -862,7 +880,7 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 			case TYPE_COMMENT:
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
-				ERROR ("Invalid syntax '%s' ['%lc'-%d] \n\n", "queue:name", interpreter.current, interpreter.current);
+				ERROR_INTERPRETER ("queue:name", interpreter.current);
 			} break;
 
 			case TYPE_CARRIAGE_RETURN:
@@ -902,7 +920,7 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 			case TYPE_QUEUE:
 			case TYPE_ASSIGN:
 			case TYPE_TAB: {
-				ERROR ("Invalid syntax '%s' [%d] \n\n", "queue:value", interpreter.current);
+				ERROR_INTERPRETER ("queue:value", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
