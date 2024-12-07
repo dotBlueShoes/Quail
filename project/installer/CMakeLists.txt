@@ -15,3 +15,10 @@ add_executable (
 
 # --- Add library 'headers' for use to said project
 target_link_libraries (${PROJECT_NAME} BLUELIB)
+target_link_libraries (${PROJECT_NAME} CURL)
+
+# --- Copy .dlls inside project build directory.
+add_custom_command ( TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	$<TARGET_FILE:CURL> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)

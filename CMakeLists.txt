@@ -6,6 +6,10 @@ project (QuailAll VERSION 0.3.0 LANGUAGES C CXX)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include (properties)
 
+# --- Dependencies
+
+add_subdirectory (dependencies)
+
 # --- Project's sources
 
 add_subdirectory (project/bluelib)

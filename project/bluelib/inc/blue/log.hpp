@@ -5,6 +5,23 @@
 #include "io_types.hpp"
 #include "debug.hpp"
 
+#include <Windows.h>
+
+#define MSGINFO(message) { \
+	DEBUG (DEBUG_FLAG_LOGGING) \
+	MessageBoxA (NULL, message, "INFO", MB_OK); \
+}
+
+#define MSGWARN(message) { \
+	DEBUG (DEBUG_FLAG_LOGGING) \
+	MessageBoxA (NULL, message, "WARN", MB_OK); \
+}
+
+#define MSGERROR(message) { \
+	DEBUG (DEBUG_FLAG_LOGGING) \
+	MessageBoxA (NULL, message, "ERROR", MB_OK); \
+}
+
 #define LOGINFO(...) { \
 	DEBUG (DEBUG_FLAG_LOGGING) \
 	printf ("INFO: " __VA_ARGS__); \
