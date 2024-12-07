@@ -37,5 +37,8 @@
 !bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
 !bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
 
+!ins			= %shell% "%_path%\build\%pd%\project\installer\Installer.exe"
+!iins			= %shell% "%_path%\build\%pr%\project\installer\Installer.exe"
+
 |run			= bld,cpy
 |rrun			= bbld,ccpy
