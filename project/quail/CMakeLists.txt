@@ -7,22 +7,15 @@ file (GLOB_RECURSE HEADER_FILES
 	${PROJECT_SOURCE_DIR}/inc/*.hpp
 )
 
-# --- Add 'defines' to said project
-add_compile_definitions (_CRT_SECURE_NO_WARNINGS)
-add_compile_definitions (DEBUG_FLAG_LOGGING=${DEBUG_FLAG_LOGGING})
-add_compile_definitions (DEBUG_FLAG_MEMORY=${DEBUG_FLAG_MEMORY})
-add_compile_definitions (DEBUG_FLAG_CLOCKS=${DEBUG_FLAG_CLOCKS})
-add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
-
 # --- Profile-based actions
 if ( ${PROFILE} EQUAL 0 ) 
 
-	message ("Debug Compilation!")
+	message ("Debug Program Compilation!")
 	add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
 	
 elseif ( ${PROFILE} EQUAL 1 )
 
-	message ("Release Compilation!")
+	message ("Release Program Compilation!")
 	add_compile_definitions (DEBUG_TYPE=0)
 	
 endif ()

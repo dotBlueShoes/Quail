@@ -7,13 +7,33 @@ file (GLOB_RECURSE HEADER_FILES
 	${PROJECT_SOURCE_DIR}/inc/*.hpp
 )
 
+# --- Profile-based actions
+if ( ${PROFILE} EQUAL 0 ) 
+
+	message ("Debug Installer Compilation!")
+	add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
+	
+elseif ( ${PROFILE} EQUAL 1 )
+
+	message ("Release Installer Compilation!")
+	add_compile_definitions (DEBUG_TYPE=0)
+	
+endif ()
+
 # WinAPI EXE _winmain - starting point
 add_executable (
 	${PROJECT_NAME} WIN32 ${HEADER_FILES} 
 	src/main.cpp
 )
 
+# --- Add project 'headers' for use to said project
+target_include_directories (
+	${PROJECT_NAME} PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/inc
+)
+
 # --- Add library 'headers' for use to said project
+target_link_libraries (${PROJECT_NAME} kernel32)
 target_link_libraries (${PROJECT_NAME} BLUELIB)
 target_link_libraries (${PROJECT_NAME} CURL)
 

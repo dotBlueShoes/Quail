@@ -1,7 +1,5 @@
-#include <Windows.h>
-#include <blue/types.hpp>
-#include <blue/log.hpp>
-
+#include "windows/console.hpp"
+#include "windows/window.hpp"
 #include <curl/curl.h>
 
 // TODO
@@ -10,33 +8,58 @@
 // .... registers, window, etc.
 
 int WinMain (
-	HINSTANCE	hInstance,
-	HINSTANCE	hPrevInstance,
-	LPSTR		lpCmdLine,
-	int			nShowCmd
+	HINSTANCE	instance,
+	HINSTANCE	previousInstance,
+	LPSTR		commandline,
+	int			isConsole
 ) {
-  	CURLcode error;
-	CURL* curl = curl_easy_init ();
 
-	if (curl == nullptr) { MSGINFO ("Could not initialize 'CURL' library.\n"); exit (0);} 
+	UNREFERENCED_PARAMETER (previousInstance);
+	UNREFERENCED_PARAMETER (commandline);
+    UNREFERENCED_PARAMETER (isConsole);
 
-	{
-		curl_easy_setopt (curl, CURLOPT_URL, "http://example.com/");
+	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
 
-    	// Perform the request, 'res' holds the return code
-    	error = curl_easy_perform (curl);
+	LOGINFO ("Application Statred!\n");
 
-    	// Check for errors
-    	if(error != CURLE_OK) {
-			MSGERROR ("Could not perform curl action!");
-			//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror (error));
+	{ // Window Creation.
+		HWND window; WINDOW::Create (instance, window);
+		MSG msg { 0 }; 
+
+		while (msg.message != WM_QUIT) { // Main loop
+			if (PeekMessage (&msg, NULL, 0U, 0U, PM_REMOVE)) {
+				TranslateMessage (&msg);
+				DispatchMessage (&msg);
+				continue;
+			}
 		}
-			
 	}
 
-	curl_easy_cleanup (curl);
+	{ // CURL
+		CURLcode error;
+		CURL* curl = curl_easy_init ();
 
-	MSGINFO ("Executed Installer Sucessfully.\n");
+		if (curl == nullptr) { MSGINFO ("Could not initialize 'CURL' library.\n"); exit (0);} 
+
+		{
+			curl_easy_setopt (curl, CURLOPT_URL, "http://example.com/");
+
+    		// Perform the request, 'res' holds the return code
+    		error = curl_easy_perform (curl);
+
+    		// Check for errors
+    		if(error != CURLE_OK) {
+				MSGERROR ("Could not perform curl action!");
+				//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror (error));
+			}
+
+		}
+
+		curl_easy_cleanup (curl);
+	}
+
+	LOGINFO ("Executed Installer Sucessfully.\n");
+	getchar ();
 
 	return 0;
 }

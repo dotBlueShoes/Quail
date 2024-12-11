@@ -86,6 +86,8 @@ namespace OPEN {
 	u32 mainConfigFilePathLength;
 	c16* mainConfigFilePath;
 
+	// global.txt
+
 	// Have on top information about last read config filePath.
 	u32 currentConfigFolderLength;
 	c16* currentConfigFolder;

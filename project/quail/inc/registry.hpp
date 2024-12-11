@@ -17,6 +17,9 @@ namespace REGISTRY {
 	const c16 CONFIG_W[]				= L"config.txt";
 	const u32 CONFIG_LENGTH				= sizeof (CONFIG_W);
 
+	const c16 GLOBAL_W[]				= L"global.txt";
+	const u32 GLOBAL_LENGTH				= sizeof (GLOBAL_W);
+
 	void AddQuailToPath (
 		const u16& quailLength,
 		const c16* const& quail
@@ -29,17 +32,17 @@ namespace REGISTRY {
 		c16* env; ALLOCATE (c16, env, 2048);
 		DWORD envSize = -1;
 		
-		HKEY hKey;
+		HKEY key;
 
 		// OPEN
-    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, keyPath, 0, KEY_ALL_ACCESS, &hKey);
+    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, keyPath, 0, KEY_ALL_ACCESS, &key);
 
     	if (error != ERROR_SUCCESS) {
 			ERROR ("Could not open key at `%ls`\n", keyPath);
 		}
 
 		// GET
-		error = RegGetValueW (hKey, NULL, name, RRF_RT_ANY, NULL, env, &envSize);
+		error = RegGetValueW (key, NULL, name, RRF_RT_ANY, NULL, env, &envSize);
 
 		if (error != ERROR_SUCCESS) {
 			ERROR ("Could not get `%ls` value.\n", name);
@@ -59,7 +62,7 @@ namespace REGISTRY {
 		}
 
 		// SET
-    	error = RegSetValueExW (hKey, name, 0, REG_SZ, (LPBYTE)env, envSize);
+    	error = RegSetValueExW (key, name, 0, REG_SZ, (LPBYTE)env, envSize);
 		
 		if (error != ERROR_SUCCESS) {
 			ERROR ("Could not set `%ls` value with `%ls`\n", name, env);
@@ -70,7 +73,7 @@ namespace REGISTRY {
 		LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
 
 		// FREE
-    	RegCloseKey (hKey);
+    	RegCloseKey (key);
 		FREE (env);
 
 	}
@@ -113,7 +116,7 @@ namespace REGISTRY {
 			PROPERTY_FILEPATH_W, 			// Name
 			0, 								// RESERVED
 			REG_EXPAND_SZ, 					// value type - https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types
-			(LPCBYTE)filepath, 				// data
+			(LPCBYTE) filepath, 			// data
 			filepathLength					// dataCount
 		);
 

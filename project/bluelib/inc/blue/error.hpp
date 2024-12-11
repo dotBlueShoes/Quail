@@ -9,6 +9,11 @@
 	#undef ERROR
 #endif
 
+#define ERRORWIN(text) { \
+	MSGERROR (text); \
+	exit (-1); \
+}
+
 #define ERROR(...) { \
 	LOGERROR ("\n\t" __VA_ARGS__); \
 	 \

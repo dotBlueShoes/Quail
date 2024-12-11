@@ -10,6 +10,14 @@ include (properties)
 
 add_subdirectory (dependencies)
 
+# --- Add 'defines' to all projects
+
+add_compile_definitions (_CRT_SECURE_NO_WARNINGS)
+add_compile_definitions (DEBUG_FLAG_LOGGING=${DEBUG_FLAG_LOGGING})
+add_compile_definitions (DEBUG_FLAG_MEMORY=${DEBUG_FLAG_MEMORY})
+add_compile_definitions (DEBUG_FLAG_CLOCKS=${DEBUG_FLAG_CLOCKS})
+add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
+
 # --- Project's sources
 
 add_subdirectory (project/bluelib)
