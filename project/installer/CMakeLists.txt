@@ -20,10 +20,11 @@ elseif ( ${PROFILE} EQUAL 1 )
 	
 endif ()
 
-# WinAPI EXE _winmain - starting point
-add_executable (
+set (WIN_RESOURCES ${PROJECT_SOURCE_DIR}/res/res_main.rc)
+add_executable ( # WinAPI EXE _winmain - starting point
 	${PROJECT_NAME} WIN32 ${HEADER_FILES} 
 	src/main.cpp
+	${WIN_RESOURCES}
 )
 
 # --- Add project 'headers' for use to said project
@@ -37,8 +38,10 @@ target_link_libraries (${PROJECT_NAME} kernel32)
 target_link_libraries (${PROJECT_NAME} BLUELIB)
 target_link_libraries (${PROJECT_NAME} CURL)
 
-# --- Copy .dlls inside project build directory.
-add_custom_command ( TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	$<TARGET_FILE:CURL> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+# --- Copy .dlls as 'Folder CPY' inside project build directory.
+add_custom_command ( 
+	TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+		$<TARGET_FILE:CURL> 
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )

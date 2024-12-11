@@ -21,6 +21,6 @@
 24. Emplace DLLs into the wizard exe
 25. Make Emplacing a quail command
 26. Make packing a quail command
-27. Add Wizard icon
+28. Colored debuglogs
 
 // LATER. variables, queues

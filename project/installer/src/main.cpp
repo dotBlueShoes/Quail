@@ -3,7 +3,6 @@
 #include <curl/curl.h>
 
 // TODO
-// 1. Attach console for debugging
 // 2. See how to interpret curl exe code into libcurl syntax https://everything.curl.dev/examples/get.html
 // .... registers, window, etc.
 

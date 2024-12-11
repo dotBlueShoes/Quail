@@ -5,6 +5,9 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
+
+#include "../res/resource.h"
+
 #include <windows.h>
 
 namespace WINDOW {
@@ -36,18 +39,18 @@ namespace WINDOW {
 		HWND& window
 	) {
 
-		c16 windowTitle[] { L"EngineOne" };
+		c16 windowTitle[] { L"Quail Installer" };
 		c16 windowName[] { L"GRSsdaEHaRTUwefAGAHEWJRKkakGHDFHdip" };
 
-		//const auto& icon = LoadIcon (instance, MAKEINTRESOURCE(IDI_ICON_MAIN));
-		//DEBUG (DEBUG_TYPE_PLATFORM) if (icon == nullptr) { LogErro ("Could not load icon! {0}", GetLastError ()); }
+		const auto& icon = LoadIcon (instance, MAKEINTRESOURCE (IDI_ICON_MAIN));
+		DEBUG (DEBUG_FLAG_LOGGING) if (icon == nullptr) { LOGERROR ("Could not load icon! {0}", GetLastError ()); }
 
     	WNDCLASSEXW windowClass 	{ 0 };
 		windowClass.cbSize 			= sizeof (WNDCLASSEXW);
 		windowClass.lpfnWndProc		= WindowLoop;
     	windowClass.hInstance 		= instance;
     	//windowClass.hCursor 		= LoadCursorW (nullptr, IDC_ARROW);
-    	//windowClass.hIcon 		= LoadIconW (instance, MAKEINTRESOURCEW(IDI_ICON));
+    	windowClass.hIcon 			= icon;
     	//windowClass.hbrBackground 	= GetSysColorBrush (COLOR_BTNFACE);
     	windowClass.lpszClassName 	= windowName;
 
