@@ -10,7 +10,7 @@ int WinMain (
 	HINSTANCE	instance,
 	HINSTANCE	previousInstance,
 	LPSTR		commandline,
-	int			isConsole
+	s32			isConsole
 ) {
 
 	UNREFERENCED_PARAMETER (previousInstance);
@@ -22,7 +22,9 @@ int WinMain (
 	LOGINFO ("Application Statred!\n");
 
 	{ // Window Creation.
-		HWND window; WINDOW::Create (instance, window);
+		InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.
+
+		HWND window; WINDOW::Create (instance, window, isConsole);
 		MSG msg { 0 }; 
 
 		while (msg.message != WM_QUIT) { // Main loop

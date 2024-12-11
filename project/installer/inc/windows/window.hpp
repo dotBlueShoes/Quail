@@ -9,6 +9,8 @@
 #include "../res/resource.h"
 
 #include <windows.h>
+#include <windowsx.h>
+#include <commctrl.h>
 
 namespace WINDOW {
 
@@ -21,8 +23,35 @@ namespace WINDOW {
 		switch (message) {
 
 			case WM_CREATE: {
-				ShowWindow (window, true);
-				return 0;
+
+			} break;
+
+			case WM_COMMAND: {
+				const auto command = GET_WM_COMMAND_ID(wParam, lParam);
+
+				switch (command) {
+					//case IDM_MODAL:
+					//	DoModalPropSheet(hWnd);
+					//	break;
+
+					//case IDM_MODELESS:
+					//	g_hwndPropSheet = DoModelessPropSheet(hWnd);
+					//	break;
+
+					//case IDM_WIZARD:
+					//	DoWizardPropSheet(hWnd);
+					//	break;
+
+					//case IDM_EXIT:
+					//	PostMessage(hWnd, WM_CLOSE, 0, 0);
+					//	break;
+
+					//case IDM_ABOUT:
+					//	DialogBox(g_hInst, MAKEINTRESOURCE(IDD_ABOUT_DIALOG), hWnd, About);
+					//	break;
+				}
+
+				return TRUE;
 			}
 
 			case WM_DESTROY: {
@@ -36,32 +65,50 @@ namespace WINDOW {
 
 	void Create (
 		HINSTANCE instance,
-		HWND& window
+		HWND& window,
+		s32 isConsole
 	) {
 
+		{ // Get Operating System Information.
+			OSVERSIONINFO operatingSystem { 0 };
+			operatingSystem.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+			GetVersionEx (&operatingSystem);
+
+			if (operatingSystem.dwMajorVersion <= 4) {
+				ERROR ("Running on unsuported windows version!\n");
+			}
+		}
+
 		c16 windowTitle[] { L"Quail Installer" };
-		c16 windowName[] { L"GRSsdaEHaRTUwefAGAHEWJRKkakGHDFHdip" };
+		c16 windowName[] { L"PropSheetClass" };
 
 		const auto& icon = LoadIcon (instance, MAKEINTRESOURCE (IDI_ICON_MAIN));
-		DEBUG (DEBUG_FLAG_LOGGING) if (icon == nullptr) { LOGERROR ("Could not load icon! {0}", GetLastError ()); }
+		DEBUG (DEBUG_FLAG_LOGGING) if (icon == nullptr) { LOGERROR ("Could not load icon! %d\n", GetLastError ()); }
+
+		//wcex.hbrBackground = GetStockObject(WHITE_BRUSH);
+		//wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
+		//wcex.lpszClassName = g_szClassName;
 
     	WNDCLASSEXW windowClass 	{ 0 };
-		windowClass.cbSize 			= sizeof (WNDCLASSEXW);
+		windowClass.cbSize 			= sizeof (windowClass);
+		windowClass.style			= CS_HREDRAW | CS_VREDRAW;
 		windowClass.lpfnWndProc		= WindowLoop;
     	windowClass.hInstance 		= instance;
-    	//windowClass.hCursor 		= LoadCursorW (nullptr, IDC_ARROW);
     	windowClass.hIcon 			= icon;
-    	//windowClass.hbrBackground 	= GetSysColorBrush (COLOR_BTNFACE);
+		windowClass.hCursor			= LoadCursor(NULL, IDC_ARROW);
+    	//windowClass.hbrBackground = GetSysColorBrush (COLOR_BTNFACE);
+		windowClass.hbrBackground	= (HBRUSH) GetStockObject(WHITE_BRUSH);
+		//windowClass.lpszMenuName	= MAKEINTRESOURCE(IDR_MAIN_MENU);
     	windowClass.lpszClassName 	= windowName;
 
     	if (!RegisterClassExW (&windowClass)) exit (1);
 
-    	//auto pMainWindow = std::unique_ptr<CMainWindow>(new CMainWindow(hInstance, nShowCmd));
     	window = CreateWindowExW (
         	0,
         	windowName,
         	windowTitle,
-        	WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+        	WS_OVERLAPPEDWINDOW, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         	CW_USEDEFAULT,
         	CW_USEDEFAULT,
         	CW_USEDEFAULT,
@@ -69,10 +116,13 @@ namespace WINDOW {
         	nullptr,
         	nullptr,
         	instance,
-        	nullptr //pMainWindow.get()
+        	nullptr
 		);
 
     	if (!window) exit (1);
+
+		ShowWindow (window, isConsole);
+		UpdateWindow (window);
 	}
 
 }

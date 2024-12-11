@@ -34,7 +34,7 @@ target_include_directories (
 )
 
 # --- Add library 'headers' for use to said project
-target_link_libraries (${PROJECT_NAME} kernel32)
+target_link_libraries (${PROJECT_NAME} kernel32 Comctl32)
 target_link_libraries (${PROJECT_NAME} BLUELIB)
 target_link_libraries (${PROJECT_NAME} CURL)
 

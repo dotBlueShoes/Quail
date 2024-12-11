@@ -1,5 +1,6 @@
 # Environmental stuff.
 /build/
+/.vs/
 
 # Personal stuff.
 /.ninja/secret.ninja
@@ -13,3 +14,5 @@
 *.exe
 *.npp
 *.ninja_log
+
+*.aps
