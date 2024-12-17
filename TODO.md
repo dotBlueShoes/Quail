@@ -16,13 +16,11 @@
 20. FIX ADMIN REQUIRED BUG
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 
-22. Add Manifest file to instalation wizard
 23. Make a packed executable
 24. Emplace DLLs into the wizard exe
 25. Make Emplacing a quail command
 26. Make packing a quail command
 28. Colored debuglogs
-30. %_% - means '%'
 31. Draw an bmp colored image in istaller
 
 // LATER. variables, queues

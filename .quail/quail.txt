@@ -5,12 +5,15 @@
 
 %quail_dir 		= C:\Program Files\dotBlueShoes\Quail
 %vcvarsall_dir 	= C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
-%vscode_dir 	= C:\Program Files\Microsoft VS Code\Code.exe
+%vscode_path 	= C:\Program Files\Microsoft VS Code\Code.exe
 %shell			= pwsh -c
+
+%mt_path		= C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe
+
 
 #?quail_dir		= Path to Quail directory.
 #?vcvarsall_dir	= Path to vcvarsall directory.
-#?vscode_dir	= Path to vscode executable.
+#?vscode_path	= Path to vscode executable.
 #?shell			= Prefered shell for e.g. "pwsh - c".
 
 %pr 			= x64-win-release
@@ -21,7 +24,7 @@
 !config 		= start "" notepad++ %_path%\.quail\quail.txt
 !terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
 !directory 		= explorer.exe "%_path%"
-!code 			= start "" "%vscode_dir%" "%_path%"
+!code 			= start "" "%vscode_path%" "%_path%"
 !github			= github "%_path%"
 
 # CMAKE
@@ -37,8 +40,14 @@
 !bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
 !bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
 
-!ins			= %shell% "%_path%\build\%pd%\project\installer\Installer.exe"
-!iins			= %shell% "%_path%\build\%pr%\project\installer\Installer.exe"
+!_ins			= %shell% "%_path%\build\%pd%\project\installer\Installer.exe"
+!_iins			= %shell% "%_path%\build\%pr%\project\installer\Installer.exe"
+
+!manifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pd%
+!mmanifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pr%
 
 |run			= bld,cpy
 |rrun			= bbld,ccpy
+
+|ins			= manifest,_ins
+|iins			= mmanifest,_iins
