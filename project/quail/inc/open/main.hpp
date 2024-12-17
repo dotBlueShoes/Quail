@@ -34,29 +34,6 @@ namespace OPEN {
 		}
 	}
 
-	//void ReadFile (
-	//	FILE* const& file,
-	//	INTERPRETER::Interpreter& interpreter
-	//) {
-	//	while (interpreter.current != EOF) { // READ
-	//
-	//		interpreter.current = getc (file);
-	//
-	//		if (interpreter.current == EOF) break;
-	//		else {
-	//
-	//			INTERPRETER::parsingstage (interpreter);
-	//
-	//			while (interpreter.current != '\n') {
-	//				interpreter.current = getc (file);
-	//				LOGINFO("%c", interpreter.current);
-	//			}
-	//
-	//		}
-	//
-	//	}
-	//}
-
 	void GetIncludes (
 		INTERPRETER::Interpreter& interpreter,
 		u32& includesCounter,
@@ -158,7 +135,7 @@ namespace OPEN {
 
 	}
 
-	// Adds "_path" and "_name" constants for use in config.
+	// Adds "_", "_path" and "_name" constants for use in config.
 	void AddHiddenConstants ( 
 		const u32& pathLength,
 		const c16* const& path,
@@ -166,54 +143,89 @@ namespace OPEN {
 		const c8* const& name
 	) {
 
-		{ // "_name"
-			const u8 temp[] { "_name" }; // Const defintion.
-			const u32 tempLength = sizeof (temp);
+		{ // "_"
 
-			// Cpy -> We can easly deallocate it with others later.
-			u8* projectName; ALLOCATE (u8, projectName, tempLength);
-			memcpy (projectName, temp, tempLength);
+			{ // - key
+				const u8 temp[] { "_" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
 
-			constants.keys.push_back (projectName);
-		}
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
 
-		{ // value
-
-			{ // Convertion c8* to c16*
-				SetFirstTempW (name[0]);
-				for (u32 i = 1; i < nameLength; ++i) {
-					AddTempW (name[i]);
-				}
+				constants.keys.push_back (constantName);
 			}
 
-			u8* projectName; ALLOCATE (u8, projectName, temporaryLength);
-			memcpy (projectName, temporary, temporaryLength);
+			{ // - value
+				const u8 temp[] { "%" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
 
-			constants.values.push_back (projectName);
-			constants.valueLengths.push_back (temporaryLength - 2); // minus EOF
+				u8* constantValue; ALLOCATE (u8, constantValue, tempLength);
+				memcpy (constantValue, temp, tempLength);
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (tempLength);
+			}
+
 		}
 
+		{ // "_name"
+
+			{ // - key
+				const u8 temp[] { "_name" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
+
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // - value
+
+				{ // Convertion c8* to c16*
+					SetFirstTempW (name[0]);
+					for (u32 i = 1; i < nameLength; ++i) {
+						AddTempW (name[i]);
+					}
+				}
+
+				u8* constantValue; ALLOCATE (u8, constantValue, temporaryLength);
+				memcpy (constantValue, temporary, temporaryLength);
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (temporaryLength - 2); // minus EOF
+			}
+
+		}
+		
 		{ // "_path"
-			const u8 temp[] { "_path" }; // Const defintion.
-			const u32 tempLength = sizeof (temp);
 
-			// Cpy -> We can easly deallocate it with others later.
-			u8* projectPath; ALLOCATE (u8, projectPath, tempLength);
-			memcpy (projectPath, temp, tempLength);
+			{ // - key
+				const u8 temp[] { "_path" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
 
-			constants.keys.push_back (projectPath);
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // value (copy but with removal of '/' sign at the end)
+				u8* constantValue; ALLOCATE (u8, constantValue, pathLength); // should alloc one less char.
+				memcpy (constantValue, path, pathLength - 2);
+
+				constantValue[pathLength - 2] = 0;
+				constantValue[pathLength - 1] = 0;
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (pathLength - 2); // minus EOF
+			}
+
 		}
-
-		{ // value (copy but with removal of '/' sign at the end)
-			u8* projectPath; ALLOCATE (u8, projectPath, pathLength); // should alloc one less char.
-			memcpy (projectPath, path, pathLength - 2);
-
-			projectPath[pathLength - 2] = 0;
-			projectPath[pathLength - 1] = 0;
-
-			constants.values.push_back (projectPath);
-			constants.valueLengths.push_back (pathLength - 2); // minus EOF
-		}
+		
 	}
 
 

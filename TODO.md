@@ -22,7 +22,6 @@
 25. Make Emplacing a quail command
 26. Make packing a quail command
 28. Colored debuglogs
-29. fix ? in command and constants
 30. %_% - means '%'
 31. Draw an bmp colored image in istaller
 
