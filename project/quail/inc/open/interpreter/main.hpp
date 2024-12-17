@@ -63,7 +63,6 @@ namespace OPEN::INTERPRETER {
 namespace OPEN::INTERPRETER::MAIN {
 	void GetAllFiles	(const Interpreter&);
 	void Main 			(const Interpreter&);
-	void SpaceC8 		(const Interpreter&);
 	void Comment 		(const Interpreter&);
 }
 
@@ -89,6 +88,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 
 namespace OPEN::INTERPRETER::MAIN::CASCADE {
 	void Initialize ();
+	void SpaceC16 	(const Interpreter&);
 	void Constant 	(const Interpreter&);
 }
 
@@ -110,12 +110,23 @@ namespace OPEN::INTERPRETER::MAIN {
 
 	void GetAllFiles (const Interpreter& interpreter) {
 
+		// We're basically cheking only 1st character after each new line
+		//  If its something we want we read the line the way we want otherwise
+		//  we're treating it as whitespace or comments.
+
 		switch (interpreter.current) {
 
-			case TYPE_COMMENT: parsingstage = Comment; specialStage = GetAllFiles; break;
 			case TYPE_INCLUDE: INCLUDE::Initialize (); break;
 			case TYPE_PROJECT: PROJECT::Initialize (); break;
-			default: { }
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_NEW_LINE:
+			case TYPE_SPACE:
+			case TYPE_TAB: 
+			case TYPE_EOF: break;
+
+			// If the line does not start with an indicator treat it like a TYPE_COMENT line.
+			default: parsingstage = Comment; specialStage = GetAllFiles;
 
 		}
 
@@ -125,99 +136,21 @@ namespace OPEN::INTERPRETER::MAIN {
 
 		switch (interpreter.current) {
 
+			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE:
 			case TYPE_SPACE:
 			case TYPE_TAB:
-			case TYPE_EOF: {
-				//putc (interpreter.current, stdout);
-			} break;
-
-			case TYPE_INCLUDE: 
-			case TYPE_PROJECT: 
-			case TYPE_COMMENT: {
-				// We're Skipping them and todoso we're simply treating them as comments here.
-				parsingstage = Comment; specialStage = Main;
-			} break;
+			case TYPE_EOF: break;
 
 			case TYPE_CONSTANT: CONSTANT::Initialize (); break;
-
-			case TYPE_SECRET: LOGINFO ("Detected Secret!\n");
-				break;
-
-			case TYPE_VARIABLE: //LOGINFO ("Detected Variable!\n");
-				break;
-
+			case TYPE_SECRET: LOGINFO ("Detected Secret!\n"); break;
+			case TYPE_VARIABLE: LOGINFO ("Detected Variable!\n"); break;
 			case TYPE_COMMAND: COMMAND::Initialize (); break;
 			case TYPE_QUEUE: QUEUE::Initialize (); break;
 
-			default: { 
-				//putc (interpreter.current, stdout);
-			}
-
-		}
-
-	}
-
-	void SpaceC8 (const Interpreter& interpreter) {
-
-		switch (interpreter.current) {
-
-			case TYPE_EOF:
-			case TYPE_NEW_LINE:
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_CONSTANT:
-			case TYPE_VARIABLE:
-			case TYPE_SECRET:
-			case TYPE_COMMENT:
-			case TYPE_ASSIGN: {
-				ERROR_INTERPRETER ("main:space8", interpreter.current);
-			} break;
-
-			case TYPE_CARRIAGE_RETURN:
-			case TYPE_SPACE:
-			case TYPE_TAB: break; // nothing
-
-			default: {
-				SetFirstTemp (interpreter.current);
-				parsingstage = specialStage;
-			}
-
-		}
-
-	}
-
-	// CASCADING VARIANT
-	void SpaceCC16 (const Interpreter& interpreter) {
-
-		switch (interpreter.current) {
-
-			case TYPE_EOF:
-			case TYPE_NEW_LINE:
-			//case TYPE_PROJECT:
-			//case TYPE_INCLUDE:
-			//case TYPE_COMMAND:
-			//case TYPE_QUEUE:
-			//case TYPE_COMMENT:
-			case TYPE_ASSIGN: {
-				ERROR_INTERPRETER ("main:space-cascade16", interpreter.current);
-			} break;
-
-			case TYPE_CARRIAGE_RETURN:
-			case TYPE_SPACE:
-			case TYPE_TAB: break; // nothing
-
-			case TYPE_CONSTANT: specialStage = CONSTANT::Value; CASCADE::Initialize (); break;
-
-			//case TYPE_VARIABLE: {} break;
-			//case TYPE_SECRET: {} break;
-
-			default: {
-				SetFirstTempW (interpreter.current);
-				parsingstage = specialStage;
-			}
+			// We're also skipping TYPE_INCLUDE, TYPE_PROJECT by doing so.
+			// If the line does not start with an indicator treat it like a TYPE_COMENT line.
+			default: parsingstage = Comment; specialStage = Main;
 
 		}
 
@@ -261,11 +194,11 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 				ERROR_INTERPRETER ("include:context", interpreter.current);
 			} break;
 
+			case TYPE_CARRIAGE_RETURN:
 			case TYPE_SPACE:
 			case TYPE_TAB: break; // nothing
 			
 			case TYPE_EOF:
-			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE: {
 
 				AddTempW (TYPE_EOS);
@@ -552,22 +485,47 @@ namespace OPEN::INTERPRETER::MAIN::CASCADE {
 		cascadingLength = 0;
 	}
 
+	void SpaceC16 (const Interpreter& interpreter) {
+
+		switch (interpreter.current) {
+
+			case TYPE_EOF:
+			case TYPE_NEW_LINE:
+			case TYPE_ASSIGN: {
+				ERROR_INTERPRETER ("main:space-cascade16", interpreter.current);
+			} break;
+
+			case TYPE_CARRIAGE_RETURN:
+			case TYPE_SPACE:
+			case TYPE_TAB: break; // nothing
+
+			case TYPE_CONSTANT: specialStage = CONSTANT::Value; CASCADE::Initialize (); break;
+
+			default: {
+				SetFirstTempW (interpreter.current);
+				parsingstage = specialStage;
+			}
+
+		}
+
+	}
+
 	void Constant (const Interpreter& interpreter) {
 
 		switch (interpreter.current) {
 
 			case TYPE_CARRIAGE_RETURN: break;
 
-			case TYPE_VARIABLE:
-			case TYPE_SECRET: 
+			//case TYPE_VARIABLE:
+			//case TYPE_SECRET: 
+			//case TYPE_PROJECT:
+			//case TYPE_INCLUDE:
+			//case TYPE_COMMAND:
+			//case TYPE_QUEUE:
+			//case TYPE_ASSIGN:
+			case TYPE_COMMENT:
 			case TYPE_EOF:
 			case TYPE_NEW_LINE:
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_COMMENT:
-			case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR_INTERPRETER ("constant:constant", interpreter.current);
 			} break;
@@ -637,6 +595,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 			case TYPE_VARIABLE:
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
+			//
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
 				ERROR_INTERPRETER ("constant:name", interpreter.current);
@@ -658,7 +617,7 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 				temporaryLength = 0; // RESET
 
 				specialStage = Value;
-				parsingstage = MAIN::SpaceCC16;
+				parsingstage = CASCADE::SpaceC16;
 
 			} break;
 
@@ -674,12 +633,12 @@ namespace OPEN::INTERPRETER::MAIN::CONSTANT {
 
 		switch (interpreter.current) {
 
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_COMMENT:
-			case TYPE_ASSIGN:
+			//case TYPE_PROJECT:
+			//case TYPE_INCLUDE:
+			//case TYPE_COMMAND:
+			//case TYPE_QUEUE:
+			//case TYPE_COMMENT:
+			//case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR_INTERPRETER ("constant:value", interpreter.current);
 			} break;
@@ -763,6 +722,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 			case TYPE_VARIABLE:
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
+			//
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
 				ERROR_INTERPRETER ("command:name", interpreter.current);
@@ -799,11 +759,11 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 
 		switch (interpreter.current) {
 
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_ASSIGN:
+			//case TYPE_PROJECT:
+			//case TYPE_INCLUDE:
+			//case TYPE_COMMAND:
+			//case TYPE_QUEUE:
+			//case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR_INTERPRETER ("command:value", interpreter.current);
 			} break;
@@ -878,6 +838,7 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 			case TYPE_VARIABLE:
 			case TYPE_SECRET:
 			case TYPE_COMMENT:
+			//
 			case TYPE_NEW_LINE:
 			case TYPE_EOF: {
 				ERROR_INTERPRETER ("queue:name", interpreter.current);
@@ -914,11 +875,11 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 
 		switch (interpreter.current) {
 
-			case TYPE_PROJECT:
-			case TYPE_INCLUDE:
-			case TYPE_COMMAND:
-			case TYPE_QUEUE:
-			case TYPE_ASSIGN:
+			//case TYPE_PROJECT:
+			//case TYPE_INCLUDE:
+			//case TYPE_COMMAND:
+			//case TYPE_QUEUE:
+			//case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR_INTERPRETER ("queue:value", interpreter.current);
 			} break;

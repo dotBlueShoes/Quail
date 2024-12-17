@@ -21,6 +21,42 @@ namespace OPEN {
 	// 4. Jeśli depth jest równy więcej niż 1 to znaczy że mamy do czynienia z subprojektami
 	// 
 
+
+	//
+
+	void ReadFile (
+		FILE* const& file,
+		INTERPRETER::Interpreter& interpreter
+	) {
+		while (interpreter.current != EOF) { // READ
+			interpreter.current = getc (file);
+			INTERPRETER::parsingstage (interpreter);
+		}
+	}
+
+	//void ReadFile (
+	//	FILE* const& file,
+	//	INTERPRETER::Interpreter& interpreter
+	//) {
+	//	while (interpreter.current != EOF) { // READ
+	//
+	//		interpreter.current = getc (file);
+	//
+	//		if (interpreter.current == EOF) break;
+	//		else {
+	//
+	//			INTERPRETER::parsingstage (interpreter);
+	//
+	//			while (interpreter.current != '\n') {
+	//				interpreter.current = getc (file);
+	//				LOGINFO("%c", interpreter.current);
+	//			}
+	//
+	//		}
+	//
+	//	}
+	//}
+
 	void GetIncludes (
 		INTERPRETER::Interpreter& interpreter,
 		u32& includesCounter,
@@ -28,10 +64,7 @@ namespace OPEN {
 	) {
 		INTERPRETER::parsingstage = INTERPRETER::MAIN::GetAllFiles;
 
-		while (interpreter.current != EOF) { // READ
-			interpreter.current = getc (mainFile);
-			INTERPRETER::parsingstage (interpreter);
-		}
+		ReadFile (mainFile, interpreter);
 
 		//LOGINFO ("ConfigFile read successfully\n");
 
@@ -50,10 +83,7 @@ namespace OPEN {
 				interpreter.current = 0;
 				interpreter.special = 0;
 
-				while (interpreter.current != EOF) { // READ
-					interpreter.current = getc (config);
-					INTERPRETER::parsingstage (interpreter);
-				}
+				ReadFile (config, interpreter);
 
 				LOGWINFO (">> IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
 
@@ -392,10 +422,11 @@ namespace OPEN {
 				interpreter.current = 0;
 				interpreter.special = 0;
 
-				while (interpreter.current != EOF) { // READ
-					interpreter.current = getc (config);
-					INTERPRETER::parsingstage (interpreter);
-				}
+				ReadFile(config, interpreter);
+				//while (interpreter.current != EOF) { // READ
+				//	interpreter.current = getc (config);
+				//	INTERPRETER::parsingstage (interpreter);
+				//}
 
 			}
 
