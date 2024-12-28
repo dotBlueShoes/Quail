@@ -6,13 +6,13 @@
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"
-#include "instalation/main.hpp"
+#include "registry.hpp"
 
 s32 main (s32 argumentsCount, c8* arguments[]) {
 
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
 
-	INSTALLATION::CreateAll ();
+	REGISTRY::LoadKeyValues ();
 
 	switch (argumentsCount) {
 

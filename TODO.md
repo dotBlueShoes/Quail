@@ -13,14 +13,8 @@
 17. Installer CMake build + quail configuration ibld, ibbld, irun, irrun
 18. Secrets vs Defines
 19. Decide on 2-Read path + global.conf - so that we can define both at the very end and the begining constants, secrets and varaibles
-20. FIX ADMIN REQUIRED BUG
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
-
-23. Make a packed executable
-24. Emplace DLLs into the wizard exe
-25. Make Emplacing a quail command
-26. Make packing a quail command
 28. Colored debuglogs
 31. Draw an bmp colored image in istaller
-
-// LATER. variables, queues
+32. Fix Manifest - Admin rights
+33.

@@ -7,9 +7,6 @@
 
 #include "../data.hpp"
 
-
-
-
 namespace OPEN::INTERPRETER {
 
 	struct Interpreter {

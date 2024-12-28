@@ -40,11 +40,7 @@ target_link_libraries (${PROJECT_NAME} BLUELIB)
 #target_link_libraries (${PROJECT_NAME} CURL::libcurl_shared)
 target_link_libraries (${PROJECT_NAME} CURL::libcurl_static)
 
-
-#find_package (CURL REQUIRED)
-#target_link_libraries (${PROJECT_NAME} CURL::libcurl)
-
-# --- Copy .dlls as 'Folder CPY' inside project build directory.
+# --- Copy .dlls as 'Folder CPY' inside project build directory. (CURL)
 #add_custom_command ( 
 #	TARGET ${PROJECT_NAME} POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E copy_directory
