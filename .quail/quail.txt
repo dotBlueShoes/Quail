@@ -16,6 +16,9 @@
 #?vscode_path	= Path to vscode executable.
 #?shell			= Prefered shell for e.g. "pwsh - c".
 
+# faster-compresion ."C:\programs\upx-4.2.4-win64\upx-4.2.4-win64\upx.exe" -1 "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer.exe" -o "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer1.exe"
+# better-compresion ."C:\programs\upx-4.2.4-win64\upx-4.2.4-win64\upx.exe" -9 "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer.exe" -o "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer9.exe"
+
 %pr 			= x64-win-release
 %pd 			= x64-win-debug
 

@@ -1,7 +1,7 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
-#include <blue/types.hpp>
+#include "types.hpp"
 
 namespace COMPARESEARCH {
 

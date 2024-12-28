@@ -2,8 +2,9 @@
 //
 #pragma once
 #include <blue/types.hpp>
-
 #include <vector>
+
+#include "registry.hpp"
 
 namespace OPEN { 
 
@@ -80,11 +81,6 @@ namespace OPEN {
 		TYPE_SPACE 				= ' ',
 		TYPE_SEPARATOR 			= ',',
 	};
-
-	// Have on top information about main config filePath.
-	u32 mainConfigFolderPathLength;
-	u32 mainConfigFilePathLength;
-	c16* mainConfigFilePath;
 
 	// global.txt
 

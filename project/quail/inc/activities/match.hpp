@@ -1,9 +1,9 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
+#include "blue/comparesearch.hpp"
 #include "activities.hpp"
 //
-#include "comparesearch.hpp"
 
 namespace ACTIVITIES::MATCH {
 

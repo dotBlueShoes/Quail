@@ -4,7 +4,18 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
-#include "open/data.hpp"
+//#include "open/data.hpp"
+
+namespace OPEN {
+
+	// Where are quail top configs.
+	u32 mainConfigFolderPathLength;
+	
+	// Full filepath to quail "main" config.
+	u32 mainConfigFilePathLength;
+	c16* mainConfigFilePath;
+
+}
 
 namespace REGISTRY {
 

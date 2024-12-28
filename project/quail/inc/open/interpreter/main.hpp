@@ -3,9 +3,11 @@
 #pragma once
 #include "blue/types.hpp"
 #include "blue/error.hpp"
+#include "blue/comparesearch.hpp"
+
 #include "../data.hpp"
 
-#include "comparesearch.hpp"
+
 
 
 namespace OPEN::INTERPRETER {
