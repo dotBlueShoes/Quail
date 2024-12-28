@@ -16,9 +16,6 @@
 #?vscode_path	= Path to vscode executable.
 #?shell			= Prefered shell for e.g. "pwsh - c".
 
-# faster-compresion ."C:\programs\upx-4.2.4-win64\upx-4.2.4-win64\upx.exe" -1 "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer.exe" -o "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer1.exe"
-# better-compresion ."C:\programs\upx-4.2.4-win64\upx-4.2.4-win64\upx.exe" -9 "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer.exe" -o "C:\Projects\Quail\build\x64-win-debug\project\installer\Installer9.exe"
-
 %pr 			= x64-win-release
 %pd 			= x64-win-debug
 
@@ -43,15 +40,17 @@
 !bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
 !bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
 
-!_ins			= %shell% "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
-!_iins			= %shell% "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+!_ins			= start "" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
+!_iins			= start "" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
 
-!manifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pd% Installer.exe
-!mmanifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pr% Installer.exe
+!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% Installer.exe
+!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% Installer.exe
 
+!compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\installer\Installer.exe" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
+!ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\installer\Installer.exe" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
 
-!compress 		= start "" %upx_path% -9 "%_path%\build\%pd%\project\installer\Installer.exe" -o "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
-!ccompress		= start "" %upx_path% -9 "%_path%\build\%pr%\project\installer\Installer.exe" -o "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+#!compress 		= %upx_path% -9 "%_path%\build\%pd%\project\installer\Installer.exe" -o "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
+#!ccompress		= %upx_path% -9 "%_path%\build\%pr%\project\installer\Installer.exe" -o "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
 
 |run			= bld,cpy
 |rrun			= bbld,ccpy

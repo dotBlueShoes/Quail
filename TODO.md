@@ -16,5 +16,4 @@
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 28. Colored debuglogs
 31. Draw an bmp colored image in istaller
-32. Fix Manifest - Admin rights
-33.
+34.
