@@ -25,17 +25,32 @@ int WinMain (
 
 	LOGINFO ("Application Statred!\n");
 
+	getchar();
+
 	{ // REGISTRY THINGS
 		REGISTRY::topConfigsFolderPathLength = REGISTRY::DEFAULT_FOLDERPATH_LENGTH;
 		REGISTRY::mainConfigFilePathLength = REGISTRY::DEFAULT_FILEPATH_LENGTH;
 		REGISTRY::mainConfigFilePath = REGISTRY::DEFAULT_FILEPATH_W;
 
 		REGISTRY::CreateKeys ();
-		REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::mainConfigFilePath);
+
+		LOGINFO ("1!\n");
+		getchar();
+
+		//
+
+		//LOGINFO ("2!\n");
+		//getchar();
 		
-		if (!IO::IsExisting(REGISTRY::mainConfigFilePath))
+		if (!IO::IsExisting(REGISTRY::mainConfigFilePath)) {
+			// TODO. This can really messup thigs. I should get path find my string then add or not if it's present.
+			REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::mainConfigFilePath);
 			IO::Create (REGISTRY::mainConfigFilePath);
+		}
 	}
+
+	LOGINFO ("3!\n");
+	getchar();
 
 	{ // Window Creation.
 		InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.

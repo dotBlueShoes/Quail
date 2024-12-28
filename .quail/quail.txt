@@ -46,8 +46,8 @@
 !_ins			= %shell% "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
 !_iins			= %shell% "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
 
-!manifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pd%
-!mmanifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pr%
+!manifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pd% Installer.exe
+!mmanifest		= %shell% "%_path%\.quail\manifest.ps1" "'%mt_path%'" "%_path%" %pr% Installer.exe
 
 
 !compress 		= start "" %upx_path% -9 "%_path%\build\%pd%\project\installer\Installer.exe" -o "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
@@ -56,5 +56,5 @@
 |run			= bld,cpy
 |rrun			= bbld,ccpy
 
-|ins			= manifest,compress_ins
+|ins			= manifest,compress,_ins
 |iins			= mmanifest,ccompress,_iins

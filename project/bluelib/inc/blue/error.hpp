@@ -20,6 +20,7 @@
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
+	getchar (); \
 	exit (-1); \
 }
 
@@ -29,5 +30,6 @@
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
+	getchar (); \
 	exit (-1); \
 }
