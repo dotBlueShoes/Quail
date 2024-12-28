@@ -26,8 +26,9 @@ namespace REGISTRY {
 
 	// VARIABLES
 
-	u32 topConfigsFolderPathLength; // Where are quail top configs.
-	u32 mainConfigFilePathLength; // Full filepath to quail "main" config.
+	u32 topConfigsFolderPathLength;		// Where are quail top configs.
+	c16 const* topConfigsFolderPath; 
+	u32 mainConfigFilePathLength;		// Full filepath to quail "main" config.
 	c16 const* mainConfigFilePath;
 
 	// FUNCTIONS
@@ -38,7 +39,6 @@ namespace REGISTRY {
 	) {
 		
 		const c16* keyPath = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
-
 		const c16* name = L"path";
 
 		c16* env; ALLOCATE (c16, env, 2048);
@@ -53,36 +53,44 @@ namespace REGISTRY {
 			ERROR ("Could not open key at `%ls`\n", keyPath);
 		}
 
-		// GET
-		error = RegGetValueW (key, NULL, name, RRF_RT_ANY, NULL, env, &envSize);
+		error = RegGetValueW (key, NULL, name, RRF_RT_ANY, NULL, env, &envSize); // GET
 
 		if (error != ERROR_SUCCESS) {
 			ERROR ("Could not get `%ls` value.\n", name);
 		} 
 
-		{ // Adding quail
-			auto&& binary = ((u8*) env) + envSize; //642;
-			auto&& begin = (c16*) binary - 2;
+		//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
 
-			wmemset (begin + 0, L';', 2);					// Replace `\0` with `;`.
-			memcpy  (begin + 1, quail, quailLength);		// Add Quail
-			wmemset (begin + (quailLength / 2), L'\0', 2); 	// Replace `\\` with `\0`.
+		if (wcsstr (env, quail) != NULL) {
+			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.");
 
-			envSize = envSize +quailLength + 1;
+		} else {
+			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.");
 
-			//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
+			{ // Creating proper entry string representing Quail.
+				auto&& binary = ((u8*) env) + envSize; //642;
+				auto&& begin = (c16*) binary - 2;
+			
+				wmemset (begin + 0, L';', 2);					// Replace `\0` with `;`.
+				memcpy  (begin + 1, quail, quailLength);		// Add Quail
+				wmemset (begin + (quailLength / 2), L'\0', 2); 	// Replace `\\` with `\0`.
+			
+				envSize = envSize + quailLength + 1;
+			
+				LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
+			}
+			
+			// Adding the entry to the path variable.
+    		error = RegSetValueExW (key, name, 0, REG_SZ, (LPBYTE)env, envSize);
+			
+			if (error != ERROR_SUCCESS) {
+				ERROR ("Could not set `%ls` value with `%ls`\n", name, env);
+			}
+			
+			// Update all other applications because we did just edited enviroment varaibles!
+			SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
+			LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
 		}
-
-		// SET
-    	error = RegSetValueExW (key, name, 0, REG_SZ, (LPBYTE)env, envSize);
-		
-		if (error != ERROR_SUCCESS) {
-			ERROR ("Could not set `%ls` value with `%ls`\n", name, env);
-		}
-
-		// Update all other applications because we did just edited enviroment varaibles!
-		SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
-		LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
 
 		// FREE
     	RegCloseKey (key);
