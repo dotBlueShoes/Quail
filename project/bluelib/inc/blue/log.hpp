@@ -5,7 +5,7 @@
 #include "io_types.hpp"
 #include "debug.hpp"
 
-#include <Windows.h>
+#include "windows/types.hpp"
 
 #define MSGINFO(message) { \
 	DEBUG (DEBUG_FLAG_LOGGING) \

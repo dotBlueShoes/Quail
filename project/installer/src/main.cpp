@@ -44,8 +44,9 @@ int WinMain (
 
 	{ // Window Creation.
 		InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.
+		WINDOW::AREO::LoadMethods ();
 
-		HWND window; WINDOW::Create (instance, window, isConsole);
+		HWND window; WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
 		MSG msg { 0 }; 
 
 		while (msg.message != WM_QUIT) { // Main loop

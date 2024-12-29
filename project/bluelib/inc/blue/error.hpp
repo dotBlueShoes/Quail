@@ -3,11 +3,7 @@
 #pragma once
 #include "memory.hpp"
 #include "log.hpp"
-
-#include <Windows.h>
-#ifdef ERROR
-	#undef ERROR
-#endif
+#include "windows/types.hpp"
 
 #define ERRORWIN(text) { \
 	MSGERROR (text); \

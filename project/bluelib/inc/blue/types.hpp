@@ -37,6 +37,11 @@ using arr32 = array_t<T, u32, length>;
 template<class T, u32 length>
 using arr64 = array_t<T, u32, length>;
 
+template<class T>
+struct pair {
+	T x, y;
+};
+
 
 // Equality String Test Called `3` with its u8 and u16 version.
 //  ...

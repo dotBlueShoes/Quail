@@ -62,10 +62,10 @@ namespace REGISTRY {
 		//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
 
 		if (wcsstr (env, quail) != NULL) {
-			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.");
+			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.\n");
 
 		} else {
-			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.");
+			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.\n");
 
 			{ // Creating proper entry string representing Quail.
 				auto&& binary = ((u8*) env) + envSize; //642;

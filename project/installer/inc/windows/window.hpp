@@ -8,11 +8,189 @@
 
 #include "../res/resource.h"
 
+// AREO
+#include <dwmapi.h>
+#include <gdiplus.h>
+// END AREO
+
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 
+#include <blue/windows/controls.hpp>
+
+#define GetProcMemory(procedureType, module, procedureName) { \
+	procedureName = (procedureType) GetProcAddress (GetModuleHandleA (#module), #procedureName); \
+	if (procedureName == nullptr) ERROR ("Function not created. Failed to load `%s` method: `%s`\n", #module, #procedureName); \
+}
+
+#define ACRYLIC_TINT_LIGHT    0xEEEEEE
+#define ACRYLIC_TINT_DARK     0x2B2B2B
+
+namespace WINDOW::AREO {
+
+	enum WINDOWCOMPOSITIONATTRIBUTE {
+		WCA_UNDEFINED,
+		WCA_NCRENDERING_ENABLED,
+		WCA_NCRENDERING_POLICY,
+		WCA_TRANSITIONS_FORCEDISABLED,
+		WCA_ALLOW_NCPAINT,
+		WCA_CAPTION_BUTTON_BOUNDS,
+		WCA_NONCLIENT_RTL_LAYOUT,
+		WCA_FORCE_ICONIC_REPRESENTATION,
+		WCA_EXTENDED_FRAME_BOUNDS,
+		WCA_HAS_ICONIC_BITMAP,
+		WCA_THEME_ATTRIBUTES,
+		WCA_NCRENDERING_EXILED,
+		WCA_NCADORNMENTINFO,
+		WCA_EXCLUDED_FROM_LIVEPREVIEW,
+		WCA_VIDEO_OVERLAY_ACTIVE,
+		WCA_FORCE_ACTIVEWINDOW_APPEARANCE,
+		WCA_DISALLOW_PEEK,
+		WCA_CLOAK,
+		WCA_CLOAKED,
+		WCA_ACCENT_POLICY,
+		WCA_FREEZE_REPRESENTATION,
+		WCA_EVER_UNCLOAKED,
+		WCA_VISUAL_OWNER,
+		WCA_HOLOGRAPHIC,
+		WCA_EXCLUDED_FROM_DDA,
+		WCA_PASSIVEUPDATEMODE,
+		WCA_USEDARKMODECOLORS,
+		WCA_CORNER_STYLE,
+		WCA_PART_COLOR,
+		WCA_DISABLE_MOVESIZE_FEEDBACK,
+		WCA_LAST
+	};
+
+	struct WINDOWCOMPOSITIONATTRIBUTEDATA {
+		WINDOWCOMPOSITIONATTRIBUTE Attribute;
+		PVOID pvData;
+		SIZE_T cbData;
+	};
+
+	enum ACCENT_STATE {
+		ACCENT_DISABLED,
+		ACCENT_ENABLE_GRADIENT,
+		ACCENT_ENABLE_TRANSPARENTGRADIENT,
+		ACCENT_ENABLE_BLURBEHIND,
+		ACCENT_ENABLE_ACRYLICBLURBEHIND,
+		ACCENT_ENABLE_HOSTBACKDROP,
+		ACCENT_INVALID_STATE
+	};
+
+	enum ACCENT_FLAG {
+		ACCENT_NONE,
+		ACCENT_WINDOWS11_LUMINOSITY = 0x2,
+		ACCENT_BORDER_LEFT = 0x20,
+		ACCENT_BORDER_TOP = 0x40,
+		ACCENT_BORDER_RIGHT = 0x80,
+		ACCENT_BORDER_BOTTOM = 0x100,
+		ACCENT_BORDER_ALL = (ACCENT_BORDER_LEFT | ACCENT_BORDER_TOP | ACCENT_BORDER_RIGHT | ACCENT_BORDER_BOTTOM)
+	};
+
+	struct ACCENT_POLICY {
+		ACCENT_STATE AccentState;
+		DWORD AccentFlags;
+		DWORD dwGradientColor;
+		DWORD dwAnimationId;
+	};
+
+	typedef BOOL (WINAPI* PFNSETWINDOWCOMPOSITIONATTRIBUTE)(HWND, WINDOWCOMPOSITIONATTRIBUTEDATA*);
+
+	PFNSETWINDOWCOMPOSITIONATTRIBUTE SetWindowCompositionAttribute;
+
+	void LoadMethods() {
+		GetProcMemory (PFNSETWINDOWCOMPOSITIONATTRIBUTE, User32, SetWindowCompositionAttribute);
+	}
+
+	void EnableNCRendering (HWND window) {
+	    enum DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+
+	    HRESULT errorCode = DwmSetWindowAttribute (
+			window,
+	        DWMWA_NCRENDERING_POLICY,
+	        &ncrp,
+	        sizeof (ncrp)
+		);
+
+	    if (errorCode != 0) ERROR ("Failed 0\n");
+	}
+
+	void EnableBlurBehind (HWND window) {
+	    DWM_BLURBEHIND bb { 0 };
+
+	    bb.dwFlags = DWM_BB_ENABLE;
+	    bb.fEnable = true;
+	    bb.hRgnBlur = NULL;
+
+	    HRESULT errorCode = DwmEnableBlurBehindWindow (window, &bb);
+
+	    if (errorCode != 0)  ERROR ("Failed 1\n");
+	}
+
+	void ExtendIntoClientAll (HWND window) {
+	    MARGINS margins { -1 };
+	    HRESULT errorCode = DwmExtendFrameIntoClientArea (window, &margins);
+
+	    if (errorCode != 0) ERROR ("Failed 2\n");
+	}
+
+	void SetBlurEffect(HWND window, DWORD color) {
+
+		// ISSUE -> ACCENT_ENABLE_ACRYLICBLURBEHIND is laggy when resizing / moving
+		//ACCENT_POLICY policy {
+		//	ACCENT_ENABLE_ACRYLICBLURBEHIND,
+		//	ACCENT_BORDER_ALL,
+		//	color,
+		//	0
+		//};
+
+		//ACCENT_ENABLE_GRADIENT,
+		//ACCENT_ENABLE_TRANSPARENTGRADIENT,
+		//ACCENT_ENABLE_BLURBEHIND,
+		//ACCENT_ENABLE_ACRYLICBLURBEHIND,
+		//ACCENT_ENABLE_HOSTBACKDROP,
+		
+		ACCENT_POLICY policy {
+			ACCENT_ENABLE_BLURBEHIND,
+			ACCENT_BORDER_ALL,
+			color,
+			0
+		};
+
+		WINDOWCOMPOSITIONATTRIBUTEDATA data {
+			WCA_ACCENT_POLICY,
+			&policy,
+			sizeof(ACCENT_POLICY)
+		};
+
+		BOOL errorCode = SetWindowCompositionAttribute(window, &data);
+
+		if (!errorCode) {
+			LOGINFO("Something went wrong. SetWindowCompositionAttribute");
+		}
+
+		{ // ReAdd Controls
+			// Get the current window style
+    		LONG_PTR style = GetWindowLongPtr(window, GWL_STYLE);
+	
+    		// Ensure that the window has a title bar and system menu
+    		style |= WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+	
+    		// Apply the updated style to the window
+    		SetWindowLongPtr (window, GWL_STYLE, style);
+	
+    		// Redraw the window to reflect the style changes
+    		//SetWindowPos(window, HWND_TOP, 0, 0, 0, 0, SWP_FRAMECHANGED);
+		}
+	}
+}
+
 namespace WINDOW {
+
+	HBITMAP image = nullptr;
+	HWND wbNext, wbCancel;
 
 	s64 WindowLoop (
 		HWND window, 
@@ -23,8 +201,56 @@ namespace WINDOW {
 		switch (message) {
 
 			case WM_CREATE: {
+				//SetLayeredWindowAttributes (window, 0, 100, LWA_ALPHA);
+				//AREO::EnableNCRendering (window);
+    			//AREO::EnableBlurBehind (window);
+    			//AREO::ExtendIntoClientAll (window);
 
+    			//ShowWindow (window, false);
+    			//UpdateWindow (window);
 			} break;
+
+			case WM_PAINT: {
+        		PAINTSTRUCT     ps;
+        		HDC             hdc;
+        		BITMAP          bitmap;
+        		HDC             hdcMem;
+        		HGDIOBJ         oldBitmap;
+
+        		hdc = BeginPaint (window, &ps);
+
+        		hdcMem = CreateCompatibleDC (hdc);
+        		oldBitmap = SelectObject (hdcMem, image);
+
+        		GetObject (image, sizeof(bitmap), &bitmap);
+        		BitBlt (hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+        		SelectObject (hdcMem, oldBitmap);
+        		DeleteDC (hdcMem);
+
+        		EndPaint (window, &ps);
+			} break;
+
+			//case WM_PAINT: {
+			//	PAINTSTRUCT ps;
+			//	HDC hdcParent = BeginPaint(window, &ps);
+			//
+			//	// Get the device context for the child window
+			//	HDC hdcChild = GetDC (windowButton);
+			//
+			//	// Use BitBlt to copy the child window's contents onto the parent
+			//	BitBlt (hdcParent, 0, 0, 100, 100, hdcChild, 0, 0, SRCCOPY);
+			//
+			//	// Release the device context
+			//	ReleaseDC (windowButton, hdcChild);
+			//
+			//	EndPaint (window, &ps);
+			//} break;
+
+			// this
+			//case WM_NCHITTEST: {
+        	//	return HTCAPTION;
+			//}
 
 			case WM_COMMAND: {
 				const auto command = GET_WM_COMMAND_ID(wParam, lParam);
@@ -55,18 +281,21 @@ namespace WINDOW {
 			}
 
 			case WM_DESTROY: {
-				PostQuitMessage(0);
+				DeleteObject (image);
+				PostQuitMessage (0);
     			return 0;
-			}
-
-			default: return DefWindowProcW (window, message, wParam, lParam); 
+			} 
 		}
+
+		return DefWindowProcW (window, message, wParam, lParam);
 	}
 
 	void Create (
-		HINSTANCE instance,
+		const HINSTANCE& instance,
 		HWND& window,
-		s32 isConsole
+		const s32& isConsole,
+		const pair<s32>& position,
+		const pair<s32>& size
 	) {
 
 		{ // Get Operating System Information.
@@ -80,46 +309,103 @@ namespace WINDOW {
 			}
 		}
 
-		c16 windowTitle[] { L"Quail Installer" };
+		c16 windowTitle[] { L"Quail Wizard" };
 		c16 windowName[] { L"PropSheetClass" };
 
-		const auto& icon = LoadIcon (instance, MAKEINTRESOURCE (IDI_ICON_MAIN));
-		DEBUG (DEBUG_FLAG_LOGGING) if (icon == nullptr) { LOGERROR ("Could not load icon! %d\n", GetLastError ()); }
+		HICON icon;
+		HFONT font;
+
+		{ // ICONS
+			icon = LoadIcon (instance, MAKEINTRESOURCE (IDI_ICON_MAIN));
+			DEBUG (DEBUG_FLAG_LOGGING) if (icon == nullptr) { LOGERROR ("Could not load icon! %d\n", GetLastError ()); }
+		}
+
+		{ // IMAGES
+			const c16 pathFile[] = L"C:\\Projects\\Quail\\project\\installer\\res\\background_a.bmp";
+			image = (HBITMAP) LoadImageW (instance, pathFile, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+			DEBUG (DEBUG_FLAG_LOGGING) if (image == nullptr) { LOGERROR ("Could not load image! %d\n", GetLastError ()); }
+		}
+		
+		{ // FONTS
+			const c16 fontName[] = L"Segoe UI";
+
+			font = CreateFontW (
+				16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, 
+				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
+				DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, 
+				fontName
+			);
+		}
 
 		//wcex.hbrBackground = GetStockObject(WHITE_BRUSH);
 		//wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
 		//wcex.lpszClassName = g_szClassName;
 
-    	WNDCLASSEXW windowClass 	{ 0 };
+		WNDCLASSEXW windowClass 	{ 0 };
 		windowClass.cbSize 			= sizeof (windowClass);
-		windowClass.style			= CS_HREDRAW | CS_VREDRAW;
+		windowClass.style			= CS_HREDRAW | CS_VREDRAW; // CS_DBLCLKS
 		windowClass.lpfnWndProc		= WindowLoop;
-    	windowClass.hInstance 		= instance;
-    	windowClass.hIcon 			= icon;
-		windowClass.hCursor			= LoadCursor(NULL, IDC_ARROW);
+		windowClass.hInstance 		= instance;
+		windowClass.hIcon 			= icon;
+		windowClass.hCursor			= LoadCursor (NULL, IDC_ARROW);
     	//windowClass.hbrBackground = GetSysColorBrush (COLOR_BTNFACE);
-		windowClass.hbrBackground	= (HBRUSH) GetStockObject(WHITE_BRUSH);
+		windowClass.hbrBackground	= (HBRUSH) GetStockObject (WHITE_BRUSH);
 		//windowClass.lpszMenuName	= MAKEINTRESOURCE(IDR_MAIN_MENU);
-    	windowClass.lpszClassName 	= windowName;
+		windowClass.lpszClassName 	= windowName;
 
-    	if (!RegisterClassExW (&windowClass)) exit (1);
+		if (!RegisterClassExW (&windowClass)) exit (1);
 
-    	window = CreateWindowExW (
-        	0,
-        	windowName,
-        	windowTitle,
-        	WS_OVERLAPPEDWINDOW, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-        	CW_USEDEFAULT,
-        	CW_USEDEFAULT,
-        	CW_USEDEFAULT,
-        	CW_USEDEFAULT,
-        	nullptr,
-        	nullptr,
-        	instance,
-        	nullptr
+		// Apparently WinAPI `CreateWindow` actually uses said size.x, size.y params as whole size includind non-client area.
+		// ... Why and how does I learn about it only now. We're ensuring here that this value coresponds to client area.
+		const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		RECT rect { 0, 0, size.x, size.y };
+    	AdjustWindowRect (&rect, style, FALSE);
+
+		window = CreateWindowExW (
+			0, // WS_EX_LAYERED , // requiered for AcrylicEffect.
+			windowName,
+			windowTitle,
+			style,
+			position.x,
+			position.y,
+			rect.right - rect.left, 
+			rect.bottom - rect.top,
+			nullptr,
+			nullptr,
+			instance,
+			nullptr
 		);
 
-    	if (!window) exit (1);
+		if (!window) exit (1);
+
+		SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
+
+		WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, L"Next >");
+		WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, L"Cancel");
+
+		SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
+		SendMessageW (wbNext, WM_SETFONT, WPARAM (font), TRUE);
+		SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
+
+		//SendMessageW (wbNext, WM_SETFONT, (WPARAM) font, (LPARAM) MAKELONG (TRUE, 0));
+		//SendMessageW (wbCancel, WM_SETFONT, (WPARAM) font, (LPARAM) MAKELONG (TRUE, 0));
+
+		//SendMessageW (wbNext, WM_SETFONT, NULL, (LPARAM) MAKELONG (TRUE, 0));
+		//SendMessageW (wbCancel, WM_SETFONT, NULL, (LPARAM) MAKELONG (TRUE, 0));
+
+		//windowButton = CreateWindowExW (
+		//	0, L"BUTTON",
+		//	L"Click Me!",
+		//	WS_CHILD | WS_VISIBLE,
+		//	20, 20,
+		//	100, 40,
+		//	window,
+		//	nullptr,
+		//	instance,
+		//	nullptr
+		//);
+
+		//AREO::SetBlurEffect (window, ACRYLIC_TINT_DARK);
 
 		ShowWindow (window, isConsole);
 		UpdateWindow (window);
