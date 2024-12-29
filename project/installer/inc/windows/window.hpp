@@ -19,11 +19,6 @@
 
 #include <blue/windows/controls.hpp>
 
-#define GetProcMemory(procedureType, module, procedureName) { \
-	procedureName = (procedureType) GetProcAddress (GetModuleHandleA (#module), #procedureName); \
-	if (procedureName == nullptr) ERROR ("Function not created. Failed to load `%s` method: `%s`\n", #module, #procedureName); \
-}
-
 #define ACRYLIC_TINT_LIGHT    0xEEEEEE
 #define ACRYLIC_TINT_DARK     0x2B2B2B
 
@@ -377,6 +372,12 @@ namespace WINDOW {
 		);
 
 		if (!window) exit (1);
+
+    	// Step 6: Make sure the window is hidden (it should not be shown to the user)
+    	//ShowWindow(hwnd, SW_HIDE);
+
+    	// Step 7: Now associate the console with the hidden window (optional, to ensure the console uses the icon)
+    	SetConsoleTitleW (L"Console with Icon");
 
 		SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
 

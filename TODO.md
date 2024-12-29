@@ -16,4 +16,7 @@
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 28. Colored debuglogs
 31. Draw an bmp colored image in istaller
-34.
+34. Change Installer into Wizard because it's a (Installer, Deinstaller, Fix utility)
+35. Make the blp file socked inside .res file or something else.
+36. clear installer code 
+37. 
