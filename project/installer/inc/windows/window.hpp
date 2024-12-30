@@ -185,7 +185,8 @@ namespace WINDOW::AREO {
 namespace WINDOW {
 
 	HBITMAP image = nullptr;
-	HWND wbNext, wbCancel;
+	HWND progressBar, wbNext, wbCancel;
+	HFONT font, fontBold;
 
 	s64 WindowLoop (
 		HWND window, 
@@ -200,30 +201,73 @@ namespace WINDOW {
 				//AREO::EnableNCRendering (window);
     			//AREO::EnableBlurBehind (window);
     			//AREO::ExtendIntoClientAll (window);
-
-    			//ShowWindow (window, false);
-    			//UpdateWindow (window);
 			} break;
 
 			case WM_PAINT: {
-        		PAINTSTRUCT     ps;
-        		HDC             hdc;
-        		BITMAP          bitmap;
-        		HDC             hdcMem;
-        		HGDIOBJ         oldBitmap;
+				HDC	windowContext;
+				//RECT windowRect;
+				PAINTSTRUCT ps;
 
-        		hdc = BeginPaint (window, &ps);
+        		windowContext = BeginPaint (window, &ps);
+				//GetClientRect (window, &windowRect);
 
-        		hdcMem = CreateCompatibleDC (hdc);
-        		oldBitmap = SelectObject (hdcMem, image);
+				{ // Drawing Image background.
+					// 1. We're loading an image into a handle
+					// 2. We're coping from said handle (x,y) to window (x,y)
+					// 3. We're 
+					BITMAP bitmap;
 
-        		GetObject (image, sizeof(bitmap), &bitmap);
-        		BitBlt (hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+					HDC sourceContext = CreateCompatibleDC (windowContext); // Create a separete context for said bitmap.
+					HGDIOBJ sourceBitmap = SelectObject (sourceContext, image); // Keep a handle to the replaced object. // todo: after finished drawing this should be set to it's original value.
 
-        		SelectObject (hdcMem, oldBitmap);
-        		DeleteDC (hdcMem);
+        			GetObject (image, sizeof (bitmap), &bitmap); // Load from Handle into an actuall rendering datatype.
+        			BitBlt (windowContext, 0, 0, bitmap.bmWidth, bitmap.bmHeight, sourceContext, 0, 0, SRCCOPY); // Copy.
+        			//SelectObject (sourceContext, sourceBitmap); // todo: after finished drawing this should be set to it's original value.
 
-        		EndPaint (window, &ps);
+        			DeleteDC (sourceContext);
+				}
+
+				{ // Drawing Bottom background.
+					HBRUSH brushFill, fill;
+					HPEN penBorder, border;
+
+					penBorder = CreatePen (PS_SOLID, 1, 0xa0a0a0);
+					brushFill = CreateSolidBrush (0xf0f0f0);
+
+					fill = (HBRUSH) SelectObject (windowContext, brushFill); // todo: after finished drawing this should be set to it's original value.
+					border = (HPEN) SelectObject (windowContext, penBorder); // todo: after finished drawing this should be set to it's original value.
+
+					Rectangle (windowContext, 0, 314, 496, 314 + 46);
+					SelectObject (windowContext, fill); // todo: after finished drawing this should be set to it's original value.
+					SelectObject (windowContext, border); // todo: after finished drawing this should be set to it's original value.
+
+					DeleteObject (penBorder);
+					DeleteObject (brushFill);
+				}
+
+				// Normal Text
+				SetTextColor (windowContext, 0x00000000);
+				SetBkMode (windowContext, TRANSPARENT);
+				SelectFont (windowContext, fontBold); // todo: after finished drawing this should be set to it's original value.
+
+				{ // Header
+					const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
+					const c16 text[] = L"Welcome to Quail Setup Wizard";
+					DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+				}
+
+				SelectFont (windowContext, font);
+
+				{ // Text
+					const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
+					const c16 text[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick Next to continue.";
+					DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+				}
+
+				EndPaint (window, &ps);
+				
+
+        		
 			} break;
 
 			//case WM_PAINT: {
@@ -304,11 +348,11 @@ namespace WINDOW {
 			}
 		}
 
-		c16 windowTitle[] { L"Quail Wizard" };
+		c16 windowTitle[] { L"Quail Setup Wizard" };
 		c16 windowName[] { L"PropSheetClass" };
 
 		HICON icon;
-		HFONT font;
+		//HFONT font;
 
 		{ // ICONS
 			icon = LoadIcon (instance, MAKEINTRESOURCE (IDI_ICON_MAIN));
@@ -316,13 +360,20 @@ namespace WINDOW {
 		}
 
 		{ // IMAGES
-			const c16 pathFile[] = L"C:\\Projects\\Quail\\project\\installer\\res\\background_a.bmp";
+			const c16 pathFile[] = L"C:\\Projects\\Quail\\project\\installer\\res\\wizard-background.bmp";
 			image = (HBITMAP) LoadImageW (instance, pathFile, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 			DEBUG (DEBUG_FLAG_LOGGING) if (image == nullptr) { LOGERROR ("Could not load image! %d\n", GetLastError ()); }
 		}
 		
 		{ // FONTS
 			const c16 fontName[] = L"Segoe UI";
+
+			fontBold = CreateFontW (
+				16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, 
+				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
+				DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, 
+				fontName
+			);
 
 			font = CreateFontW (
 				16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, 
@@ -381,10 +432,30 @@ namespace WINDOW {
 
 		SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
 
+		//HWND progressBar = CreateWindowExW (
+		//	0, PROGRESS_CLASSW, 
+		//	nullptr, 
+		//	WS_CHILD | WS_VISIBLE, // PBS_MARQUEE, PBS_SMOOTH, PBS_SMOOTHREVERSE, PBS_VERTICAL
+		//	10, 10, 200, 15, 
+		//	window, (HMENU) 200, 
+		//	instance, 
+		//	nullptr
+		//);
+
+		
+		//WINDOWS::CONTROLS::CreateProgressBarRange (
+		//	progressBar, window, instance, 
+		//	WS_CHILD | WS_VISIBLE, 
+		//	{ 164, 0 }, { 200, 15 }, { 0, 255 }
+		//);
+		//
+		//SendMessageW (progressBar, PBM_SETPOS, (WPARAM) 17, 0); // Sets
+		//SendMessageW (progressBar, PBM_DELTAPOS, (WPARAM) 5, 0); // Adds
+		////SendMessageW (progressBar, PBM_STEPIT, 0, 0); // Adds a step. (by step variant)
+
 		WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, L"Next >");
 		WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, L"Cancel");
-
-		SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
+		
 		SendMessageW (wbNext, WM_SETFONT, WPARAM (font), TRUE);
 		SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
 

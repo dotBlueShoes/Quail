@@ -43,7 +43,17 @@ int WinMain (
 	}
 
 	{ // Window Creation.
-		InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.
+		
+		{
+			// InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.
+			INITCOMMONCONTROLSEX commonControls;
+			commonControls.dwSize = sizeof (INITCOMMONCONTROLSEX);
+			// Toolbars, Statusbars, Tooltips, Progressbars
+			commonControls.dwICC = ICC_BAR_CLASSES;
+			InitCommonControlsEx (&commonControls);
+		}
+		
+
 		WINDOW::AREO::LoadMethods ();
 
 		HWND window; WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
@@ -58,31 +68,31 @@ int WinMain (
 		}
 	}
 
-	{ // CURL
-		CURLcode error;
-		CURL* curl = curl_easy_init ();
-
-		if (curl == nullptr) { MSGINFO ("Could not initialize 'CURL' library.\n"); exit (0);} 
-
-		{
-			curl_easy_setopt (curl, CURLOPT_URL, "http://example.com/");
-
-    		// Perform the request, 'res' holds the return code
-    		error = curl_easy_perform (curl);
-
-    		// Check for errors
-    		if(error != CURLE_OK) {
-				MSGERROR ("Could not perform curl action!");
-				//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror (error));
-			}
-
-		}
-
-		curl_easy_cleanup (curl);
-	}
+	//{ // CURL
+	//	CURLcode error;
+	//	CURL* curl = curl_easy_init ();
+	//
+	//	if (curl == nullptr) { MSGINFO ("Could not initialize 'CURL' library.\n"); exit (0);} 
+	//
+	//	{
+	//		curl_easy_setopt (curl, CURLOPT_URL, "http://example.com/");
+	//
+    //		// Perform the request, 'res' holds the return code
+    //		error = curl_easy_perform (curl);
+	//
+    //		// Check for errors
+    //		if(error != CURLE_OK) {
+	//			MSGERROR ("Could not perform curl action!");
+	//			//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror (error));
+	//		}
+	//
+	//	}
+	//
+	//	curl_easy_cleanup (curl);
+	//}
 
 	LOGINFO ("Executed Installer Sucessfully.\n");
-	getchar ();
+	//getchar ();
 
 	return 0;
 }
