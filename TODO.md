@@ -20,4 +20,7 @@
 36. clear installer code 
 37. fix-do SelectObject clearing
 38. Create another subproject to hold code that is being used by both installer and quail itself. "global" or smth.
-39. 
+39. ? Maybe create a roadmap using that github tool (tables)
+40. Move created window objects outside WM_PAINT
+41. Make sure everything is being destroyed properly.
+42. Create A page for selecting directory path for QUAIL software (default: "C:\Program Files\dotBlueShoes\Quail")

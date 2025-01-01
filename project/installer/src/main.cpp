@@ -22,6 +22,7 @@ int WinMain (
     UNREFERENCED_PARAMETER (isConsole);
 
 	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
+	// SetConsoleTitleW (L"Console with Icon");
 
 	LOGINFO ("Application Statred!\n");
 
