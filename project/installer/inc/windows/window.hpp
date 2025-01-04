@@ -191,7 +191,7 @@ namespace WINDOW {
 	};
 
 	HBITMAP image = nullptr;
-	HWND wpb, wbLast, wbNext, wbCancel;
+	HWND wpb, wbLast, wbNext, wbCancel, rePath;
 	HFONT font, fontBold;
 	u8 currentPage = 0;
 
@@ -261,17 +261,30 @@ namespace WINDOW {
 	}
 
 	void DrawFirst (const HDC& windowContext) {
-		const RECT rect { 0, 0, 496, 314 };
-		HBRUSH brushFill, previousFill;
-		
-		brushFill = CreateSolidBrush (0xf0f0f0);
-		previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-		
-		//Rectangle (windowContext, 0, 0, 496, 314);
-		FillRect (windowContext, &rect, brushFill);
-		
-		SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-		DeleteObject (brushFill);
+
+		{ // BORDER
+			const pair<u16> origin { 0, 59 }, end { 496, 59 };
+			HPEN pen = CreatePen (PS_SOLID, 1, 0xa0a0a0);
+
+			HPEN previousPen = (HPEN) SelectObject (windowContext, pen);
+            MoveToEx (windowContext, origin.x, origin.y, NULL);
+            LineTo (windowContext, end.x, end.y);
+            SelectObject (windowContext, previousPen);
+		}
+
+		{ // Rectangle
+			const RECT rect { 0, 60, 496, 256 + rect.top };
+			HBRUSH brushFill, previousFill;
+
+			brushFill = CreateSolidBrush (0xf0f0f0);
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+
+			//Rectangle (windowContext, 0, 0, 496, 314);
+			FillRect (windowContext, &rect, brushFill);
+
+			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			DeleteObject (brushFill);
+		}
 	}
 
 	void DrawExit (const HDC& windowContext) {
@@ -306,7 +319,7 @@ namespace WINDOW {
 
 				WINDOWS::CONTROLS::CreateProgressBarRange (
 					wpb, window, instance, 
-					WS_CHILD | WS_VISIBLE, 
+					WS_CHILD, 
 					{ 164, 0 }, { 200, 15 }, { 0, 255 }
 				);
 				
@@ -314,17 +327,21 @@ namespace WINDOW {
 				//SendMessageW (progressBar, PBM_DELTAPOS, (WPARAM) 5, 0); // Adds
 				////SendMessageW (progressBar, PBM_STEPIT, 0, 0); // Adds a step. (by step variant)
 
-				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 248, 314 + 11 }, { 75, 23 }, L"< Last");
-				WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, L"Next >");
-				WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, L"Cancel");
+				const u32 style = WS_CHILD | WS_TABSTOP;
+				// TODO usinng WS_PAINT draw border - different when selected and when not.
+				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, { 40, 82 + 60 }, { 332, 21 }, style, L"C:\\Program Files\\dotBlueShoes\\Quail");
+
+				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 248, 314 + 11 }, { 75, 23 }, WS_CHILD, L"< Last");
+				WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Next >");
+				WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Cancel");
 
 				SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbLast, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbNext, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
 
-				ShowWindow (wpb, HIDE_WINDOW);
-				ShowWindow (wbLast, HIDE_WINDOW);
+				//ShowWindow (wpb, HIDE_WINDOW);
+				//ShowWindow (wbLast, HIDE_WINDOW);
 
 			} break;
 
@@ -383,18 +400,21 @@ namespace WINDOW {
 						case PAGE_TYPE_ENTRY: {
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, SHOW_OPENWINDOW);
+							ShowWindow (rePath, HIDE_WINDOW);
 						} break;
 
-						//case PAGE_TYPE_FIRST: {
-						//	// To disable / enable a button.
-						//	EnableWindow (wbCancel, false);
-						//} break;
+						case PAGE_TYPE_FIRST: {
+							// To disable / enable a button.
+							//EnableWindow (wbCancel, false);
+							ShowWindow (rePath, SHOW_OPENWINDOW);
+						} break;
 
 						case PAGE_TYPE_EXIT: {
 
 							// Change "Close" to "Finish".
 							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgFinish);
 
+							ShowWindow (rePath, HIDE_WINDOW);
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, HIDE_WINDOW);
 

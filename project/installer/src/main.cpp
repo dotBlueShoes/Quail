@@ -54,7 +54,7 @@ int WinMain (
 			InitCommonControlsEx (&commonControls);
 		}
 		
-
+		WINDOWS::CONTROLS::LoadRichEdit ();
 		WINDOW::AREO::LoadMethods ();
 
 		HWND window; WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
