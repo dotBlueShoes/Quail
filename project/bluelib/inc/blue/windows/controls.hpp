@@ -94,6 +94,7 @@ namespace WINDOWS::CONTROLS {
 		const pair<s32>& position,
 		const pair<s32>& size,
 		const u32&  windowStyles,
+		const u32& id = 0,
 		const c16* text = L"Type here"
 	) {
 		richEdit = CreateWindowExW (
@@ -103,7 +104,7 @@ namespace WINDOWS::CONTROLS {
 			position.x, position.y, 
 			size.x, size.y,
 			parentWindow, 
-			nullptr,
+			(HMENU)id,
 			instance, 
 			nullptr
 		);

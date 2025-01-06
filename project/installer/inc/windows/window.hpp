@@ -184,6 +184,13 @@ namespace WINDOW::AREO {
 
 namespace WINDOW {
 
+	const u64 ID_RICHEDIT = 0b1001;
+
+	const COLORREF BORDER_INACTIVE		= 0xa0a0a0;
+	const COLORREF BORDER_ACTIVE		= 0xe597b5;
+	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
+	const COLORREF TEXT_FIRST			= 0x000000;
+
 	enum PAGE_TYPE: u8 {
 		PAGE_TYPE_ENTRY 	= 0,
 		PAGE_TYPE_FIRST 	= 1,
@@ -201,13 +208,15 @@ namespace WINDOW {
 		0, 1, 2, 3, 4
 	};
 
+	const RECT richeditRect { 40 - 1, 82 + 60 - 1, 332 + richeditRect.left + 2, 21 + richeditRect.top + 2};
+
 	void DrawFooter (const HDC& windowContext) {
 		{ // Drawing Bottom background.
 			HBRUSH brushFill, previousFill;
 			HPEN penBorder, previousBorder;
 		
-			brushFill = CreateSolidBrush (0xf0f0f0);
-			penBorder = CreatePen (PS_SOLID, 1, 0xa0a0a0);
+			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
+			penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
@@ -238,8 +247,8 @@ namespace WINDOW {
 
 		// Header Text
 		HFONT previousFont = SelectFont (windowContext, fontBold);
-		SetTextColor (windowContext, 0x00000000);
-		SetBkMode (windowContext, TRANSPARENT);
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
@@ -262,25 +271,54 @@ namespace WINDOW {
 
 	void DrawFirst (const HDC& windowContext) {
 
-		{ // BORDER
-			const pair<u16> origin { 0, 59 }, end { 496, 59 };
-			HPEN pen = CreatePen (PS_SOLID, 1, 0xa0a0a0);
+		{ // Rectangle
+			const RECT rect { 0, 60, 496, 256 + rect.top };
+			HBRUSH brushFill, previousFill;
 
-			HPEN previousPen = (HPEN) SelectObject (windowContext, pen);
-            MoveToEx (windowContext, origin.x, origin.y, NULL);
-            LineTo (windowContext, end.x, end.y);
-            SelectObject (windowContext, previousPen);
+			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+
+			//Rectangle (windowContext, 0, 0, 496, 314);
+			FillRect (windowContext, &rect, brushFill);
+
+			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			DeleteObject (brushFill);
 		}
 
 		{ // Rectangle
 			const RECT rect { 0, 60, 496, 256 + rect.top };
 			HBRUSH brushFill, previousFill;
 
-			brushFill = CreateSolidBrush (0xf0f0f0);
+			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 
 			//Rectangle (windowContext, 0, 0, 496, 314);
 			FillRect (windowContext, &rect, brushFill);
+
+			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			DeleteObject (brushFill);
+		}
+
+		{ // BORDER AROUND RICHEDIT
+			
+			HBRUSH brushFill, previousFill;
+
+			const auto focussedWindow = GetFocus ();
+			LOGINFO("call\n");
+
+			if (focussedWindow == rePath) {
+				brushFill = CreateSolidBrush (BORDER_ACTIVE);
+				LOGINFO("a\n");
+			} else {
+				brushFill = CreateSolidBrush (BORDER_INACTIVE);
+				LOGINFO("b\n");
+			}
+
+			
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+
+			//Rectangle (windowContext, 0, 0, 496, 314);
+			FillRect (windowContext, &richeditRect, brushFill);
 
 			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
 			DeleteObject (brushFill);
@@ -313,6 +351,28 @@ namespace WINDOW {
 	) {
 		switch (message) {
 
+			//case WM_SETFOCUS: {
+			//	const auto& focus = (HWND)wParam;
+			//	LOGINFO ("aaa\n");
+			//
+			//	if (focus == rePath) { // RichEdit control gained focus
+			//		LOGINFO ("1\n");
+			//		InvalidateRect (window, &richeditRect, true);
+			//	}
+			//
+			//} break;
+			//
+        	//case WM_KILLFOCUS: {
+			//	const auto& focus = (HWND)wParam;
+			//	LOGINFO ("bbb\n");
+			//
+            //	if (focus == rePath) { // RichEdit control lost focus
+			//		LOGINFO ("2\n");
+			//		InvalidateRect (window, &richeditRect, true);
+			//	}
+			//
+			//} break;
+
 			case WM_CREATE: {
 
 				const HINSTANCE instance = GetWindowInstance (window);
@@ -329,7 +389,7 @@ namespace WINDOW {
 
 				const u32 style = WS_CHILD | WS_TABSTOP;
 				// TODO usinng WS_PAINT draw border - different when selected and when not.
-				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, { 40, 82 + 60 }, { 332, 21 }, style, L"C:\\Program Files\\dotBlueShoes\\Quail");
+				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, { 40, 82 + 60 }, { 332, 21 }, style, ID_RICHEDIT, L"C:\\Program Files\\dotBlueShoes\\Quail");
 
 				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 248, 314 + 11 }, { 75, 23 }, WS_CHILD, L"< Last");
 				WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Next >");
@@ -370,6 +430,20 @@ namespace WINDOW {
 					const auto command = GET_WM_COMMAND_ID (wParam, lParam);
 				}
 
+				{
+					if (HIWORD(wParam) == EN_SETFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
+    				    // RichEdit gained focus
+						LOGINFO ("RichEdit gained focus\n");
+						InvalidateRect (window, &richeditRect, true);
+    				    //MessageBoxW (window, L"RichEdit gained focus", L"Focus Event", MB_OK);
+    				} else if (HIWORD(wParam) == EN_KILLFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
+    				    // RichEdit lost focus
+						LOGINFO ("RichEdit lost focus\n");
+						InvalidateRect (window, &richeditRect, true);
+    				    //MessageBoxW (window, L"RichEdit lost focus", L"Focus Event", MB_OK);
+    				}
+				}
+
 				{ 
 					auto command = (HWND) lParam;
 
@@ -406,6 +480,7 @@ namespace WINDOW {
 						case PAGE_TYPE_FIRST: {
 							// To disable / enable a button.
 							//EnableWindow (wbCancel, false);
+							ShowWindow (wbLast, SHOW_OPENWINDOW);
 							ShowWindow (rePath, SHOW_OPENWINDOW);
 						} break;
 
