@@ -194,8 +194,11 @@ namespace WINDOW {
 
 	enum PAGE_TYPE: u8 {
 		PAGE_TYPE_ENTRY 	= 0,
-		PAGE_TYPE_FIRST 	= 1,
-		PAGE_TYPE_EXIT		= 2,
+		PAGE_TYPE_LICENSE 	= 1,
+		PAGE_TYPE_DIRECTORY = 2,
+		PAGE_TYPE_REGISTRY  = 3,
+		PAGE_TYPE_DOWNLOAD  = 4,
+		PAGE_TYPE_EXIT		= 5,
 	};
 
 	HBITMAP image = nullptr;
@@ -225,6 +228,36 @@ namespace WINDOW {
 		reSize.x + rePosition.x + 1, 
 		reSize.y + rePosition.y + 1
 	};
+
+	void DrawPage (const HDC& windowContext) {
+
+		{ // Line
+			const pair<u16> origin { 0, 59 }, end { 496, 59 };
+			HPEN pen = CreatePen (PS_SOLID, 1, 0xa0a0a0);
+
+			HPEN previousPen = (HPEN) SelectObject (windowContext, pen);
+
+            MoveToEx (windowContext, origin.x, origin.y, NULL);
+            LineTo (windowContext, end.x, end.y);
+
+            SelectObject (windowContext, previousPen); // reversing (restoring to original value)
+			DeleteObject (pen);
+		}
+
+		{ // Rectangle
+			const RECT rect { 0, 60, 496, 256 + rect.top };
+			HBRUSH brushFill, previousFill;
+
+			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+
+			FillRect (windowContext, &rect, brushFill);
+
+			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			DeleteObject (brushFill);
+		}
+
+	}
 
 	void DrawFooter (const HDC& windowContext) {
 		{ // Drawing Bottom background.
@@ -285,48 +318,9 @@ namespace WINDOW {
 
 	}
 
-	void DrawFirst (const HDC& windowContext) {
+	void DrawDirectory (const HDC& windowContext) {
 
-		{ // Line
-			const pair<u16> origin { 0, 59 }, end { 496, 59 };
-			HPEN pen = CreatePen (PS_SOLID, 1, 0xa0a0a0);
-
-			HPEN previousPen = (HPEN) SelectObject (windowContext, pen);
-            MoveToEx (windowContext, origin.x, origin.y, NULL);
-            LineTo (windowContext, end.x, end.y);
-            SelectObject (windowContext, previousPen); // reversing (restoring to original value)
-			DeleteObject (pen);
-		}
-
-		{ // Rectangle
-			const RECT rect { 0, 60, 496, 256 + rect.top };
-			HBRUSH brushFill, previousFill;
-
-			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-
-			//Rectangle (windowContext, 0, 0, 496, 314);
-			FillRect (windowContext, &rect, brushFill);
-
-			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-			DeleteObject (brushFill);
-		}
-
-		{ // Rectangle
-			const RECT rect { 0, 60, 496, 256 + rect.top };
-			HBRUSH brushFill, previousFill;
-
-			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-
-			//Rectangle (windowContext, 0, 0, 496, 314);
-			FillRect (windowContext, &rect, brushFill);
-
-			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-			DeleteObject (brushFill);
-		}
-
-		{ // Drawing Bottom background.
+		{ // Drawing RICHEDIT outter.
 			HBRUSH brushFill, previousFill;
 			HPEN penBorder, previousBorder;
 		
@@ -384,6 +378,54 @@ namespace WINDOW {
 		{ // Text Control
 			const RECT textRegion = { 29, 128, textRegion.left + 40, textRegion.top + 10 };
 			DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, previousFont);
+
+	}
+
+	void DrawLicense (const HDC& windowContext) {
+
+		// Header Text
+		HFONT previousFont = SelectFont (windowContext, fontBold);
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+
+		{ // Text Control
+			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, L"License", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, previousFont);
+
+	}
+
+	void DrawRegistry (const HDC& windowContext) {
+
+		// Header Text
+		HFONT previousFont = SelectFont (windowContext, fontBold);
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+
+		{ // Text Control
+			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, L"Registry", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, previousFont);
+
+	}
+
+	void DrawDownload (const HDC& windowContext) {
+
+		// Header Text
+		HFONT previousFont = SelectFont (windowContext, fontBold);
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+
+		{ // Text Control
+			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, L"Download", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -477,7 +519,10 @@ namespace WINDOW {
 
 				switch (currentPage) {
 					case PAGE_TYPE_ENTRY: DrawEntry (windowContext); break;
-					case PAGE_TYPE_FIRST: DrawFirst (windowContext); break;
+					case PAGE_TYPE_LICENSE: DrawPage (windowContext); DrawLicense (windowContext); break;
+					case PAGE_TYPE_DIRECTORY: DrawPage (windowContext); DrawDirectory (windowContext); break;
+					case PAGE_TYPE_REGISTRY: DrawPage (windowContext); DrawRegistry (windowContext); break;
+					case PAGE_TYPE_DOWNLOAD: DrawPage (windowContext); DrawDownload (windowContext); break;
 					case PAGE_TYPE_EXIT: DrawExit (windowContext); break;
 				}
 
@@ -547,25 +592,34 @@ namespace WINDOW {
 						case PAGE_TYPE_ENTRY: {
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, SHOW_OPENWINDOW);
-							ShowWindow (rePath, HIDE_WINDOW);
-							ShowWindow (wbBrowse, HIDE_WINDOW);
 						} break;
 
-						case PAGE_TYPE_FIRST: {
+						case PAGE_TYPE_LICENSE: {
 							// To disable / enable a button.
 							//EnableWindow (wbCancel, false);
-							
-							ShowWindow (wbBrowse, SHOW_OPENWINDOW);
 							ShowWindow (wbLast, SHOW_OPENWINDOW);
+							ShowWindow (wbBrowse, HIDE_WINDOW);
+							ShowWindow (rePath, HIDE_WINDOW);
+						} break;
+
+						case PAGE_TYPE_DIRECTORY: {
+							ShowWindow (wbBrowse, SHOW_OPENWINDOW);
 							ShowWindow (rePath, SHOW_OPENWINDOW);
+						} break;
+
+						case PAGE_TYPE_REGISTRY: {
+							ShowWindow (wbBrowse, HIDE_WINDOW);
+							ShowWindow (rePath, HIDE_WINDOW);
+						} break;
+
+						case PAGE_TYPE_DOWNLOAD: {
 						} break;
 
 						case PAGE_TYPE_EXIT: {
 
 							// Change "Close" to "Finish".
 							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgFinish);
-							ShowWindow (wbBrowse, HIDE_WINDOW);
-							ShowWindow (rePath, HIDE_WINDOW);
+							
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, HIDE_WINDOW);
 
