@@ -131,7 +131,7 @@ namespace WINDOW::AREO {
 	    if (errorCode != 0) ERROR ("Failed 2\n");
 	}
 
-	void SetBlurEffect(HWND window, DWORD color) {
+	void SetBlurEffect (HWND window, DWORD color) {
 
 		// ISSUE -> ACCENT_ENABLE_ACRYLICBLURBEHIND is laggy when resizing / moving
 		//ACCENT_POLICY policy {
@@ -157,18 +157,18 @@ namespace WINDOW::AREO {
 		WINDOWCOMPOSITIONATTRIBUTEDATA data {
 			WCA_ACCENT_POLICY,
 			&policy,
-			sizeof(ACCENT_POLICY)
+			sizeof (ACCENT_POLICY)
 		};
 
 		BOOL errorCode = SetWindowCompositionAttribute(window, &data);
 
 		if (!errorCode) {
-			LOGINFO("Something went wrong. SetWindowCompositionAttribute");
+			LOGINFO ("Something went wrong. SetWindowCompositionAttribute");
 		}
 
 		{ // ReAdd Controls
 			// Get the current window style
-    		LONG_PTR style = GetWindowLongPtr(window, GWL_STYLE);
+    		LONG_PTR style = GetWindowLongPtr (window, GWL_STYLE);
 	
     		// Ensure that the window has a title bar and system menu
     		style |= WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
@@ -188,6 +188,7 @@ namespace WINDOW {
 
 	const COLORREF BORDER_INACTIVE		= 0xa0a0a0;
 	const COLORREF BORDER_ACTIVE		= 0xe597b5;
+	const COLORREF BACKGROUND_FIRST 	= 0xffffff;
 	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
 	const COLORREF TEXT_FIRST			= 0x000000;
 
@@ -198,17 +199,32 @@ namespace WINDOW {
 	};
 
 	HBITMAP image = nullptr;
-	HWND wpb, wbLast, wbNext, wbCancel, rePath;
+	HWND wpb, wbLast, wbNext, wbCancel, rePath, wbBrowse;
 	HFONT font, fontBold;
 	u8 currentPage = 0;
 
 	const c16 msgFinish[] = L"Finish";
+	const c16 msgBrowseTip[] = L"To continue, click Next. If you would like to select a different folder, click Browse.";
+	const c16 msgDiskSpace[] = L"Disk space needed :";
+
+	//const u16 MAX_PATH = 4096;
+	c16 folder[MAX_PATH] = { L"C:\\Program Files\\dotBlueShoes\\Quail" };
+	//const c16 msgAvailableDiskSpace[] = L"Available disk space :";
+	//const c16 msgNextTip[] = L"Click 'Next' to continue.";
 
 	const u8 staticIds[] {
 		0, 1, 2, 3, 4
 	};
 
-	const RECT richeditRect { 40 - 1, 82 + 60 - 1, 332 + richeditRect.left + 2, 21 + richeditRect.top + 2};
+	const pair<s16> rePosition { 28 + 3, 102 + 1 };
+	const pair<s16> reSize { 354 - 3, 19 - 1 };
+
+	const RECT richeditRectPadding { 
+		rePosition.x - 1 - 3, 
+		rePosition.y - 1 - 1, 
+		reSize.x + rePosition.x + 1, 
+		reSize.y + rePosition.y + 1
+	};
 
 	void DrawFooter (const HDC& windowContext) {
 		{ // Drawing Bottom background.
@@ -261,7 +277,7 @@ namespace WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
-			const c16 text[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick Next to continue.";
+			const c16 text[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
 			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
@@ -271,18 +287,15 @@ namespace WINDOW {
 
 	void DrawFirst (const HDC& windowContext) {
 
-		{ // Rectangle
-			const RECT rect { 0, 60, 496, 256 + rect.top };
-			HBRUSH brushFill, previousFill;
+		{ // Line
+			const pair<u16> origin { 0, 59 }, end { 496, 59 };
+			HPEN pen = CreatePen (PS_SOLID, 1, 0xa0a0a0);
 
-			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-
-			//Rectangle (windowContext, 0, 0, 496, 314);
-			FillRect (windowContext, &rect, brushFill);
-
-			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-			DeleteObject (brushFill);
+			HPEN previousPen = (HPEN) SelectObject (windowContext, pen);
+            MoveToEx (windowContext, origin.x, origin.y, NULL);
+            LineTo (windowContext, end.x, end.y);
+            SelectObject (windowContext, previousPen); // reversing (restoring to original value)
+			DeleteObject (pen);
 		}
 
 		{ // Rectangle
@@ -299,30 +312,82 @@ namespace WINDOW {
 			DeleteObject (brushFill);
 		}
 
-		{ // BORDER AROUND RICHEDIT
-			
+		{ // Rectangle
+			const RECT rect { 0, 60, 496, 256 + rect.top };
 			HBRUSH brushFill, previousFill;
+
+			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+
+			//Rectangle (windowContext, 0, 0, 496, 314);
+			FillRect (windowContext, &rect, brushFill);
+
+			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			DeleteObject (brushFill);
+		}
+
+		{ // Drawing Bottom background.
+			HBRUSH brushFill, previousFill;
+			HPEN penBorder, previousBorder;
+		
+			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
 
 			const auto focussedWindow = GetFocus ();
-			LOGINFO("call\n");
 
 			if (focussedWindow == rePath) {
-				brushFill = CreateSolidBrush (BORDER_ACTIVE);
-				LOGINFO("a\n");
+				//brushFill = CreateSolidBrush (BORDER_ACTIVE);
+				penBorder = CreatePen (PS_SOLID, 1, BORDER_ACTIVE);
 			} else {
-				brushFill = CreateSolidBrush (BORDER_INACTIVE);
-				LOGINFO("b\n");
+				//brushFill = CreateSolidBrush (BORDER_INACTIVE);
+				penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 			}
-
-			
+		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-
-			//Rectangle (windowContext, 0, 0, 496, 314);
-			FillRect (windowContext, &richeditRect, brushFill);
+			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
+		
+			Rectangle (
+				windowContext, 
+				richeditRectPadding.left, 
+				richeditRectPadding.top, 
+				richeditRectPadding.right, 
+				richeditRectPadding.bottom
+			);
 
 			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+			SelectObject (windowContext, previousBorder); // reversing (restoring to original value)
 			DeleteObject (brushFill);
+			DeleteObject (penBorder);
 		}
+
+		// Header Text
+		HFONT previousFont = SelectFont (windowContext, fontBold);
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+
+		{ // Text Control
+			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, L"Directory", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, font);
+
+		{ // Text Control
+			const RECT textRegion = { 29, 25, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, L"Line of thext number one please.\nLine test other.", -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
+		{ // Text Control
+			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, msgBrowseTip, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		{ // Text Control
+			const RECT textRegion = { 29, 128, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, previousFont);
+
 	}
 
 	void DrawExit (const HDC& windowContext) {
@@ -351,28 +416,6 @@ namespace WINDOW {
 	) {
 		switch (message) {
 
-			//case WM_SETFOCUS: {
-			//	const auto& focus = (HWND)wParam;
-			//	LOGINFO ("aaa\n");
-			//
-			//	if (focus == rePath) { // RichEdit control gained focus
-			//		LOGINFO ("1\n");
-			//		InvalidateRect (window, &richeditRect, true);
-			//	}
-			//
-			//} break;
-			//
-        	//case WM_KILLFOCUS: {
-			//	const auto& focus = (HWND)wParam;
-			//	LOGINFO ("bbb\n");
-			//
-            //	if (focus == rePath) { // RichEdit control lost focus
-			//		LOGINFO ("2\n");
-			//		InvalidateRect (window, &richeditRect, true);
-			//	}
-			//
-			//} break;
-
 			case WM_CREATE: {
 
 				const HINSTANCE instance = GetWindowInstance (window);
@@ -389,16 +432,36 @@ namespace WINDOW {
 
 				const u32 style = WS_CHILD | WS_TABSTOP;
 				// TODO usinng WS_PAINT draw border - different when selected and when not.
-				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, { 40, 82 + 60 }, { 332, 21 }, style, ID_RICHEDIT, L"C:\\Program Files\\dotBlueShoes\\Quail");
-
-				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 248, 314 + 11 }, { 75, 23 }, WS_CHILD, L"< Last");
+				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, rePosition, reSize, style, ID_RICHEDIT, folder);
+				
+				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 244, 314 + 11 }, { 75, 23 }, WS_CHILD, L"< Last");
 				WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Next >");
 				WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Cancel");
-
+				WINDOWS::CONTROLS::CreateButton (
+					wbBrowse, window, instance, 
+					{ rePosition.x + reSize.x + 13, rePosition.y - 3 }, 
+					{ 75, 23 },
+					WS_CHILD , L"Browse..."
+				);
+				
 				SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbLast, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbNext, WM_SETFONT, WPARAM (font), TRUE);
+				SendMessageW (wbBrowse, WM_SETFONT, WPARAM (font), TRUE);
 				SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
+				SendMessageW (rePath, WM_SETFONT, WPARAM (font), TRUE);
+
+				//{ // Set the font for RichEdit control.
+				//	const u8 fontSize = 14;
+//
+    			//	CHARFORMAT2W charFormat { 0 };
+    			//	charFormat.cbSize = sizeof (charFormat);
+    			//	charFormat.dwMask = CFM_SIZE;  			// We're only changing the font size.
+    			//	charFormat.yHeight = fontSize * 15;  	// Convert to twips (1 pt = 15 twips)
+//
+    			//	// Send the EM_SETCHARFORMAT message to change the font size
+    			//	SendMessageW (rePath, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM) &charFormat);
+				//}
 
 				//ShowWindow (wpb, HIDE_WINDOW);
 				//ShowWindow (wbLast, HIDE_WINDOW);
@@ -434,12 +497,12 @@ namespace WINDOW {
 					if (HIWORD(wParam) == EN_SETFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
     				    // RichEdit gained focus
 						LOGINFO ("RichEdit gained focus\n");
-						InvalidateRect (window, &richeditRect, true);
+						InvalidateRect (window, &richeditRectPadding, true);
     				    //MessageBoxW (window, L"RichEdit gained focus", L"Focus Event", MB_OK);
     				} else if (HIWORD(wParam) == EN_KILLFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
     				    // RichEdit lost focus
 						LOGINFO ("RichEdit lost focus\n");
-						InvalidateRect (window, &richeditRect, true);
+						InvalidateRect (window, &richeditRectPadding, true);
     				    //MessageBoxW (window, L"RichEdit lost focus", L"Focus Event", MB_OK);
     				}
 				}
@@ -456,18 +519,28 @@ namespace WINDOW {
 						currentPage--;
 						// Make the whole window redraw itself. Also clears previous draw.
 						InvalidateRect (window, NULL, true);
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
 					} else if (command == wbNext) {
 
 						currentPage++;
 						// Make the whole window redraw itself. Also clears previous draw.
 						InvalidateRect (window, NULL, true);
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
 					} else if (command == wbCancel) {
 
 						//MessageBoxW (window, L"d", L"title", MB_OK);
-						SendMessage (window, WM_CLOSE, 0, 0);
+						SendMessageW (window, WM_CLOSE, 0, 0);
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
+					} else if (command == wbBrowse) {
+						HRESULT hr = WINDOWS::CONTROLS::BrowseFolder (window, folder, MAX_PATH);
+            			if (SUCCEEDED (hr)) {
+            			    MessageBoxW (window, folder, L"Selected Folder", MB_OK);
+            			} else {
+            			    MessageBoxW (window, L"Failed to select a folder", L"Error", MB_OK | MB_ICONERROR);
+            			}
 					}
 
 					switch (currentPage) {
@@ -475,11 +548,14 @@ namespace WINDOW {
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, SHOW_OPENWINDOW);
 							ShowWindow (rePath, HIDE_WINDOW);
+							ShowWindow (wbBrowse, HIDE_WINDOW);
 						} break;
 
 						case PAGE_TYPE_FIRST: {
 							// To disable / enable a button.
 							//EnableWindow (wbCancel, false);
+							
+							ShowWindow (wbBrowse, SHOW_OPENWINDOW);
 							ShowWindow (wbLast, SHOW_OPENWINDOW);
 							ShowWindow (rePath, SHOW_OPENWINDOW);
 						} break;
@@ -488,7 +564,7 @@ namespace WINDOW {
 
 							// Change "Close" to "Finish".
 							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgFinish);
-
+							ShowWindow (wbBrowse, HIDE_WINDOW);
 							ShowWindow (rePath, HIDE_WINDOW);
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, HIDE_WINDOW);
@@ -560,7 +636,7 @@ namespace WINDOW {
 			);
 
 			font = CreateFontW (
-				16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, 
+				14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, 
 				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
 				DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, 
 				fontName

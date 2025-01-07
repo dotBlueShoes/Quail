@@ -6,9 +6,12 @@
 
 #include <RichEdit.h>
 #include <CommCtrl.h>
+#include <Shlobj.h>
+#include <Commdlg.h>
 
 namespace WINDOWS::CONTROLS {
 
+	//const c8* MSFTEDIT_DLL_PATH { "riched20.dll" }; //
 	const c8* MSFTEDIT_DLL_PATH { "Msftedit.dll" }; // a.k.a TextEdit 4.1
 	const c16 BUTTON_CLASS[] { L"BUTTON" };
 
@@ -69,8 +72,8 @@ namespace WINDOWS::CONTROLS {
 		HWND& button, 
 		const HWND& parentWindow, 
 		const HINSTANCE& instance, 
-		const pair<u16>& position,
-		const pair<u16>& size,
+		const pair<s16>& position,
+		const pair<s16>& size,
 		const u32&  windowStyles,
 		const c16* const& text = L"Click Me!"
 	) {
@@ -87,14 +90,97 @@ namespace WINDOWS::CONTROLS {
 		);
 	}
 
+	BOOL BrowseForFolder (const HWND& hwndOwner, c16* const& pszFolderPath, DWORD dwSize) {
+
+		BROWSEINFOW bi = { 0 };
+		bi.lpszTitle = L"Select a Folder";
+		bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+		bi.hwndOwner = hwndOwner;
+
+		// Open the folder browser dialog
+		PIDLIST_ABSOLUTE pidl = SHBrowseForFolderW (&bi);
+
+		if (pidl != NULL) {
+		
+		    // Get the path of the selected folder
+		    if (SHGetPathFromIDListW (pidl, pszFolderPath)) {
+		        return TRUE;  // Success
+		    }
+		}
+
+		return FALSE;  // Failed to select a folder
+	}
+
+	HRESULT BrowseFolder (const HWND& hwndOwner, c16* pszFolderPath, DWORD dwSize) {
+		
+	    HRESULT hr = S_OK;
+	    IFileDialog *pfd = NULL;
+
+	    // Initialize COM
+	    hr = CoInitialize(NULL);
+	    if (FAILED(hr)) {
+	        return hr;
+	    }
+
+	    // Create the file dialog
+	    hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pfd));
+	    if (FAILED(hr)) {
+	        CoUninitialize();
+	        return hr;
+	    }
+
+	    // Set the dialog options to allow folder selection
+	    IFileDialogEvents *pfdEvents = NULL;
+	    DWORD dwOptions;
+
+	    hr = pfd->GetOptions(&dwOptions);
+	    if (FAILED(hr)) {
+	        pfd->Release();
+	        CoUninitialize();
+	        return hr;
+	    }
+
+	    hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+	    if (FAILED(hr)) {
+	        pfd->Release();
+	        CoUninitialize();
+	        return hr;
+	    }
+
+	    // Show the dialog
+	    hr = pfd->Show(hwndOwner);
+	    if (FAILED(hr)) {
+	        pfd->Release();
+	        CoUninitialize();
+	        return hr;
+	    }
+
+	    // Get the result (selected folder)
+	    IShellItem *psi = NULL;
+	    hr = pfd->GetResult(&psi);
+	    if (FAILED(hr)) {
+	        pfd->Release();
+	        CoUninitialize();
+	        return hr;
+	    }
+
+	    // Get the folder path as a string
+	    hr = psi->GetDisplayName (SIGDN_FILESYSPATH, (LPWSTR*) &pszFolderPath);
+	    psi->Release();
+
+	    pfd->Release();
+	    CoUninitialize();
+	    return hr;
+	}
+
 	void CreateRichEdit (
 		HWND& richEdit,
 		const HWND& parentWindow,
 		const HINSTANCE& instance,
-		const pair<s32>& position,
-		const pair<s32>& size,
+		const pair<s16>& position,
+		const pair<s16>& size,
 		const u32&  windowStyles,
-		const u32& id = 0,
+		const u64& id = 0,
 		const c16* text = L"Type here"
 	) {
 		richEdit = CreateWindowExW (

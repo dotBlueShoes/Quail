@@ -23,4 +23,8 @@
 39. ? Maybe create a roadmap using that github tool (tables)
 40. Move created window objects outside WM_PAINT
 41. Make sure everything is being destroyed properly.
-42. Create A page for selecting directory path for QUAIL software (default: "C:\Program Files\dotBlueShoes\Quail")
+43. Make a REGISTRY page
+44. Make a LICENSE page
+45. Make a DOWNLOAD page
+46. Make selection with (browse...) button work.
+47. Make it also send that into the richtextedit window.
