@@ -90,7 +90,12 @@ namespace WINDOWS::CONTROLS {
 		);
 	}
 
-	HRESULT BrowseFolder (const HWND& window, c16*& folderPath, u16 size) {
+	HRESULT BrowseFolder (
+		const HWND& window, 
+		const c16* const& startingFolderPath,
+		c16*& folderPath, 
+		u16 size
+	) {
 		
 		IFileDialog* fileDialog = nullptr;
 		IShellItem* shellItem = nullptr;
@@ -133,6 +138,25 @@ namespace WINDOWS::CONTROLS {
 			(*fileDialog).Release ();
 			CoUninitialize ();
 			return errorCode;
+		}
+
+		if (startingFolderPath != nullptr) {
+
+			// Set the initial folder for item.
+        	errorCode = SHCreateItemFromParsingName (
+				startingFolderPath, nullptr, 
+				IID_PPV_ARGS(&shellItem)
+			);
+
+        	if (FAILED (errorCode)) {
+        	    (*fileDialog).Release ();
+				CoUninitialize ();
+				return errorCode;
+        	}
+
+			// Set the folder for dialog
+        	(*fileDialog).SetFolder (shellItem);
+        	(*shellItem).Release ();
 		}
 
 		// Show the dialog.

@@ -6,6 +6,7 @@
 #include <blue/log.hpp>
 
 #include "../res/resource.h"
+#include "../res/data.h"
 
 #include <blue/windows/controls.hpp>
 #include "registry.hpp"
@@ -16,16 +17,13 @@ namespace WINDOW {
 	const c16 msgEntryWelcome[] = L"Welcome to Quail Setup Wizard";
 	const c16 msgEntryText[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
 	const c16 msgBrowseTip[] = L"To continue, click Next. If you would like to select a different folder, click Browse.";
-	const c16 msgDiskSpace[] = L"Disk space needed :";
-	//const c16 msgAvailableDiskSpace[] = L"Available disk space :";
-	//const c16 msgNextTip[] = L"Click 'Next' to continue.";
+	c16 msgDiskSpace[40] = L"Disk space needed : ";
 
 	// TEXTS TAGS
 	const c16 msgTagLicense[] = L"License";
 	const c16 msgTagDirectory[] = L"Directory";
 	const c16 msgTagRegistry[] = L"Registry";
 	const c16 msgTagDownload[] = L"Download";
-
 
 	// TEXTS DESCRIPTIONS
 	const c16 msgDescriptionLicense[] = L"License";
@@ -37,6 +35,7 @@ namespace WINDOW {
 	const c16 msgButtonBrowse[] = L"Browse...";
 	const c16 msgButtonFinish[] = L"Finish";
 	const c16 msgButtonCancel[] = L"Cancel";
+	const c16 msgButtonAgree[] = L"I Agree";
 	const c16 msgButtonLast[] = L"< Last";
 	const c16 msgButtonNext[] = L"Next >";
 	
@@ -44,8 +43,8 @@ namespace WINDOW {
 	const u64 ID_RICHEDIT = 0b1001;
 
 	// COLORS
-	const COLORREF BORDER_INACTIVE		= 0xa0a0a0;
-	const COLORREF BORDER_ACTIVE		= 0xe597b5;
+	const COLORREF ACCENT_COLOR			= 0xa0a0a0; // 0xe597b5; -> my system accent color "purple".
+	const COLORREF BORDER_ACTIVE		= 0xd77800;
 	const COLORREF BACKGROUND_FIRST 	= 0xffffff;
 	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
 	const COLORREF TEXT_FIRST			= 0x000000;
@@ -120,7 +119,7 @@ namespace WINDOW {
 			HPEN penBorder, previousBorder;
 		
 			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
+			penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
@@ -184,7 +183,7 @@ namespace WINDOW {
 			const auto focussedWindow = GetFocus ();
 
 			if (focussedWindow == rePath) 	penBorder = CreatePen (PS_SOLID, 1, BORDER_ACTIVE);
-			else 							penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
+			else 							penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
@@ -217,13 +216,15 @@ namespace WINDOW {
 		DrawTextW (windowContext, msgDescriptionDirectory, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
-			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
+			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 14 };
 			DrawTextW (windowContext, msgBrowseTip, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
-		{ // Text Control
-			const RECT textRegion = { 29, 128, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+		{
+			const RECT textRegion = { 29, 294, textRegion.left + 40, textRegion.top + 14 }; // bottom variant.
+			// const RECT textRegion = { 29, 128, textRegion.left + 40, textRegion.top + 10 }; // under variant.
+    		swprintf (msgDiskSpace + 20, 20, L"%.2f KB", DISK_SPACE_KB);  // Convert double to wide string
+    		DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -306,6 +307,15 @@ namespace WINDOW {
         	DeleteDC (sourceContext);
 		}
 
+	}
+
+
+	bool SyncValidateRichEditPath () {
+		REGISTRY::topConfigsFolderPathLength = GetWindowTextLengthW (rePath) + 1;
+		GetWindowTextW (rePath, REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
+		REGISTRY::topConfigsFolderPathLength *= 2; // wide-character
+
+		return IsValidDirectory (REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
 	}
 
 }
@@ -440,80 +450,151 @@ namespace WINDOW {
 
 					if (selectedWindow == wpbDownload) {
 
-						// Remove it.
-						MessageBoxW (window, L"a", L"title", MB_OK);
+						MessageBoxW (window, L"a", L"title", MB_OK); // Remove it. Later
 
 					} else if (selectedWindow == wbLast) {
 
-						currentPage--;
-						// Make the whole window redraw itself. Also clears previous draw.
-						InvalidateRect (window, NULL, true);
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
+						if (currentPage == PAGE_TYPE_DIRECTORY) {
+						
+							if (SyncValidateRichEditPath ()) {
+								LOGINFO ("Selected a valid directory for installation.\n");
+
+								currentPage--;
+								InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
+							} else {
+								MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
+							}
+
+						} else {
+							currentPage--;
+							InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
+						}
+
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
 
 					} else if (selectedWindow == wbNext) {
 
-						currentPage++;
-						// Make the whole window redraw itself. Also clears previous draw.
-						InvalidateRect (window, NULL, true);
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
+						if (currentPage == PAGE_TYPE_DIRECTORY) {
+
+							if (SyncValidateRichEditPath ()) {
+								LOGINFO ("Selected a valid directory for installation.\n");
+
+								currentPage++;
+								InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
+							} else {
+								MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
+							}
+
+						} else {
+							currentPage++;
+							InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
+						}
+
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
 
 					} else if (selectedWindow == wbCancel) {
 
-						//MessageBoxW (window, L"d", L"title", MB_OK);
 						SendMessageW (window, WM_CLOSE, 0, 0);
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
+						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
 
 					} else if (selectedWindow == wbBrowse) {
 
-            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, REGISTRY::topConfigsFolderPath, MAX_PATH))) {
-							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); 	// Update RichEdit Control
-							CoTaskMemFree (REGISTRY::topConfigsFolderPath);				// Release String created via BrowseFolder Control.
+						c16* tempBuffor = nullptr;
+
+            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffor, MAX_PATH))) {
+
+							// SET.
+							REGISTRY::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;
+							LOGINFO ("length: %d\n", REGISTRY::topConfigsFolderPathLength);
+							memcpy (REGISTRY::topConfigsFolderPath, tempBuffor, REGISTRY::topConfigsFolderPathLength);
+
+							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); // Update RichEdit Control
+							CoTaskMemFree (tempBuffor);	// Release String created via BrowseFolder Control.
             			}
 						
 					}
 
 					switch (currentPage) {
 						case PAGE_TYPE_ENTRY: {
-							ShowWindow (wbLast, HIDE_WINDOW);
-							ShowWindow (wbNext, SHOW_OPENWINDOW);
+
+							{ // THIS
+								ShowWindow (wbLast, HIDE_WINDOW);
+							}
+							
+							{ // Next
+								//EnableWindow (wbNext, true); // To disable / enable a button.
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								ShowWindow (wbNext, SHOW_OPENWINDOW);
+							}
+
 						} break;
 
 						case PAGE_TYPE_LICENSE: {
-							// To disable / enable a button.
-							//EnableWindow (wbCancel, false);
-							ShowWindow (wbLast, SHOW_OPENWINDOW);
-							ShowWindow (wbBrowse, HIDE_WINDOW);
-							ShowWindow (rePath, HIDE_WINDOW);
+
+							{ // PREV
+								ShowWindow (wbLast, SHOW_OPENWINDOW);
+							}
+
+							{ // THIS
+								//EnableWindow (wbNext, false); // To disable / enable a button.
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
+							}
+
+							{ // NEXT
+								ShowWindow (wbBrowse, HIDE_WINDOW);
+								ShowWindow (rePath, HIDE_WINDOW);
+							}
+
 						} break;
 
 						case PAGE_TYPE_DIRECTORY: {
-							ShowWindow (wbBrowse, SHOW_OPENWINDOW);
-							ShowWindow (rePath, SHOW_OPENWINDOW);
+
+							{ // PREV
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+							}
+
+							{ // THIS
+								ShowWindow (wbBrowse, SHOW_OPENWINDOW);
+								ShowWindow (rePath, SHOW_OPENWINDOW);
+							}
+							
 						} break;
 
 						case PAGE_TYPE_REGISTRY: {
-							ShowWindow (wpbDownload, HIDE_WINDOW);
-							ShowWindow (wbBrowse, HIDE_WINDOW);
-							ShowWindow (rePath, HIDE_WINDOW);
+
+							{ // PREV
+								ShowWindow (wbBrowse, HIDE_WINDOW);
+								ShowWindow (rePath, HIDE_WINDOW);
+							}
+
+							{ // NEXT
+								ShowWindow (wpbDownload, HIDE_WINDOW);
+							}
+							
 						} break;
 
 						case PAGE_TYPE_DOWNLOAD: {
-							ShowWindow (wpbDownload, SHOW_OPENWINDOW);
+
+							{ // THIS
+								ShowWindow (wpbDownload, SHOW_OPENWINDOW);
+							}
+							
 						} break;
 
 						case PAGE_TYPE_EXIT: {
-							// Change "Close" to "Finish".
-							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgButtonFinish);
+
+							{ // PREV
+								ShowWindow (wpbDownload, HIDE_WINDOW);
+								ShowWindow (wbLast, HIDE_WINDOW);
+								ShowWindow (wbNext, HIDE_WINDOW);
+							}
+
+							{ // THIS
+								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgButtonFinish); // Change "Close" msg to "Finish".
+							}
 							
-							ShowWindow (wpbDownload, HIDE_WINDOW);
-							ShowWindow (wbLast, HIDE_WINDOW);
-							ShowWindow (wbNext, HIDE_WINDOW);
 						} break;
 
-						default: {
-							ShowWindow (wbLast, SHOW_OPENWINDOW);
-							ShowWindow (wbNext, SHOW_OPENWINDOW);
-						}
 					}
 				}
 

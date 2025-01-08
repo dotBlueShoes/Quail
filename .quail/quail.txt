@@ -49,8 +49,12 @@
 !compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\installer\Installer.exe" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
 !ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\installer\Installer.exe" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
 
-#!compress 		= %upx_path% -9 "%_path%\build\%pd%\project\installer\Installer.exe" -o "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
-#!ccompress		= %upx_path% -9 "%_path%\build\%pr%\project\installer\Installer.exe" -o "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+# Issue `datains` requires a compiled executable to make a change inside an executable. (Double compiling)
+#  Instead of changing a header file I should reserve space and apply a post-compile change 
+#  similary to the way manifest files work.
+
+!datains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pd%
+!ddatains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pr%
 
 |run			= bld,cpy
 |rrun			= bbld,ccpy

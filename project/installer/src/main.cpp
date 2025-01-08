@@ -26,6 +26,10 @@ int WinMain (
 
 	LOGINFO ("Application Statred!\n");
 
+	{ // PREP. Quail Path buffor.
+		ALLOCATE (c16, REGISTRY::topConfigsFolderPath, MAX_PATH);
+	}
+
 	//{ // REGISTRY THINGS
 	//
 	//	// Read these values from UI
@@ -94,6 +98,10 @@ int WinMain (
 
 	LOGINFO ("Executed Installer Sucessfully.\n");
 	//getchar ();
+
+	{ // Release Quail Path buffor.
+		FREE (REGISTRY::topConfigsFolderPath);
+	}
 
 	return 0;
 }
