@@ -1,6 +1,7 @@
 // Created 2024.12.29 by Matthew Strumiłło (dotBlueShoes)
 //
 #pragma once
+#include <Windowsx.h>
 #include <Windows.h>
 
 #ifdef ERROR

@@ -26,22 +26,22 @@ int WinMain (
 
 	LOGINFO ("Application Statred!\n");
 
-	{ // REGISTRY THINGS
-
-		// Read these values from UI
-		REGISTRY::topConfigsFolderPathLength = REGISTRY::DEFAULT_FOLDERPATH_LENGTH;
-		REGISTRY::topConfigsFolderPath = REGISTRY::DEFAULT_FOLDERPATH_W;
-		REGISTRY::mainConfigFilePathLength = REGISTRY::DEFAULT_FILEPATH_LENGTH;
-		REGISTRY::mainConfigFilePath = REGISTRY::DEFAULT_FILEPATH_W;
-		//
-
-		REGISTRY::CreateKeys ();
-		REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
-		
-		if (!IO::IsExisting(REGISTRY::mainConfigFilePath)) {
-			IO::Create (REGISTRY::mainConfigFilePath);
-		}
-	}
+	//{ // REGISTRY THINGS
+	//
+	//	// Read these values from UI
+	//	REGISTRY::topConfigsFolderPathLength = REGISTRY::DEFAULT_FOLDERPATH_LENGTH;
+	//	REGISTRY::topConfigsFolderPath = REGISTRY::DEFAULT_FOLDERPATH_W;
+	//	REGISTRY::mainConfigFilePathLength = REGISTRY::DEFAULT_FILEPATH_LENGTH;
+	//	REGISTRY::mainConfigFilePath = REGISTRY::DEFAULT_FILEPATH_W;
+	//	//
+	//
+	//	REGISTRY::CreateKeys ();
+	//	REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
+	//	
+	//	if (!IO::IsExisting(REGISTRY::mainConfigFilePath)) {
+	//		IO::Create (REGISTRY::mainConfigFilePath);
+	//	}
+	//}
 
 	{ // Window Creation.
 		
@@ -55,7 +55,7 @@ int WinMain (
 		}
 		
 		WINDOWS::CONTROLS::LoadRichEdit ();
-		WINDOW::AREO::LoadMethods ();
+		//WINDOW::AREO::LoadMethods ();
 
 		HWND window; WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
 		MSG msg { 0 }; 

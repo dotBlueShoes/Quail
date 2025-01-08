@@ -27,9 +27,9 @@ namespace REGISTRY {
 	// VARIABLES
 
 	u32 topConfigsFolderPathLength;		// Where are quail top configs.
-	c16 const* topConfigsFolderPath; 
+	c16* topConfigsFolderPath; 
 	u32 mainConfigFilePathLength;		// Full filepath to quail "main" config.
-	c16 const* mainConfigFilePath;
+	c16* mainConfigFilePath;
 
 	// FUNCTIONS
 

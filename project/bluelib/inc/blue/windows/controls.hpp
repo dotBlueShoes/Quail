@@ -90,88 +90,80 @@ namespace WINDOWS::CONTROLS {
 		);
 	}
 
-	BOOL BrowseForFolder (const HWND& hwndOwner, c16* const& pszFolderPath, DWORD dwSize) {
-
-		BROWSEINFOW bi = { 0 };
-		bi.lpszTitle = L"Select a Folder";
-		bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
-		bi.hwndOwner = hwndOwner;
-
-		// Open the folder browser dialog
-		PIDLIST_ABSOLUTE pidl = SHBrowseForFolderW (&bi);
-
-		if (pidl != NULL) {
+	HRESULT BrowseFolder (const HWND& window, c16*& folderPath, u16 size) {
 		
-		    // Get the path of the selected folder
-		    if (SHGetPathFromIDListW (pidl, pszFolderPath)) {
-		        return TRUE;  // Success
-		    }
+		IFileDialog* fileDialog = nullptr;
+		IShellItem* shellItem = nullptr;
+		HRESULT errorCode = S_OK;
+		DWORD options;
+		
+		//IFileDialogEvents* dialogEvents = nullptr;
+
+		// Initialize COM
+		errorCode = CoInitialize (NULL); 
+
+		if (FAILED (errorCode)) return errorCode;
+
+		// Create the file dialog.
+		errorCode = CoCreateInstance ( 
+			CLSID_FileOpenDialog, 
+			nullptr, CLSCTX_ALL, 
+			IID_PPV_ARGS (&fileDialog)
+		); 
+
+		if (FAILED (errorCode)) {
+			CoUninitialize ();
+			return errorCode;
 		}
 
-		return FALSE;  // Failed to select a folder
-	}
+		errorCode = (*fileDialog).GetOptions (&options);
 
-	HRESULT BrowseFolder (const HWND& hwndOwner, c16* pszFolderPath, DWORD dwSize) {
+		if (FAILED (errorCode)) {
+			(*fileDialog).Release ();
+			CoUninitialize ();
+			return errorCode;
+		}
+
+		// Set the dialog options to allow folder selection.
+		errorCode = (*fileDialog).SetOptions ( 
+			options | FOS_PICKFOLDERS
+		); 
+
+		if (FAILED (errorCode)) {
+			(*fileDialog).Release ();
+			CoUninitialize ();
+			return errorCode;
+		}
+
+		// Show the dialog.
+		errorCode = (*fileDialog).Show (window); 
+
+		if (FAILED (errorCode)) {
+			(*fileDialog).Release ();
+			CoUninitialize ();
+			return errorCode;
+		}
 		
-	    HRESULT hr = S_OK;
-	    IFileDialog *pfd = NULL;
+		// Get the result.
+		errorCode = (*fileDialog).GetResult (&shellItem); 
 
-	    // Initialize COM
-	    hr = CoInitialize(NULL);
-	    if (FAILED(hr)) {
-	        return hr;
-	    }
+		if (FAILED (errorCode)) {
+			(*fileDialog).Release ();
+			CoUninitialize ();
+			return errorCode;
+		}
 
-	    // Create the file dialog
-	    hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pfd));
-	    if (FAILED(hr)) {
-	        CoUninitialize();
-	        return hr;
-	    }
+		// Get the folder path.
+		errorCode = (*shellItem).GetDisplayName (SIGDN_FILESYSPATH, (LPWSTR*) &folderPath); 
 
-	    // Set the dialog options to allow folder selection
-	    IFileDialogEvents *pfdEvents = NULL;
-	    DWORD dwOptions;
+		(*shellItem).Release ();
+		(*fileDialog).Release ();
 
-	    hr = pfd->GetOptions(&dwOptions);
-	    if (FAILED(hr)) {
-	        pfd->Release();
-	        CoUninitialize();
-	        return hr;
-	    }
+		CoUninitialize ();
 
-	    hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
-	    if (FAILED(hr)) {
-	        pfd->Release();
-	        CoUninitialize();
-	        return hr;
-	    }
-
-	    // Show the dialog
-	    hr = pfd->Show(hwndOwner);
-	    if (FAILED(hr)) {
-	        pfd->Release();
-	        CoUninitialize();
-	        return hr;
-	    }
-
-	    // Get the result (selected folder)
-	    IShellItem *psi = NULL;
-	    hr = pfd->GetResult(&psi);
-	    if (FAILED(hr)) {
-	        pfd->Release();
-	        CoUninitialize();
-	        return hr;
-	    }
-
-	    // Get the folder path as a string
-	    hr = psi->GetDisplayName (SIGDN_FILESYSPATH, (LPWSTR*) &pszFolderPath);
-	    psi->Release();
-
-	    pfd->Release();
-	    CoUninitialize();
-	    return hr;
+		return errorCode;
 	}
+
 
 	void CreateRichEdit (
 		HWND& richEdit,
@@ -233,7 +225,7 @@ namespace WINDOWS::CONTROLS {
 		//	NULL,
 		//	instance,
 		//	NULL
-        //);
+		//);
 
 		#ifdef DEBUG_FLAG_LOGGING
 			if (richEdit == nullptr) {

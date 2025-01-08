@@ -5,193 +5,52 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
-
 #include "../res/resource.h"
 
-// AREO
-#include <dwmapi.h>
-#include <gdiplus.h>
-// END AREO
-
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
-
 #include <blue/windows/controls.hpp>
-
-#define ACRYLIC_TINT_LIGHT    0xEEEEEE
-#define ACRYLIC_TINT_DARK     0x2B2B2B
-
-namespace WINDOW::AREO {
-
-	enum WINDOWCOMPOSITIONATTRIBUTE {
-		WCA_UNDEFINED,
-		WCA_NCRENDERING_ENABLED,
-		WCA_NCRENDERING_POLICY,
-		WCA_TRANSITIONS_FORCEDISABLED,
-		WCA_ALLOW_NCPAINT,
-		WCA_CAPTION_BUTTON_BOUNDS,
-		WCA_NONCLIENT_RTL_LAYOUT,
-		WCA_FORCE_ICONIC_REPRESENTATION,
-		WCA_EXTENDED_FRAME_BOUNDS,
-		WCA_HAS_ICONIC_BITMAP,
-		WCA_THEME_ATTRIBUTES,
-		WCA_NCRENDERING_EXILED,
-		WCA_NCADORNMENTINFO,
-		WCA_EXCLUDED_FROM_LIVEPREVIEW,
-		WCA_VIDEO_OVERLAY_ACTIVE,
-		WCA_FORCE_ACTIVEWINDOW_APPEARANCE,
-		WCA_DISALLOW_PEEK,
-		WCA_CLOAK,
-		WCA_CLOAKED,
-		WCA_ACCENT_POLICY,
-		WCA_FREEZE_REPRESENTATION,
-		WCA_EVER_UNCLOAKED,
-		WCA_VISUAL_OWNER,
-		WCA_HOLOGRAPHIC,
-		WCA_EXCLUDED_FROM_DDA,
-		WCA_PASSIVEUPDATEMODE,
-		WCA_USEDARKMODECOLORS,
-		WCA_CORNER_STYLE,
-		WCA_PART_COLOR,
-		WCA_DISABLE_MOVESIZE_FEEDBACK,
-		WCA_LAST
-	};
-
-	struct WINDOWCOMPOSITIONATTRIBUTEDATA {
-		WINDOWCOMPOSITIONATTRIBUTE Attribute;
-		PVOID pvData;
-		SIZE_T cbData;
-	};
-
-	enum ACCENT_STATE {
-		ACCENT_DISABLED,
-		ACCENT_ENABLE_GRADIENT,
-		ACCENT_ENABLE_TRANSPARENTGRADIENT,
-		ACCENT_ENABLE_BLURBEHIND,
-		ACCENT_ENABLE_ACRYLICBLURBEHIND,
-		ACCENT_ENABLE_HOSTBACKDROP,
-		ACCENT_INVALID_STATE
-	};
-
-	enum ACCENT_FLAG {
-		ACCENT_NONE,
-		ACCENT_WINDOWS11_LUMINOSITY = 0x2,
-		ACCENT_BORDER_LEFT = 0x20,
-		ACCENT_BORDER_TOP = 0x40,
-		ACCENT_BORDER_RIGHT = 0x80,
-		ACCENT_BORDER_BOTTOM = 0x100,
-		ACCENT_BORDER_ALL = (ACCENT_BORDER_LEFT | ACCENT_BORDER_TOP | ACCENT_BORDER_RIGHT | ACCENT_BORDER_BOTTOM)
-	};
-
-	struct ACCENT_POLICY {
-		ACCENT_STATE AccentState;
-		DWORD AccentFlags;
-		DWORD dwGradientColor;
-		DWORD dwAnimationId;
-	};
-
-	typedef BOOL (WINAPI* PFNSETWINDOWCOMPOSITIONATTRIBUTE)(HWND, WINDOWCOMPOSITIONATTRIBUTEDATA*);
-
-	PFNSETWINDOWCOMPOSITIONATTRIBUTE SetWindowCompositionAttribute;
-
-	void LoadMethods() {
-		GetProcMemory (PFNSETWINDOWCOMPOSITIONATTRIBUTE, User32, SetWindowCompositionAttribute);
-	}
-
-	void EnableNCRendering (HWND window) {
-	    enum DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
-
-	    HRESULT errorCode = DwmSetWindowAttribute (
-			window,
-	        DWMWA_NCRENDERING_POLICY,
-	        &ncrp,
-	        sizeof (ncrp)
-		);
-
-	    if (errorCode != 0) ERROR ("Failed 0\n");
-	}
-
-	void EnableBlurBehind (HWND window) {
-	    DWM_BLURBEHIND bb { 0 };
-
-	    bb.dwFlags = DWM_BB_ENABLE;
-	    bb.fEnable = true;
-	    bb.hRgnBlur = NULL;
-
-	    HRESULT errorCode = DwmEnableBlurBehindWindow (window, &bb);
-
-	    if (errorCode != 0)  ERROR ("Failed 1\n");
-	}
-
-	void ExtendIntoClientAll (HWND window) {
-	    MARGINS margins { -1 };
-	    HRESULT errorCode = DwmExtendFrameIntoClientArea (window, &margins);
-
-	    if (errorCode != 0) ERROR ("Failed 2\n");
-	}
-
-	void SetBlurEffect (HWND window, DWORD color) {
-
-		// ISSUE -> ACCENT_ENABLE_ACRYLICBLURBEHIND is laggy when resizing / moving
-		//ACCENT_POLICY policy {
-		//	ACCENT_ENABLE_ACRYLICBLURBEHIND,
-		//	ACCENT_BORDER_ALL,
-		//	color,
-		//	0
-		//};
-
-		//ACCENT_ENABLE_GRADIENT,
-		//ACCENT_ENABLE_TRANSPARENTGRADIENT,
-		//ACCENT_ENABLE_BLURBEHIND,
-		//ACCENT_ENABLE_ACRYLICBLURBEHIND,
-		//ACCENT_ENABLE_HOSTBACKDROP,
-		
-		ACCENT_POLICY policy {
-			ACCENT_ENABLE_BLURBEHIND,
-			ACCENT_BORDER_ALL,
-			color,
-			0
-		};
-
-		WINDOWCOMPOSITIONATTRIBUTEDATA data {
-			WCA_ACCENT_POLICY,
-			&policy,
-			sizeof (ACCENT_POLICY)
-		};
-
-		BOOL errorCode = SetWindowCompositionAttribute(window, &data);
-
-		if (!errorCode) {
-			LOGINFO ("Something went wrong. SetWindowCompositionAttribute");
-		}
-
-		{ // ReAdd Controls
-			// Get the current window style
-    		LONG_PTR style = GetWindowLongPtr (window, GWL_STYLE);
-	
-    		// Ensure that the window has a title bar and system menu
-    		style |= WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-	
-    		// Apply the updated style to the window
-    		SetWindowLongPtr (window, GWL_STYLE, style);
-	
-    		// Redraw the window to reflect the style changes
-    		//SetWindowPos(window, HWND_TOP, 0, 0, 0, 0, SWP_FRAMECHANGED);
-		}
-	}
-}
+#include "registry.hpp"
 
 namespace WINDOW {
 
+	// TEXTS
+	const c16 msgEntryWelcome[] = L"Welcome to Quail Setup Wizard";
+	const c16 msgEntryText[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
+	const c16 msgBrowseTip[] = L"To continue, click Next. If you would like to select a different folder, click Browse.";
+	const c16 msgDiskSpace[] = L"Disk space needed :";
+	//const c16 msgAvailableDiskSpace[] = L"Available disk space :";
+	//const c16 msgNextTip[] = L"Click 'Next' to continue.";
+
+	// TEXTS TAGS
+	const c16 msgTagLicense[] = L"License";
+	const c16 msgTagDirectory[] = L"Directory";
+	const c16 msgTagRegistry[] = L"Registry";
+	const c16 msgTagDownload[] = L"Download";
+
+
+	// TEXTS DESCRIPTIONS
+	const c16 msgDescriptionLicense[] = L"License";
+	const c16 msgDescriptionDirectory[] = L"Where should 'Quail' software be installed?";
+	const c16 msgDescriptionRegistry[] = L"Registry";
+	const c16 msgDescriptionDownload[] = L"Download";
+
+	// TEXTS BUTTONS
+	const c16 msgButtonBrowse[] = L"Browse...";
+	const c16 msgButtonFinish[] = L"Finish";
+	const c16 msgButtonCancel[] = L"Cancel";
+	const c16 msgButtonLast[] = L"< Last";
+	const c16 msgButtonNext[] = L"Next >";
+	
+	// IDS
 	const u64 ID_RICHEDIT = 0b1001;
 
+	// COLORS
 	const COLORREF BORDER_INACTIVE		= 0xa0a0a0;
 	const COLORREF BORDER_ACTIVE		= 0xe597b5;
 	const COLORREF BACKGROUND_FIRST 	= 0xffffff;
 	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
 	const COLORREF TEXT_FIRST			= 0x000000;
 
+	// PAGES
 	enum PAGE_TYPE: u8 {
 		PAGE_TYPE_ENTRY 	= 0,
 		PAGE_TYPE_LICENSE 	= 1,
@@ -199,35 +58,30 @@ namespace WINDOW {
 		PAGE_TYPE_REGISTRY  = 3,
 		PAGE_TYPE_DOWNLOAD  = 4,
 		PAGE_TYPE_EXIT		= 5,
-	};
+	}; u8 currentPage = 0;
 
+	// HANDLERS
 	HBITMAP image = nullptr;
-	HWND wpb, wbLast, wbNext, wbCancel, rePath, wbBrowse;
+	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse;
 	HFONT font, fontBold;
-	u8 currentPage = 0;
+	
+	// DATA
+	//c16 defaultFolderPath[MAX_PATH] = { L"C:\\Program Files\\dotBlueShoes\\Quail" };
+	//c16* folderPath = nullptr;
 
-	const c16 msgFinish[] = L"Finish";
-	const c16 msgBrowseTip[] = L"To continue, click Next. If you would like to select a different folder, click Browse.";
-	const c16 msgDiskSpace[] = L"Disk space needed :";
-
-	//const u16 MAX_PATH = 4096;
-	c16 folder[MAX_PATH] = { L"C:\\Program Files\\dotBlueShoes\\Quail" };
-	//const c16 msgAvailableDiskSpace[] = L"Available disk space :";
-	//const c16 msgNextTip[] = L"Click 'Next' to continue.";
-
-	const u8 staticIds[] {
-		0, 1, 2, 3, 4
-	};
+	// RECTS
+	const RECT textDescriptionRegion = { 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
+	const RECT textTagRegion = { 16, 5, textTagRegion.left + 40, textTagRegion.top + 10 };
 
 	const pair<s16> rePosition { 28 + 3, 102 + 1 };
 	const pair<s16> reSize { 354 - 3, 19 - 1 };
-
 	const RECT richeditRectPadding { 
 		rePosition.x - 1 - 3, 
 		rePosition.y - 1 - 1, 
 		reSize.x + rePosition.x + 1, 
 		reSize.y + rePosition.y + 1
 	};
+
 
 	void DrawPage (const HDC& windowContext) {
 
@@ -259,6 +113,7 @@ namespace WINDOW {
 
 	}
 
+
 	void DrawFooter (const HDC& windowContext) {
 		{ // Drawing Bottom background.
 			HBRUSH brushFill, previousFill;
@@ -278,6 +133,7 @@ namespace WINDOW {
 			DeleteObject (penBorder);
 		}
 	}
+
 
 	void DrawEntry (const HDC& windowContext) {
 
@@ -301,8 +157,7 @@ namespace WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
-			const c16 text[] = L"Welcome to Quail Setup Wizard";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+			DrawTextW (windowContext, msgEntryWelcome, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		// Normal Text
@@ -310,13 +165,13 @@ namespace WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
-			const c16 text[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, msgEntryText, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont); // reversing (restoring to original value)
 
 	}
+
 
 	void DrawDirectory (const HDC& windowContext) {
 
@@ -328,13 +183,8 @@ namespace WINDOW {
 
 			const auto focussedWindow = GetFocus ();
 
-			if (focussedWindow == rePath) {
-				//brushFill = CreateSolidBrush (BORDER_ACTIVE);
-				penBorder = CreatePen (PS_SOLID, 1, BORDER_ACTIVE);
-			} else {
-				//brushFill = CreateSolidBrush (BORDER_INACTIVE);
-				penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
-			}
+			if (focussedWindow == rePath) 	penBorder = CreatePen (PS_SOLID, 1, BORDER_ACTIVE);
+			else 							penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
@@ -347,8 +197,8 @@ namespace WINDOW {
 				richeditRectPadding.bottom
 			);
 
-			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-			SelectObject (windowContext, previousBorder); // reversing (restoring to original value)
+			SelectObject (windowContext, previousFill); 	// reversing (restoring to original value)
+			SelectObject (windowContext, previousBorder); 	// reversing (restoring to original value)
 			DeleteObject (brushFill);
 			DeleteObject (penBorder);
 		}
@@ -358,17 +208,13 @@ namespace WINDOW {
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
-		{ // Text Control
-			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, L"Directory", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
-		}
+		// Text Control
+		DrawTextW (windowContext, msgTagDirectory, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
-		{ // Text Control
-			const RECT textRegion = { 29, 25, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, L"Line of thext number one please.\nLine test other.", -1, (RECT*) &textRegion, DT_NOCLIP);
-		}
+		// Text Control
+		DrawTextW (windowContext, msgDescriptionDirectory, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
 			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
@@ -384,6 +230,7 @@ namespace WINDOW {
 
 	}
 
+
 	void DrawLicense (const HDC& windowContext) {
 
 		// Header Text
@@ -391,14 +238,18 @@ namespace WINDOW {
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
-		{ // Text Control
-			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, L"License", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
-		}
+		// Text Control
+		DrawTextW (windowContext, msgTagLicense, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+
+		SelectFont (windowContext, font);
+
+		// Text Control
+		DrawTextW (windowContext, msgDescriptionLicense, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		SelectFont (windowContext, previousFont);
 
 	}
+
 
 	void DrawRegistry (const HDC& windowContext) {
 
@@ -406,15 +257,19 @@ namespace WINDOW {
 		HFONT previousFont = SelectFont (windowContext, fontBold);
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+		
+		// Text Control
+		DrawTextW (windowContext, msgTagRegistry, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
-		{ // Text Control
-			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, L"Registry", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
-		}
+		SelectFont (windowContext, font);
+
+		// Text Control
+		DrawTextW (windowContext, msgDescriptionRegistry, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		SelectFont (windowContext, previousFont);
 
 	}
+
 
 	void DrawDownload (const HDC& windowContext) {
 
@@ -423,14 +278,18 @@ namespace WINDOW {
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
-		{ // Text Control
-			const RECT textRegion = { 16, 5, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, L"Download", -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
-		}
+		// Text Control
+		DrawTextW (windowContext, msgTagDownload, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+
+		SelectFont (windowContext, font);
+
+		// Text Control
+		DrawTextW (windowContext, msgDescriptionDownload, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		SelectFont (windowContext, previousFont);
 
 	}
+
 
 	void DrawExit (const HDC& windowContext) {
 
@@ -449,6 +308,19 @@ namespace WINDOW {
 
 	}
 
+}
+
+
+
+
+
+
+
+
+
+
+
+namespace WINDOW {
 
 	s64 WindowLoop (
 		HWND window, 
@@ -463,7 +335,7 @@ namespace WINDOW {
 				const HINSTANCE instance = GetWindowInstance (window);
 
 				WINDOWS::CONTROLS::CreateProgressBarRange (
-					wpb, window, instance, 
+					wpbDownload, window, instance, 
 					WS_CHILD, 
 					{ 164, 0 }, { 200, 15 }, { 0, 255 }
 				);
@@ -472,120 +344,132 @@ namespace WINDOW {
 				//SendMessageW (progressBar, PBM_DELTAPOS, (WPARAM) 5, 0); // Adds
 				////SendMessageW (progressBar, PBM_STEPIT, 0, 0); // Adds a step. (by step variant)
 
-				const u32 style = WS_CHILD | WS_TABSTOP;
-				// TODO usinng WS_PAINT draw border - different when selected and when not.
-				WINDOWS::CONTROLS::CreateRichEdit (rePath, window, instance, rePosition, reSize, style, ID_RICHEDIT, folder);
-				
-				WINDOWS::CONTROLS::CreateButton (wbLast, window, instance, { 244, 314 + 11 }, { 75, 23 }, WS_CHILD, L"< Last");
-				WINDOWS::CONTROLS::CreateButton (wbNext, window, instance, { 323, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Next >");
-				WINDOWS::CONTROLS::CreateButton (wbCancel, window, instance, { 323 + 75 + 11, 314 + 11 }, { 75, 23 }, WS_CHILD | WS_VISIBLE, L"Cancel");
-				WINDOWS::CONTROLS::CreateButton (
-					wbBrowse, window, instance, 
-					{ rePosition.x + reSize.x + 13, rePosition.y - 3 }, 
-					{ 75, 23 },
-					WS_CHILD , L"Browse..."
+				WINDOWS::CONTROLS::CreateRichEdit (
+					rePath, window, instance, 
+					rePosition, reSize, 
+					WS_CHILD | WS_TABSTOP, ID_RICHEDIT, REGISTRY::DEFAULT_FOLDERPATH_W
 				);
 				
-				SendMessageW (window, WM_SETFONT, WPARAM (font), TRUE);
-				SendMessageW (wbLast, WM_SETFONT, WPARAM (font), TRUE);
-				SendMessageW (wbNext, WM_SETFONT, WPARAM (font), TRUE);
-				SendMessageW (wbBrowse, WM_SETFONT, WPARAM (font), TRUE);
-				SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
-				SendMessageW (rePath, WM_SETFONT, WPARAM (font), TRUE);
+				WINDOWS::CONTROLS::CreateButton (
+					wbLast, window, instance, 
+					{ 244, 314 + 11 }, { 75, 23 }, 
+					WS_CHILD, msgButtonLast
+				);
+				
+				WINDOWS::CONTROLS::CreateButton (
+					wbNext, window, instance, 
+					{ 323, 314 + 11 }, { 75, 23 }, 
+					WS_CHILD | WS_VISIBLE, msgButtonNext
+				);
+				
+				WINDOWS::CONTROLS::CreateButton (
+					wbCancel, window, instance, 
+					{ 323 + 75 + 11, 314 + 11 }, { 75, 23 }, 
+					WS_CHILD | WS_VISIBLE, msgButtonCancel
+				);
 
-				//{ // Set the font for RichEdit control.
-				//	const u8 fontSize = 14;
-//
-    			//	CHARFORMAT2W charFormat { 0 };
-    			//	charFormat.cbSize = sizeof (charFormat);
-    			//	charFormat.dwMask = CFM_SIZE;  			// We're only changing the font size.
-    			//	charFormat.yHeight = fontSize * 15;  	// Convert to twips (1 pt = 15 twips)
-//
-    			//	// Send the EM_SETCHARFORMAT message to change the font size
-    			//	SendMessageW (rePath, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM) &charFormat);
-				//}
+				{
+					const pair<s16> position = { rePosition.x + reSize.x + 13, rePosition.y - 3 };
+					const pair<s16> size = { 75, 23 };
 
-				//ShowWindow (wpb, HIDE_WINDOW);
-				//ShowWindow (wbLast, HIDE_WINDOW);
+					WINDOWS::CONTROLS::CreateButton (
+						wbBrowse, window, instance, 
+						position, size,
+						WS_CHILD , msgButtonBrowse
+					);
+				}
+				
+				{// Update Controls Fonts
+					SendMessageW (window, 	WM_SETFONT, WPARAM (font), TRUE);
+					SendMessageW (wbLast, 	WM_SETFONT, WPARAM (font), TRUE);
+					SendMessageW (wbNext, 	WM_SETFONT, WPARAM (font), TRUE);
+					SendMessageW (wbBrowse, WM_SETFONT, WPARAM (font), TRUE);
+					SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
+					SendMessageW (rePath, 	WM_SETFONT, WPARAM (font), TRUE);
+				}
 
 			} break;
 
 			case WM_PAINT: {
 
 				HDC	windowContext;
-				PAINTSTRUCT ps;
+				PAINTSTRUCT paint;
 
-        		windowContext = BeginPaint (window, &ps);
+        		windowContext = BeginPaint (window, &paint);
 
 				switch (currentPage) {
-					case PAGE_TYPE_ENTRY: DrawEntry (windowContext); break;
-					case PAGE_TYPE_LICENSE: DrawPage (windowContext); DrawLicense (windowContext); break;
-					case PAGE_TYPE_DIRECTORY: DrawPage (windowContext); DrawDirectory (windowContext); break;
-					case PAGE_TYPE_REGISTRY: DrawPage (windowContext); DrawRegistry (windowContext); break;
-					case PAGE_TYPE_DOWNLOAD: DrawPage (windowContext); DrawDownload (windowContext); break;
-					case PAGE_TYPE_EXIT: DrawExit (windowContext); break;
+					case PAGE_TYPE_ENTRY: 		DrawEntry (windowContext); 									break;
+					case PAGE_TYPE_LICENSE: 	DrawPage (windowContext); 	DrawLicense (windowContext); 	break;
+					case PAGE_TYPE_DIRECTORY: 	DrawPage (windowContext); 	DrawDirectory (windowContext); 	break;
+					case PAGE_TYPE_REGISTRY: 	DrawPage (windowContext); 	DrawRegistry (windowContext); 	break;
+					case PAGE_TYPE_DOWNLOAD: 	DrawPage (windowContext); 	DrawDownload (windowContext); 	break;
+					case PAGE_TYPE_EXIT: 		DrawExit (windowContext); 									break;
 				}
 
 				DrawFooter (windowContext);
-
-				EndPaint (window, &ps);
+				EndPaint (window, &paint);
         		
 			} return TRUE;
 
 			case WM_COMMAND: {
 
-				{
-					const auto command = GET_WM_COMMAND_ID (wParam, lParam);
+				{ // Make the selected region marked as to redraw when focus change is being detected.
+					switch (HIWORD (wParam)) {
+					
+						case EN_SETFOCUS: {
+					
+							if (LOWORD (wParam) == ID_RICHEDIT) {
+								InvalidateRect (window, &richeditRectPadding, true);
+							}
+					
+						} break;
+					
+						case EN_KILLFOCUS: {
+					
+							if (LOWORD (wParam) == ID_RICHEDIT) {
+								InvalidateRect (window, &richeditRectPadding, true);
+							}
+					
+						} break;
+					
+					}
 				}
 
-				{
-					if (HIWORD(wParam) == EN_SETFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
-    				    // RichEdit gained focus
-						LOGINFO ("RichEdit gained focus\n");
-						InvalidateRect (window, &richeditRectPadding, true);
-    				    //MessageBoxW (window, L"RichEdit gained focus", L"Focus Event", MB_OK);
-    				} else if (HIWORD(wParam) == EN_KILLFOCUS && LOWORD(wParam) == ID_RICHEDIT) {
-    				    // RichEdit lost focus
-						LOGINFO ("RichEdit lost focus\n");
-						InvalidateRect (window, &richeditRectPadding, true);
-    				    //MessageBoxW (window, L"RichEdit lost focus", L"Focus Event", MB_OK);
-    				}
-				}
+				{ // Buttons
+					auto selectedWindow = (HWND) lParam;
 
-				{ 
-					auto command = (HWND) lParam;
+					if (selectedWindow == wpbDownload) {
 
-					if (command == wpb) {
-
+						// Remove it.
 						MessageBoxW (window, L"a", L"title", MB_OK);
 
-					} else if (command == wbLast) {
+					} else if (selectedWindow == wbLast) {
 
 						currentPage--;
 						// Make the whole window redraw itself. Also clears previous draw.
 						InvalidateRect (window, NULL, true);
 						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
-					} else if (command == wbNext) {
+					} else if (selectedWindow == wbNext) {
 
 						currentPage++;
 						// Make the whole window redraw itself. Also clears previous draw.
 						InvalidateRect (window, NULL, true);
 						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
-					} else if (command == wbCancel) {
+					} else if (selectedWindow == wbCancel) {
 
 						//MessageBoxW (window, L"d", L"title", MB_OK);
 						SendMessageW (window, WM_CLOSE, 0, 0);
 						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); // Release the pressed state
 
-					} else if (command == wbBrowse) {
-						HRESULT hr = WINDOWS::CONTROLS::BrowseFolder (window, folder, MAX_PATH);
-            			if (SUCCEEDED (hr)) {
-            			    MessageBoxW (window, folder, L"Selected Folder", MB_OK);
-            			} else {
-            			    MessageBoxW (window, L"Failed to select a folder", L"Error", MB_OK | MB_ICONERROR);
+					} else if (selectedWindow == wbBrowse) {
+
+            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, REGISTRY::topConfigsFolderPath, MAX_PATH))) {
+							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); 	// Update RichEdit Control
+							CoTaskMemFree (REGISTRY::topConfigsFolderPath);				// Release String created via BrowseFolder Control.
             			}
+						
 					}
 
 					switch (currentPage) {
@@ -608,21 +492,22 @@ namespace WINDOW {
 						} break;
 
 						case PAGE_TYPE_REGISTRY: {
+							ShowWindow (wpbDownload, HIDE_WINDOW);
 							ShowWindow (wbBrowse, HIDE_WINDOW);
 							ShowWindow (rePath, HIDE_WINDOW);
 						} break;
 
 						case PAGE_TYPE_DOWNLOAD: {
+							ShowWindow (wpbDownload, SHOW_OPENWINDOW);
 						} break;
 
 						case PAGE_TYPE_EXIT: {
-
 							// Change "Close" to "Finish".
-							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgFinish);
+							SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgButtonFinish);
 							
+							ShowWindow (wpbDownload, HIDE_WINDOW);
 							ShowWindow (wbLast, HIDE_WINDOW);
 							ShowWindow (wbNext, HIDE_WINDOW);
-
 						} break;
 
 						default: {
@@ -644,6 +529,7 @@ namespace WINDOW {
 
 		return DefWindowProcW (window, message, wParam, lParam);
 	}
+
 
 	void Create (
 		const HINSTANCE& instance,
