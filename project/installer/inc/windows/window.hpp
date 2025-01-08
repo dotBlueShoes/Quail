@@ -6,6 +6,7 @@
 #include <blue/log.hpp>
 
 #include "../res/resource.h"
+#include "../res/license.h"
 #include "../res/data.h"
 
 #include <blue/windows/controls.hpp>
@@ -234,6 +235,21 @@ namespace WINDOW {
 
 	void DrawLicense (const HDC& windowContext) {
 
+		// using RESOURCE file
+    	//HMODULE hModule = GetModuleHandleW (NULL); // Handle to the module (use the current executable)
+    	//HRSRC hRes = FindResourceW (hModule, MAKEINTRESOURCEW (IDR_LICENSE_FILE), MAKEINTRESOURCEW (10)); // RT_RCDATA // Load the resource
+		//
+		//if (hRes != NULL) {
+        //	HGLOBAL hData = LoadResource (hModule, hRes); // Load the resource into memory
+        //	if (hData != NULL) {
+        //	    
+        //	    char* pData = (char*) LockResource (hData); // Lock the resource to access its data
+        //	    if (pData != NULL) {
+        //	        LOGINFO ("%s\n", pData);
+        //	    }
+        //	}
+    	//}
+
 		// Header Text
 		HFONT previousFont = SelectFont (windowContext, fontBold);
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
@@ -246,6 +262,11 @@ namespace WINDOW {
 
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionLicense, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+
+		{ // Text Control
+			const RECT textRegion = { 10, 70, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextA (windowContext, LICENSE, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
 
 		SelectFont (windowContext, previousFont);
 

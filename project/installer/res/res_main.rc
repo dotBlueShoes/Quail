@@ -32,6 +32,11 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+IDR_LICENSE_FILE RCDATA
+BEGIN
+    "This is a very long string that will be stored in a resource file. You can keep adding more characters to it, even across multiple lines."
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

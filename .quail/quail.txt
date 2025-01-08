@@ -56,6 +56,8 @@
 !datains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pd%
 !ddatains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pr%
 
+!license		= %shell% "%_path%\.quail\getlicense" "%_path%"
+
 |run			= bld,cpy
 |rrun			= bbld,ccpy
 
