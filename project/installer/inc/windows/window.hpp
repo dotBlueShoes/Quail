@@ -23,17 +23,11 @@ namespace WINDOW {
 	// - Setting for: Add Quail Registry Keys 
 	// for now it's only path, but in future it will be text format for different outputs or some opti-data.
 
-	// TODO: Next button HIGHLIGHT and connection to eneter key
-	// TODO: Arrows and Highlight with them.
-
-	// TODO: REGISTRY
-	// 
-
 	// TEXTS
 	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
 	const c16 msgEntryText[] 		= L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
 	const c16 msgLicenseTop[] 		= L"Scroll down to see the rest of the agreement.";
-	const c16 msgLicenseBot[] 		= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to rich the end.";
+	const c16 msgLicenseBot[] 		= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to reach the end.";
 	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
 	const c16 msgRegistryTop[]		= L"Select the components you want to install clear the components you do not want to\ninstall. Click Next when you are ready to continue.";
 	const c16 msgConfirmationBot[] 	= L"Click 'Start' to install 'Quail'";
@@ -624,7 +618,7 @@ namespace WINDOW {
 				WINDOWS::CONTROLS::CreateProgressBarRange (
 					wpbDownload, window, instance, 
 					WS_CHILD, 
-					{ 164, 0 }, { 200, 15 }, { 0, 255 }
+					{ 148, 60 + 42 }, { 200, 15 }, { 0, 255 }
 				);
 				
 				//SendMessageW (progressBar, PBM_SETPOS, (WPARAM) 17, 0); // Sets

@@ -23,7 +23,12 @@
 39. ? Maybe create a roadmap using that github tool (tables)
 40. Move created window objects outside WM_PAINT
 41. Make sure everything is being destroyed properly.
-48. Make a proper REGISTRY page
 50. Make a proper DOWNLOAD page
-51. Add left padding to LICENSE control
-51. license script -> Make the header include the L"\n"\ (newline) ".
+52. license script -> Make the header include the L"\n"\ (newline) ".
+53. Next button HIGHLIGHT and connection to eneter key
+54. Arrows and Highlight with them.
+55. CURL download from github
+56. Make that download feedback an int that would represent the progress -> associate it with ProgressBar Control
+57. Make it so that when downloading all input controls are disabled (locked). because we no longer can apply changes.
+58. What happends when during download user click "Cancel" ?
+59. What to place at Download page aside ProgressBar ?
