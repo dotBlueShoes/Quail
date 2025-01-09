@@ -49,15 +49,6 @@ int WinMain (
 
 	{ // Window Creation.
 		
-		{
-			// InitCommonControls (); // Should be replaced with 'InitCommonControlsEx'.
-			INITCOMMONCONTROLSEX commonControls;
-			commonControls.dwSize = sizeof (INITCOMMONCONTROLSEX);
-			// Toolbars, Statusbars, Tooltips, Progressbars
-			commonControls.dwICC = ICC_BAR_CLASSES;
-			InitCommonControlsEx (&commonControls);
-		}
-		
 		WINDOWS::CONTROLS::LoadRichEdit ();
 		//WINDOW::AREO::LoadMethods ();
 

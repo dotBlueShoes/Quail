@@ -14,7 +14,7 @@
 
 namespace WINDOW {
 
-	// TODO:
+	// TODO: CANCEL
 	// CANCEL CONFIRM MSG BOX
 	// Title as Window
 	// Install has not completed. Are you sure you want to exit?
@@ -23,13 +23,23 @@ namespace WINDOW {
 	// - Setting for: Add Quail Registry Keys 
 	// for now it's only path, but in future it will be text format for different outputs or some opti-data.
 
+	// TODO: Next button HIGHLIGHT and connection to eneter key
+	// TODO: Arrows and Highlight with them.
+
+	// TODO: REGISTRY
+	// 
+
 	// TEXTS
 	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
 	const c16 msgEntryText[] 		= L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
 	const c16 msgLicenseTop[] 		= L"Scroll down to see the rest of the agreement.";
 	const c16 msgLicenseBot[] 		= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to rich the end.";
 	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
+	const c16 msgRegistryTop[]		= L"Select the components you want to install clear the components you do not want to\ninstall. Click Next when you are ready to continue.";
 	const c16 msgConfirmationBot[] 	= L"Click 'Start' to install 'Quail'";
+
+	const c16 msgLVRegistry[] 		= L"Create necessery Quail Registry Keys (Personal configuration settings)";
+	const c16 msgLVPath[] 			= L"Add Quail to 'Path' variable (Will make Quail accessible from anywere)";
 
 	const u8 MAX_EXE_SIZE = 20;
 
@@ -42,14 +52,14 @@ namespace WINDOW {
 	// TEXTS TAGS
 	const c16 msgTagLicense[] 		= L"License Agreement";
 	const c16 msgTagDirectory[] 	= L"Directory Selection";
-	const c16 msgTagRegistry[] 		= L"Registry";
+	const c16 msgTagRegistry[] 		= L"Select Components"; // L"Registry";
 	const c16 msgTagConfirmation[] 	= L"Confirmation";
 	const c16 msgTagDownload[] 		= L"Download";
 
 	// TEXTS DESCRIPTIONS
 	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing 'Quail'.";
 	const c16 msgDescriptionDirectory[] 	= L"Where should 'Quail' software be installed?";
-	const c16 msgDescriptionRegistry[] 		= L"Please ";
+	const c16 msgDescriptionRegistry[] 		= L"Which components should be installed?";
 	const c16 msgDescriptionConfirmation[] 	= L"You are now ready to install 'Quail' software.";
 	const c16 msgDescriptionDownload[] 		= L"Download";
 
@@ -65,6 +75,7 @@ namespace WINDOW {
 	// IDS
 	const u64 ID_RICHEDIT 	= 0b1001;
 	const u64 ID_STATIC	 	= 0b1010;
+	const u64 ID_LISTVIEW 	= 0b1011;
 
 	// COLORS
 	const COLORREF ACCENT_COLOR			= 0xd77800; // 0xe597b5; -> my system accent color "purple".
@@ -86,12 +97,8 @@ namespace WINDOW {
 
 	// HANDLERS
 	HBITMAP image = nullptr;
-	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense;
+	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense, wlbComponents;
 	HFONT font, fontBold, fontMono;
-	
-	// DATA
-	//c16 defaultFolderPath[MAX_PATH] = { L"C:\\Program Files\\dotBlueShoes\\Quail" };
-	//c16* folderPath = nullptr;
 
 	// RECTS
 	const RECT textDescriptionRegion = { 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
@@ -106,19 +113,30 @@ namespace WINDOW {
 		reSize.y + rePosition.y + 1
 	};
 
-	const u16 leftMargin = 10;
-	const pair<s16> wsPosition { 29 + leftMargin, 100 };
-	const pair<s16> wsSize { 439 - leftMargin, 134 };
+	const u16 wsLeftMargin = 10;
+	const pair<s16> wsPosition { 29 + wsLeftMargin, 100 };
+	const pair<s16> wsSize { 439 - wsLeftMargin, 134 };
 	const RECT wsLicensePadding { 
-		wsPosition.x - 1 - leftMargin, 
+		wsPosition.x - 1 - wsLeftMargin, 
 		wsPosition.y - 1, 
 		wsSize.x + wsPosition.x + 1, 
 		wsSize.y + wsPosition.y + 1
 	};
 
-	bool wsLicenseIsActive = false;
-	WNDPROC topLicenseControlLoop;
+	const pair<s16> wlbMargin { 2, 2 };
+	const pair<s16> wlbPosition { 29 + wlbMargin.x, 118 + wlbMargin.y };
+	const pair<s16> wlbSize { 439 - wlbMargin.x, 64 - wlbMargin.y };
+	const RECT wlbLicensePadding { 
+		wlbPosition.x - 1 - wlbMargin.x, 
+		wlbPosition.y - 1 - wlbMargin.y, 
+		wlbSize.x + wlbPosition.x + 1, 
+		wlbSize.y + wlbPosition.y + 1
+	};
 
+	WNDPROC topLicenseControlLoop;
+	bool isLicense = false;
+	bool isRegistry = true;
+	bool isPath = true;
 
 	void DrawPage (const HDC& windowContext) {
 
@@ -292,9 +310,7 @@ namespace WINDOW {
 		
 			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
 
-			const auto focussedWindow = GetFocus ();
-
-			if (wsLicenseIsActive) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			if (isLicense) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
 			else penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
@@ -344,6 +360,30 @@ namespace WINDOW {
 
 	void DrawRegistry (const HDC& windowContext) {
 
+		{ // Drawing RICHEDIT outter.
+			HBRUSH brushFill, previousFill;
+			HPEN penBorder, previousBorder;
+		
+			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
+			penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
+		
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
+		
+			Rectangle (
+				windowContext, 
+				wlbLicensePadding.left, 
+				wlbLicensePadding.top, 
+				wlbLicensePadding.right, 
+				wlbLicensePadding.bottom
+			);
+
+			SelectObject (windowContext, previousFill); 	// reversing (restoring to original value)
+			SelectObject (windowContext, previousBorder); 	// reversing (restoring to original value)
+			DeleteObject (brushFill);
+			DeleteObject (penBorder);
+		}
+
 		// Header Text
 		HFONT previousFont = SelectFont (windowContext, fontBold);
 		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
@@ -356,6 +396,11 @@ namespace WINDOW {
 
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionRegistry, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+
+		{ // Text Control
+			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, msgRegistryTop, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
 
 		SelectFont (windowContext, previousFont);
 
@@ -403,7 +448,20 @@ namespace WINDOW {
     	 	DrawTextW (windowContext, msgConfirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
 		}
 
+		if (isRegistry) {
+			const RECT textRegion = { 29, 75 + 56, textRegion.left + 500, textRegion.top + 14 };
+			c16 text[] = L"- Registry keys will be added.";
+			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
+		if (isPath) {
+			const RECT textRegion = { 29, 75 + 56 + 28, textRegion.left + 500, textRegion.top + 14 };
+			c16 text[] = L"- New entry in Environment Variable 'Path' will be added.";
+			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
 		{ // BOT MSG
+		
 			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
 			DrawTextW (windowContext, msgConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
@@ -475,10 +533,10 @@ namespace WINDOW {
 
 	// Once License is read we don't check again for it.
 	void ScrollBarEvent (const HWND& window) {
-		if (!wsLicenseIsActive) {
-			wsLicenseIsActive = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
+		if (!isLicense) {
+			isLicense = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
 
-			if (wsLicenseIsActive) {
+			if (isLicense) {
 				const auto& rect = wsLicensePadding;
 						
 				// Invalidate top border (1 pixel wide).
@@ -552,6 +610,17 @@ namespace WINDOW {
 
 				const HINSTANCE instance = GetWindowInstance (window);
 
+				{ // Extra Controls Initialization
+					INITCOMMONCONTROLSEX commonControls;
+					commonControls.dwSize = sizeof (commonControls);
+		
+					// ICC_BAR_CLASSES -> Toolbars, Statusbars, Tooltips, Progressbars
+					// ICC_LISTVIEW_CLASSES -> ListView
+		
+					commonControls.dwICC = ICC_BAR_CLASSES | ICC_LISTVIEW_CLASSES;
+					InitCommonControlsEx (&commonControls);
+				}
+
 				WINDOWS::CONTROLS::CreateProgressBarRange (
 					wpbDownload, window, instance, 
 					WS_CHILD, 
@@ -561,6 +630,47 @@ namespace WINDOW {
 				//SendMessageW (progressBar, PBM_SETPOS, (WPARAM) 17, 0); // Sets
 				//SendMessageW (progressBar, PBM_DELTAPOS, (WPARAM) 5, 0); // Adds
 				////SendMessageW (progressBar, PBM_STEPIT, 0, 0); // Adds a step. (by step variant)
+
+				{ // ListView
+            		wlbComponents = CreateWindowExW (
+            		    0, WC_LISTVIEWW, nullptr,
+            		    WS_CHILD | LVS_LIST | WS_VISIBLE, //  | LVS_SINGLESEL
+            		    wlbPosition.x, wlbPosition.y, wlbSize.x, wlbSize.y,
+            		    window, (HMENU) ID_LISTVIEW,
+            		    instance, nullptr
+					);
+
+					// LVS_EX_INFOTIP, LVS_EX_LABELTIP
+					//ListView_SetExtendedListViewStyleEx (wlbComponents, NULL, LVS_EX_CHECKBOXES);
+					SendMessageW (wlbComponents, LVM_SETEXTENDEDLISTVIEWSTYLE, NULL, LVS_EX_CHECKBOXES);
+
+            		// Add items to the ListView
+					LVITEMW lvItem = { 0 }; //LVITEMW lvItem;
+            		lvItem.mask = LVIF_TEXT; // | LVIF_STATE;
+            		lvItem.iSubItem = 0;
+
+					//lvItem.stateMask = LVIS_STATEIMAGEMASK;  // Only modify the state (checkbox state)
+					//lvItem.state = INDEXTOSTATEIMAGEMASK (2);
+
+					//  lvItem.state = 1;
+
+            		// Item 1
+            		lvItem.pszText = (LPWSTR) msgLVPath;
+            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 0, (LPARAM) &lvItem);
+
+            		// Item 2
+            		lvItem.pszText = (LPWSTR) msgLVRegistry;
+            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 1, (LPARAM) &lvItem);
+
+					// Issue. Removing 'WS_VISIBLE' from Creation makes text cropped for some reason.
+					// Keeping it and hiding the window later fixes the problem.
+					ShowWindow (wlbComponents, HIDE_WINDOW);
+
+					// Make following items checked by default.
+					ListView_SetCheckState (wlbComponents, 0, true);
+					ListView_SetCheckState (wlbComponents, 1, true);
+				}
+				
 
 				WINDOWS::CONTROLS::CreateRichEdit (
 					rePath, window, instance, 
@@ -653,6 +763,37 @@ namespace WINDOW {
 				EndPaint (window, &paint);
         		
 			} return TRUE;
+
+			case WM_NOTIFY: {
+        	    LPNMHDR pnmhdr = (LPNMHDR) lParam;
+        	    if (pnmhdr->idFrom == ID_LISTVIEW) { //IDC_LISTVIEW
+        	        if (pnmhdr->code == LVN_ITEMCHANGED) {
+			
+        	            LPNMLISTVIEW pnmv = (LPNMLISTVIEW) lParam;
+			
+        	            if (pnmv->uNewState & LVIS_STATEIMAGEMASK) {
+
+							//const u8 UNCHECKED = 1;
+							//const u8 CHECKED = 2;
+
+        	                u8 state = ((pnmv->uNewState & LVIS_STATEIMAGEMASK) >> 12) - 1;
+							u8 item = pnmv->iItem;
+
+							switch (item) {
+								case 0: isRegistry = state; break;
+								case 1: isPath = state; break;
+							}
+			
+        	                //if (state == CHECKED) {
+        	                //    LOGINFO ("%d - checked!\n", item);
+        	                //} else if (state == UNCHECKED) {
+							//	LOGINFO ("%d - unchecked!\n", item);
+        	                //}
+
+        	            }
+        	        }
+        	    }
+        	} break;
 
 			case WM_COMMAND: {
 
@@ -769,7 +910,7 @@ namespace WINDOW {
 							}
 
 							{ // THIS
-								EnableWindow (wbNext, wsLicenseIsActive);
+								EnableWindow (wbNext, isLicense);
 								//if (wsLicenseIsActive == false) SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
 								ShowWindow (wsLicense, SHOW_OPENWINDOW);
@@ -790,6 +931,7 @@ namespace WINDOW {
 							}
 
 							{ // THIS
+								ShowWindow (wlbComponents, HIDE_WINDOW);
 								ShowWindow (wbBrowse, SHOW_OPENWINDOW);
 								ShowWindow (rePath, SHOW_OPENWINDOW);
 							}
@@ -803,6 +945,10 @@ namespace WINDOW {
 								ShowWindow (rePath, HIDE_WINDOW);
 							}
 
+							{ // THIS
+								ShowWindow (wlbComponents, SHOW_OPENWINDOW);
+							}
+
 							{ // NEXT
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
 							}
@@ -812,7 +958,7 @@ namespace WINDOW {
 						case PAGE_TYPE_CONFIRMATION: {
 
 							{ // PREV
-
+								ShowWindow (wlbComponents, HIDE_WINDOW);
 							}
 
 							{ // THIS
