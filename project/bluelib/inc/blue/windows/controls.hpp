@@ -265,7 +265,7 @@ namespace WINDOWS::CONTROLS {
     	scroll.fMask = SIF_ALL;  // Get all scroll information.
 
     	if (GetScrollInfo (window, SB_VERT, &scroll)) {
-			LOGINFO ("Pos: %d, %d\n", scroll.nPos, scroll.nMax - yOffset);
+			//LOGINFO ("Pos: %d, %d\n", scroll.nPos, scroll.nMax - yOffset);
     	    // Check if the current position is at the maximum value.
     	    if (scroll.nPos == (scroll.nMax - yOffset)) return true;
     	}

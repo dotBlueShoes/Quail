@@ -15,30 +15,36 @@
 namespace WINDOW {
 
 	// TEXTS
-	const c16 msgEntryWelcome[] = L"Welcome to Quail Setup Wizard";
-	const c16 msgEntryText[] = L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
-	const c16 msgBrowseTip[] = L"To continue, click Next. If you would like to select a different folder, click Browse.";
-	c16 msgDiskSpace[40] = L"Disk space needed : ";
+	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
+	const c16 msgEntryText[] 		= L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
+	const c16 msgLicenseTop[] 		= L"Scroll down to see the rest of the agreement.";
+	const c16 msgLicenseBottom[] 	= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to rich the end.";
+	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
+	
+	c16 msgDiskSpace[40] 			= L"Disk space needed : ";
 
 	// TEXTS TAGS
-	const c16 msgTagLicense[] = L"License Agreement";
-	const c16 msgTagDirectory[] = L"Directory Selection";
-	const c16 msgTagRegistry[] = L"Registry";
-	const c16 msgTagDownload[] = L"Download";
+	const c16 msgTagLicense[] 		= L"License Agreement";
+	const c16 msgTagDirectory[] 	= L"Directory Selection";
+	const c16 msgTagRegistry[] 		= L"Registry";
+	const c16 msgTagConfirmation[] 	= L"Confirmation";
+	const c16 msgTagDownload[] 		= L"Download";
 
 	// TEXTS DESCRIPTIONS
-	const c16 msgDescriptionLicense[] = L"Please review the license terms before installing 'Quail'.";
-	const c16 msgDescriptionDirectory[] = L"Where should 'Quail' software be installed?";
-	const c16 msgDescriptionRegistry[] = L"Registry";
-	const c16 msgDescriptionDownload[] = L"Download";
+	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing 'Quail'.";
+	const c16 msgDescriptionDirectory[] 	= L"Where should 'Quail' software be installed?";
+	const c16 msgDescriptionRegistry[] 		= L"Registry";
+	const c16 msgDescriptionConfirmation[] 	= L"Confirmation";
+	const c16 msgDescriptionDownload[] 		= L"Download";
 
 	// TEXTS BUTTONS
-	const c16 msgButtonBrowse[] = L"Browse...";
-	const c16 msgButtonFinish[] = L"Finish";
-	const c16 msgButtonCancel[] = L"Cancel";
-	const c16 msgButtonAgree[] = L"I Agree";
-	const c16 msgButtonLast[] = L"< Last";
-	const c16 msgButtonNext[] = L"Next >";
+	const c16 msgButtonBrowse[] 	= L"Browse...";
+	const c16 msgButtonAgree[] 		= L"I Agree";
+	const c16 msgButtonFinish[] 	= L"Finish";
+	const c16 msgButtonCancel[] 	= L"Cancel";
+	const c16 msgButtonLast[] 		= L"< Last";
+	const c16 msgButtonNext[] 		= L"Next >";
+	const c16 msgButtonStart[] 		= L"Start";
 	
 	// IDS
 	const u64 ID_RICHEDIT 	= 0b1001;
@@ -53,12 +59,13 @@ namespace WINDOW {
 
 	// PAGES
 	enum PAGE_TYPE: u8 {
-		PAGE_TYPE_ENTRY 	= 0,
-		PAGE_TYPE_LICENSE 	= 1,
-		PAGE_TYPE_DIRECTORY = 2,
-		PAGE_TYPE_REGISTRY  = 3,
-		PAGE_TYPE_DOWNLOAD  = 4,
-		PAGE_TYPE_EXIT		= 5,
+		PAGE_TYPE_ENTRY 		= 0,
+		PAGE_TYPE_LICENSE 		= 1,
+		PAGE_TYPE_DIRECTORY 	= 2,
+		PAGE_TYPE_REGISTRY  	= 3,
+		PAGE_TYPE_CONFIRMATION 	= 4,
+		PAGE_TYPE_DOWNLOAD  	= 5,
+		PAGE_TYPE_EXIT			= 6,
 	}; u8 currentPage = 0;
 
 	// HANDLERS
@@ -83,10 +90,11 @@ namespace WINDOW {
 		reSize.y + rePosition.y + 1
 	};
 
-	const pair<s16> wsPosition { 29, 100 };
-	const pair<s16> wsSize { 439, 134 };
+	const u16 leftMargin = 10;
+	const pair<s16> wsPosition { 29 + leftMargin, 100 };
+	const pair<s16> wsSize { 439 - leftMargin, 134 };
 	const RECT wsLicensePadding { 
-		wsPosition.x - 1, 
+		wsPosition.x - 1 - leftMargin, 
 		wsPosition.y - 1, 
 		wsSize.x + wsPosition.x + 1, 
 		wsSize.y + wsPosition.y + 1
@@ -306,14 +314,12 @@ namespace WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
-			const c16 text[] = L"Scroll down to see the rest of the agreement.";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, msgLicenseTop, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		{ // Text Control
 			const RECT textRegion = { 29, 257, textRegion.left + 40, textRegion.top + 10 };
-			const c16 text[] = L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`.";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, msgLicenseBottom, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -335,6 +341,25 @@ namespace WINDOW {
 
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionRegistry, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+
+		SelectFont (windowContext, previousFont);
+
+	}
+
+	void DrawConfirmation (const HDC& windowContext) {
+
+		// Header Text
+		HFONT previousFont = SelectFont (windowContext, fontBold);
+		SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+
+		// Text Control
+		DrawTextW (windowContext, msgTagConfirmation, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+
+		SelectFont (windowContext, font);
+
+		// Text Control
+		DrawTextW (windowContext, msgDescriptionConfirmation, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		SelectFont (windowContext, previousFont);
 
@@ -401,6 +426,35 @@ namespace WINDOW {
 
 namespace WINDOW {
 
+	// Once License is read we don't check again for it.
+	void ScrollBarEvent (const HWND& window) {
+		if (!wsLicenseIsActive) {
+			wsLicenseIsActive = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
+
+			if (wsLicenseIsActive) {
+				const auto& rect = wsLicensePadding;
+						
+				// Invalidate top border (1 pixel wide).
+    			const RECT topBorder = { rect.left, rect.top, rect.right, rect.top + 1 };
+    			InvalidateRect (GetParent (window), &topBorder, FALSE);
+
+    			// Invalidate bottom border (1 pixel wide).
+    			const RECT bottomBorder = { rect.left, rect.bottom - 1, rect.right, rect.bottom };
+    			InvalidateRect (GetParent (window), &bottomBorder, FALSE);
+
+    			// Invalidate left border (1 pixel wide).
+    			const RECT leftBorder = { rect.left, rect.top, rect.left + 1, rect.bottom };
+    			InvalidateRect (GetParent (window), &leftBorder, FALSE);
+
+    			// Invalidate right border (1 pixel wide).
+    			const RECT rightBorder = { rect.right - 1, rect.top, rect.right, rect.bottom };
+    			InvalidateRect (GetParent (window), &rightBorder, FALSE);
+
+				EnableWindow (wbNext, true);
+			}
+		}
+	}
+
 	s64 LicenseControlLoop (
 		HWND window, 
 		UINT message, 
@@ -409,49 +463,29 @@ namespace WINDOW {
 	) {
 		
 		switch (message) {
+
+			// Weirldy WM_VSCROLL
+			// 1. Is not sent to it's Parent window
+			// 2. Is not being created via WM_MOUSEWHEEL, WM_MBUTTONDOWN, WM_MBUTTONUP
+			//  - This code re-implements said functionality.
+
+			case WM_MOUSEWHEEL: {
+				//LOGINFO ("Mouse Wheel Scroll\n");
+				ScrollBarEvent (window);
+			} break;
+
+			case WM_MBUTTONDOWN: {
+            	//LOGINFO ("Mouse Wheel Pressed\n");
+				ScrollBarEvent (window);
+			} break;
+
+			case WM_MBUTTONUP: {
+				//LOGINFO ("Mouse Wheel Released\n");
+				ScrollBarEvent (window);
+			} break;
+            
 			case WM_VSCROLL: {
-
-				//case SB_TOP:
-        		//case SB_BOTTOM:
-        		//case SB_LINEUP:
-        		//case SB_LINEDOWN:
-        		//case SB_PAGEUP:
-        		//case SB_PAGEDOWN:
-        		//case SB_THUMBTRACK:
-				
-				if (!wsLicenseIsActive) {
-					wsLicenseIsActive = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
-
-					//SendMessageW (GetParent(window), WM_VSCROLL, wParam, lParam);
-					//LOGINFO ("Call, %d, %d\n", scrollPos, wsLicenseIsActive);
-
-					if (wsLicenseIsActive) {
-						//RECT rcBorder = wsLicensePadding;
-						//InvalidateRect (GetParent (window), &wsLicensePadding, FALSE);
-						//InvalidateRect (GetParent (window), &wsLicensePadding, true);
-						
-						const auto& rect = wsLicensePadding;
-						
-						// Invalidate top border (1 pixel wide).
-    					const RECT topBorder = { rect.left, rect.top, rect.right, rect.top + 1 };
-    					InvalidateRect (GetParent (window), &topBorder, FALSE);
-
-    					// Invalidate bottom border (1 pixel wide).
-    					const RECT bottomBorder = { rect.left, rect.bottom - 1, rect.right, rect.bottom };
-    					InvalidateRect (GetParent (window), &bottomBorder, FALSE);
-
-    					// Invalidate left border (1 pixel wide).
-    					const RECT leftBorder = { rect.left, rect.top, rect.left + 1, rect.bottom };
-    					InvalidateRect (GetParent (window), &leftBorder, FALSE);
-
-    					// Invalidate right border (1 pixel wide).
-    					const RECT rightBorder = { rect.right - 1, rect.top, rect.right, rect.bottom };
-    					InvalidateRect (GetParent (window), &rightBorder, FALSE);
-
-						EnableWindow (wbNext, true);
-					}
-				}
-				
+				ScrollBarEvent (window);
 			} break;
 		}
 
@@ -543,6 +577,14 @@ namespace WINDOW {
 
 			} break;
 
+			//case WM_MOUSEWHEEL: {
+			//	LOGINFO ("call1!\n");
+			//} break;
+			//
+			//case WM_VSCROLL: {
+			//	LOGINFO ("call2!\n");
+			//} break;
+
 			case WM_PAINT: {
 
 				HDC	windowContext;
@@ -551,12 +593,13 @@ namespace WINDOW {
         		windowContext = BeginPaint (window, &paint);
 
 				switch (currentPage) {
-					case PAGE_TYPE_ENTRY: 		DrawEntry (windowContext); 									break;
-					case PAGE_TYPE_LICENSE: 	DrawPage (windowContext); 	DrawLicense (windowContext); 	break;
-					case PAGE_TYPE_DIRECTORY: 	DrawPage (windowContext); 	DrawDirectory (windowContext); 	break;
-					case PAGE_TYPE_REGISTRY: 	DrawPage (windowContext); 	DrawRegistry (windowContext); 	break;
-					case PAGE_TYPE_DOWNLOAD: 	DrawPage (windowContext); 	DrawDownload (windowContext); 	break;
-					case PAGE_TYPE_EXIT: 		DrawExit (windowContext); 									break;
+					case PAGE_TYPE_ENTRY: 			DrawEntry (windowContext); 										break;
+					case PAGE_TYPE_LICENSE: 		DrawPage (windowContext); 	DrawLicense (windowContext); 		break;
+					case PAGE_TYPE_DIRECTORY: 		DrawPage (windowContext); 	DrawDirectory (windowContext); 		break;
+					case PAGE_TYPE_REGISTRY: 		DrawPage (windowContext); 	DrawRegistry (windowContext); 		break;
+					case PAGE_TYPE_CONFIRMATION:	DrawPage (windowContext); 	DrawConfirmation (windowContext); 	break;
+					case PAGE_TYPE_DOWNLOAD: 		DrawPage (windowContext); 	DrawDownload (windowContext); 		break;
+					case PAGE_TYPE_EXIT: 			DrawExit (windowContext); 										break;
 				}
 
 				DrawFooter (windowContext);
@@ -714,15 +757,37 @@ namespace WINDOW {
 							}
 
 							{ // NEXT
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+							}
+							
+						} break;
+
+						case PAGE_TYPE_CONFIRMATION: {
+
+							{ // PREV
+
+							}
+
+							{ // THIS
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonStart);
+							}
+
+							{ // NEXT
 								ShowWindow (wpbDownload, HIDE_WINDOW);
+								EnableWindow (wbNext, true);
 							}
 							
 						} break;
 
 						case PAGE_TYPE_DOWNLOAD: {
 
+							{ // PREV
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+							}
+
 							{ // THIS
 								ShowWindow (wpbDownload, SHOW_OPENWINDOW);
+								EnableWindow (wbNext, false);
 							}
 							
 						} break;
