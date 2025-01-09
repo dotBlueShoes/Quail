@@ -14,14 +14,30 @@
 
 namespace WINDOW {
 
+	// TODO:
+	// CANCEL CONFIRM MSG BOX
+	// Title as Window
+	// Install has not completed. Are you sure you want to exit?
+
+	// - Setting for: Add Quail to Path
+	// - Setting for: Add Quail Registry Keys 
+	// for now it's only path, but in future it will be text format for different outputs or some opti-data.
+
 	// TEXTS
 	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
 	const c16 msgEntryText[] 		= L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
 	const c16 msgLicenseTop[] 		= L"Scroll down to see the rest of the agreement.";
-	const c16 msgLicenseBottom[] 	= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to rich the end.";
+	const c16 msgLicenseBot[] 		= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to rich the end.";
 	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
-	
-	c16 msgDiskSpace[40] 			= L"Disk space needed : ";
+	const c16 msgConfirmationBot[] 	= L"Click 'Start' to install 'Quail'";
+
+	const u8 MAX_EXE_SIZE = 20;
+
+	const u8 MSG_CONFIRMATION_TOP_WITHOUT_SIZE = 41;
+	const u8 MSG_DISK_SPACE_WITHOUT_SIZE = 20;
+
+	c16 msgConfirmationTop[MSG_CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install 'Quail' into: \"";
+	c16 msgDiskSpace[MSG_DISK_SPACE_WITHOUT_SIZE + MAX_EXE_SIZE + 1] 			= L"Disk space needed : ";
 
 	// TEXTS TAGS
 	const c16 msgTagLicense[] 		= L"License Agreement";
@@ -33,8 +49,8 @@ namespace WINDOW {
 	// TEXTS DESCRIPTIONS
 	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing 'Quail'.";
 	const c16 msgDescriptionDirectory[] 	= L"Where should 'Quail' software be installed?";
-	const c16 msgDescriptionRegistry[] 		= L"Registry";
-	const c16 msgDescriptionConfirmation[] 	= L"Confirmation";
+	const c16 msgDescriptionRegistry[] 		= L"Please ";
+	const c16 msgDescriptionConfirmation[] 	= L"You are now ready to install 'Quail' software.";
 	const c16 msgDescriptionDownload[] 		= L"Download";
 
 	// TEXTS BUTTONS
@@ -243,9 +259,8 @@ namespace WINDOW {
 		}
 
 		{
-			const RECT textRegion = { 29, 294, textRegion.left + 40, textRegion.top + 14 }; // bottom variant.
-			// const RECT textRegion = { 29, 128, textRegion.left + 40, textRegion.top + 10 }; // under variant.
-    		swprintf (msgDiskSpace + 20, 20, L"%.2f KB", DISK_SPACE_KB);  // Convert double to wide string
+			const RECT textRegion = { 29, 294, textRegion.left + 40, textRegion.top + 14 };
+    		swprintf (msgDiskSpace + MSG_DISK_SPACE_WITHOUT_SIZE, MAX_EXE_SIZE, L"%.2f KB", DISK_SPACE_KB);
     		DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
@@ -319,7 +334,7 @@ namespace WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 29, 257, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgLicenseBottom, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, msgLicenseBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -360,6 +375,38 @@ namespace WINDOW {
 
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionConfirmation, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+
+		{ // TOP MSG
+		 	const RECT textRegion = { 29, 75, textRegion.left + 500, textRegion.top + (14 * 2) }; // top 
+			//const RECT textRegion = { 29, 155, textRegion.left + 500, textRegion.top + (14 * 4) }; // middle
+			
+    	 	s32 length = swprintf (msgConfirmationTop + MSG_CONFIRMATION_TOP_WITHOUT_SIZE, MAX_PATH, L"%s\".", REGISTRY::topConfigsFolderPath);
+			
+			LOGINFO ("Length: %d", length);
+
+			const u8 MAX_CHARACTERS_IN_LINE = 86;
+
+			if (length > MAX_CHARACTERS_IN_LINE) {
+				// Issue: Possible Memory leak.
+
+				// Move all by one
+				for (u16 i = length; i > MAX_CHARACTERS_IN_LINE; --i) {
+					msgConfirmationTop[i] = msgConfirmationTop[i - 1];
+				}
+
+				msgConfirmationTop[MAX_CHARACTERS_IN_LINE] = L'\n';
+				
+			} else {
+
+			}
+
+    	 	DrawTextW (windowContext, msgConfirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
+		}
+
+		{ // BOT MSG
+			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
+			DrawTextW (windowContext, msgConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
 
 		SelectFont (windowContext, previousFont);
 

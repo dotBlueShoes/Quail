@@ -63,7 +63,6 @@ namespace REGISTRY {
 
 		if (wcsstr (env, quail) != NULL) {
 			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.\n");
-
 		} else {
 			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.\n");
 
@@ -98,10 +97,10 @@ namespace REGISTRY {
 
 	}
 
-	void CreateKeys () {
+	void CreateKeys (const c16*& filepath, const u32& filepathLength) {
 
-		const auto& filepath 		= DEFAULT_FOLDERPATH_W;
-		const auto& filepathLength	= DEFAULT_FOLDERPATH_LENGTH;
+		//const auto& filepath 		= DEFAULT_FOLDERPATH_W;
+		//const auto& filepathLength	= DEFAULT_FOLDERPATH_LENGTH;
 
 		HKEY key;
 		LSTATUS error;
