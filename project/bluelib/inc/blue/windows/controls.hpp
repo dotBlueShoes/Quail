@@ -258,4 +258,21 @@ namespace WINDOWS::CONTROLS {
 		#endif
 	}
 
+	bool IsVerticalScrollbarAtMax (HWND window, s16 yOffset) {
+
+    	SCROLLINFO scroll;
+    	scroll.cbSize = sizeof (scroll);
+    	scroll.fMask = SIF_ALL;  // Get all scroll information.
+
+    	if (GetScrollInfo (window, SB_VERT, &scroll)) {
+			LOGINFO ("Pos: %d, %d\n", scroll.nPos, scroll.nMax - yOffset);
+    	    // Check if the current position is at the maximum value.
+    	    if (scroll.nPos == (scroll.nMax - yOffset)) return true;
+    	}
+		// 32230, 32364 = 134
+		// 32218, 32352 = 134 (dif 12)
+
+    	return false; 
+	}
+
 }

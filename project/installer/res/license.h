@@ -1,5 +1,6 @@
 #pragma once
 #define LICENSE \
+L"\n"\
 "                    GNU GENERAL PUBLIC LICENSE\n"\
 "                       Version 3, 29 June 2007\n"\
 "\n"\

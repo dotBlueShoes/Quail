@@ -24,5 +24,6 @@
 40. Move created window objects outside WM_PAINT
 41. Make sure everything is being destroyed properly.
 48. Make a proper REGISTRY page
-49. Make a proper LICENSE page
 50. Make a proper DOWNLOAD page
+51. Add left padding to LICENSE control
+51. license script -> Make the header include the L"\n"\ (newline) ".

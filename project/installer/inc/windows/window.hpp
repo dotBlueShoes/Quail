@@ -21,13 +21,13 @@ namespace WINDOW {
 	c16 msgDiskSpace[40] = L"Disk space needed : ";
 
 	// TEXTS TAGS
-	const c16 msgTagLicense[] = L"License";
-	const c16 msgTagDirectory[] = L"Directory";
+	const c16 msgTagLicense[] = L"License Agreement";
+	const c16 msgTagDirectory[] = L"Directory Selection";
 	const c16 msgTagRegistry[] = L"Registry";
 	const c16 msgTagDownload[] = L"Download";
 
 	// TEXTS DESCRIPTIONS
-	const c16 msgDescriptionLicense[] = L"License";
+	const c16 msgDescriptionLicense[] = L"Please review the license terms before installing 'Quail'.";
 	const c16 msgDescriptionDirectory[] = L"Where should 'Quail' software be installed?";
 	const c16 msgDescriptionRegistry[] = L"Registry";
 	const c16 msgDescriptionDownload[] = L"Download";
@@ -41,11 +41,12 @@ namespace WINDOW {
 	const c16 msgButtonNext[] = L"Next >";
 	
 	// IDS
-	const u64 ID_RICHEDIT = 0b1001;
+	const u64 ID_RICHEDIT 	= 0b1001;
+	const u64 ID_STATIC	 	= 0b1010;
 
 	// COLORS
-	const COLORREF ACCENT_COLOR			= 0xa0a0a0; // 0xe597b5; -> my system accent color "purple".
-	const COLORREF BORDER_ACTIVE		= 0xd77800;
+	const COLORREF ACCENT_COLOR			= 0xd77800; // 0xe597b5; -> my system accent color "purple".
+	const COLORREF BORDER_INACTIVE		= 0xa0a0a0;
 	const COLORREF BACKGROUND_FIRST 	= 0xffffff;
 	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
 	const COLORREF TEXT_FIRST			= 0x000000;
@@ -62,8 +63,8 @@ namespace WINDOW {
 
 	// HANDLERS
 	HBITMAP image = nullptr;
-	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse;
-	HFONT font, fontBold;
+	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense;
+	HFONT font, fontBold, fontMono;
 	
 	// DATA
 	//c16 defaultFolderPath[MAX_PATH] = { L"C:\\Program Files\\dotBlueShoes\\Quail" };
@@ -75,12 +76,24 @@ namespace WINDOW {
 
 	const pair<s16> rePosition { 28 + 3, 102 + 1 };
 	const pair<s16> reSize { 354 - 3, 19 - 1 };
-	const RECT richeditRectPadding { 
+	const RECT reRectPadding { 
 		rePosition.x - 1 - 3, 
 		rePosition.y - 1 - 1, 
 		reSize.x + rePosition.x + 1, 
 		reSize.y + rePosition.y + 1
 	};
+
+	const pair<s16> wsPosition { 29, 100 };
+	const pair<s16> wsSize { 439, 134 };
+	const RECT wsLicensePadding { 
+		wsPosition.x - 1, 
+		wsPosition.y - 1, 
+		wsSize.x + wsPosition.x + 1, 
+		wsSize.y + wsPosition.y + 1
+	};
+
+	bool wsLicenseIsActive = false;
+	WNDPROC topLicenseControlLoop;
 
 
 	void DrawPage (const HDC& windowContext) {
@@ -120,7 +133,7 @@ namespace WINDOW {
 			HPEN penBorder, previousBorder;
 		
 			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
@@ -183,18 +196,18 @@ namespace WINDOW {
 
 			const auto focussedWindow = GetFocus ();
 
-			if (focussedWindow == rePath) 	penBorder = CreatePen (PS_SOLID, 1, BORDER_ACTIVE);
-			else 							penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			if (focussedWindow == rePath) 	penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			else 							penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
 			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
 		
 			Rectangle (
 				windowContext, 
-				richeditRectPadding.left, 
-				richeditRectPadding.top, 
-				richeditRectPadding.right, 
-				richeditRectPadding.bottom
+				reRectPadding.left, 
+				reRectPadding.top, 
+				reRectPadding.right, 
+				reRectPadding.bottom
 			);
 
 			SelectObject (windowContext, previousFill); 	// reversing (restoring to original value)
@@ -236,7 +249,7 @@ namespace WINDOW {
 	void DrawLicense (const HDC& windowContext) {
 
 		// using RESOURCE file
-    	//HMODULE hModule = GetModuleHandleW (NULL); // Handle to the module (use the current executable)
+    	//HMODULE hModule = GetModuleHandleW (NULL); // Handle to the module (use the current executable) "this is instance variable"
     	//HRSRC hRes = FindResourceW (hModule, MAKEINTRESOURCEW (IDR_LICENSE_FILE), MAKEINTRESOURCEW (10)); // RT_RCDATA // Load the resource
 		//
 		//if (hRes != NULL) {
@@ -249,6 +262,34 @@ namespace WINDOW {
         //	    }
         //	}
     	//}
+
+		{ // Drawing RICHEDIT outter.
+			HBRUSH brushFill, previousFill;
+			HPEN penBorder, previousBorder;
+		
+			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
+
+			const auto focussedWindow = GetFocus ();
+
+			if (wsLicenseIsActive) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			else penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
+		
+			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
+		
+			Rectangle (
+				windowContext, 
+				wsLicensePadding.left, 
+				wsLicensePadding.top, 
+				wsLicensePadding.right, 
+				wsLicensePadding.bottom
+			);
+
+			SelectObject (windowContext, previousFill); 	// reversing (restoring to original value)
+			SelectObject (windowContext, previousBorder); 	// reversing (restoring to original value)
+			DeleteObject (brushFill);
+			DeleteObject (penBorder);
+		}
 
 		// Header Text
 		HFONT previousFont = SelectFont (windowContext, fontBold);
@@ -264,8 +305,15 @@ namespace WINDOW {
 		DrawTextW (windowContext, msgDescriptionLicense, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
-			const RECT textRegion = { 10, 70, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextA (windowContext, LICENSE, -1, (RECT*) &textRegion, DT_NOCLIP);
+			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
+			const c16 text[] = L"Scroll down to see the rest of the agreement.";
+			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
+		{ // Text Control
+			const RECT textRegion = { 29, 257, textRegion.left + 40, textRegion.top + 10 };
+			const c16 text[] = L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`.";
+			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -353,6 +401,64 @@ namespace WINDOW {
 
 namespace WINDOW {
 
+	s64 LicenseControlLoop (
+		HWND window, 
+		UINT message, 
+		WPARAM wParam, 
+		LPARAM lParam
+	) {
+		
+		switch (message) {
+			case WM_VSCROLL: {
+
+				//case SB_TOP:
+        		//case SB_BOTTOM:
+        		//case SB_LINEUP:
+        		//case SB_LINEDOWN:
+        		//case SB_PAGEUP:
+        		//case SB_PAGEDOWN:
+        		//case SB_THUMBTRACK:
+				
+				if (!wsLicenseIsActive) {
+					wsLicenseIsActive = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
+
+					//SendMessageW (GetParent(window), WM_VSCROLL, wParam, lParam);
+					//LOGINFO ("Call, %d, %d\n", scrollPos, wsLicenseIsActive);
+
+					if (wsLicenseIsActive) {
+						//RECT rcBorder = wsLicensePadding;
+						//InvalidateRect (GetParent (window), &wsLicensePadding, FALSE);
+						//InvalidateRect (GetParent (window), &wsLicensePadding, true);
+						
+						const auto& rect = wsLicensePadding;
+						
+						// Invalidate top border (1 pixel wide).
+    					const RECT topBorder = { rect.left, rect.top, rect.right, rect.top + 1 };
+    					InvalidateRect (GetParent (window), &topBorder, FALSE);
+
+    					// Invalidate bottom border (1 pixel wide).
+    					const RECT bottomBorder = { rect.left, rect.bottom - 1, rect.right, rect.bottom };
+    					InvalidateRect (GetParent (window), &bottomBorder, FALSE);
+
+    					// Invalidate left border (1 pixel wide).
+    					const RECT leftBorder = { rect.left, rect.top, rect.left + 1, rect.bottom };
+    					InvalidateRect (GetParent (window), &leftBorder, FALSE);
+
+    					// Invalidate right border (1 pixel wide).
+    					const RECT rightBorder = { rect.right - 1, rect.top, rect.right, rect.bottom };
+    					InvalidateRect (GetParent (window), &rightBorder, FALSE);
+
+						EnableWindow (wbNext, true);
+					}
+				}
+				
+			} break;
+		}
+
+		// Call the original RichEdit window procedure for other messages.
+		return CallWindowProcW (topLicenseControlLoop, window, message, wParam, lParam);
+	}
+
 	s64 WindowLoop (
 		HWND window, 
 		UINT message, 
@@ -378,8 +484,20 @@ namespace WINDOW {
 				WINDOWS::CONTROLS::CreateRichEdit (
 					rePath, window, instance, 
 					rePosition, reSize, 
-					WS_CHILD | WS_TABSTOP, ID_RICHEDIT, REGISTRY::DEFAULT_FOLDERPATH_W
+					WS_CHILD | WS_TABSTOP, 
+					ID_RICHEDIT, REGISTRY::DEFAULT_FOLDERPATH_W
 				);
+
+				WINDOWS::CONTROLS::CreateRichEdit (
+					wsLicense, window, instance, 
+					wsPosition, wsSize,
+					WS_CHILD | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_READONLY,
+					ID_STATIC, LICENSE
+				);
+
+				// Subclass the RichEdit control to catch the WM_VSCROLL messages
+    			topLicenseControlLoop = (WNDPROC) GetWindowLongPtr (wsLicense, GWLP_WNDPROC);
+    			SetWindowLongPtr (wsLicense, GWLP_WNDPROC, (LONG_PTR)LicenseControlLoop);
 				
 				WINDOWS::CONTROLS::CreateButton (
 					wbLast, window, instance, 
@@ -417,7 +535,11 @@ namespace WINDOW {
 					SendMessageW (wbBrowse, WM_SETFONT, WPARAM (font), TRUE);
 					SendMessageW (wbCancel, WM_SETFONT, WPARAM (font), TRUE);
 					SendMessageW (rePath, 	WM_SETFONT, WPARAM (font), TRUE);
+
+					SendMessageW (wsLicense, WM_SETFONT, WPARAM (fontMono), TRUE);
 				}
+
+				//SendMessageW (wsLicense, WM_VSCROLL, SB_LINEDOWN, 0);
 
 			} break;
 
@@ -450,7 +572,7 @@ namespace WINDOW {
 						case EN_SETFOCUS: {
 					
 							if (LOWORD (wParam) == ID_RICHEDIT) {
-								InvalidateRect (window, &richeditRectPadding, true);
+								InvalidateRect (window, &reRectPadding, true);
 							}
 					
 						} break;
@@ -458,7 +580,7 @@ namespace WINDOW {
 						case EN_KILLFOCUS: {
 					
 							if (LOWORD (wParam) == ID_RICHEDIT) {
-								InvalidateRect (window, &richeditRectPadding, true);
+								InvalidateRect (window, &reRectPadding, true);
 							}
 					
 						} break;
@@ -543,9 +665,9 @@ namespace WINDOW {
 							}
 							
 							{ // Next
-								//EnableWindow (wbNext, true); // To disable / enable a button.
+								EnableWindow (wbNext, true);
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
-								ShowWindow (wbNext, SHOW_OPENWINDOW);
+								ShowWindow (wsLicense, HIDE_WINDOW);
 							}
 
 						} break;
@@ -557,8 +679,10 @@ namespace WINDOW {
 							}
 
 							{ // THIS
-								//EnableWindow (wbNext, false); // To disable / enable a button.
+								EnableWindow (wbNext, wsLicenseIsActive);
+								//if (wsLicenseIsActive == false) SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
+								ShowWindow (wsLicense, SHOW_OPENWINDOW);
 							}
 
 							{ // NEXT
@@ -572,6 +696,7 @@ namespace WINDOW {
 
 							{ // PREV
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								ShowWindow (wsLicense, HIDE_WINDOW);
 							}
 
 							{ // THIS
@@ -668,20 +793,29 @@ namespace WINDOW {
 		}
 		
 		{ // FONTS
-			const c16 fontName[] = L"Segoe UI";
+			//const c16 fontNameLicense[] = L"Cascadia Code";
+			const c16 fontNameLicense[] = L"Consolas";
+			const c16 fontNameSystem[] = L"Segoe UI";
+
+			fontMono = CreateFontW (
+				12, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, 
+				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
+				DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, 
+				fontNameLicense
+			);
 
 			fontBold = CreateFontW (
 				16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, 
 				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
 				DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, 
-				fontName
+				fontNameSystem
 			);
 
 			font = CreateFontW (
 				14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, 
 				ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
 				DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, 
-				fontName
+				fontNameSystem
 			);
 		}
 
