@@ -8,7 +8,8 @@ $in = "$path\LICENSE"
 
 
 $header = "#pragma once
-#define LICENSE \"
+#define LICENSE \
+L`"\n`"\"
 
 $comma = '"'
 $newline = "\n`"\"
@@ -21,12 +22,3 @@ $header | Set-Content $out
 #$footer | Add-Content $out
 
 Remove-Item $temp
-
-
-# $newline = "\n`"`"\" - additional string breaking 
-#(Get-Content $in) | ForEach-Object { $_ + $newline } | Add-Content $out
-# (Get-Content $in) | ForEach-Object { $_ + $newline -replace "`"", "\`""} | Add-Content $out - Replace variant
-# Write to file.
-#New-Item -Path $filePath -Force -ItemType "file" -Value "#pragma once
-##define DISK_SPACE_KB $formattedString
-#"

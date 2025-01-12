@@ -1,4 +1,5 @@
 // Created 2024.11.05 by Matthew Strumiłło (dotBlueShoes)
+//  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
 #include <blue/memory.hpp>

@@ -1,4 +1,5 @@
-// Made by Matthew Strumillo 2025-11-01
+// Created 2025-01-11 by Matthew Strumiłło (dotBlueShoes)
+//  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
 
@@ -11,10 +12,11 @@
 
 namespace DOWNLOAD {
 
-	//const c8* URL_QUAIL = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
-	const c8* URL_QUAIL = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
+	const c8* URL_QUAIL = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
+	//const c8* URL_QUAIL = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
 	
 	const c16 EXECUTABLE_NAME[] 		= L"QuailNew.exe";
+	//const c16 EXECUTABLE_NAME[] 		= L"Quail.exe";
 	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
 
 	s32 runningHandles = 1;
@@ -44,8 +46,6 @@ namespace DOWNLOAD {
 		
 		return 0; // SUCCESS
 	}
- 
-	// To make it async -> https://curl.se/libcurl/c/libcurl-multi.html
 
 	void Create (
 		/* OUT */ CURL*& sync, 
@@ -93,72 +93,5 @@ namespace DOWNLOAD {
 		curl_easy_cleanup (sync);
   		curl_global_cleanup ();
 	}
-
-	//void Download (const c16* const& out, HWND progressBar) {
-	//
-	//	CURLMcode errorCode;
-	//	CURLM* multi;
-	//	CURL* curl;
-	//	FILE* file;
-	//	int running = 1;
-	//
-	//	curl_global_init (CURL_GLOBAL_DEFAULT);
-	//	multi = curl_multi_init ();
-	//	curl = curl_easy_init ();
-	//
-	//	curl_easy_setopt (curl, CURLOPT_URL, URL_QUAIL);
-	//	curl_multi_add_handle (multi, curl);
-	//
-	//	do {
-	//		errorCode = curl_multi_perform (multi, &running);
-	//
-	//		if (!errorCode) {
-	//			/* wait for activity, timeout or "nothing" */
-	//			errorCode = curl_multi_poll (multi, NULL, 0, 1000, NULL);
-	//		}
-	//		
-	//		if (errorCode) {
-	//			LOGINFO ("curl_multi_poll() failed, code %d.\n", (int) errorCode);
-	//			break;
-	//		}
-	//
-  	//	} while (running);
-	//
-  	//	curl_multi_remove_handle (multi, curl);
-  	//	curl_multi_cleanup (multi);
-	//	curl_easy_cleanup (curl);
-	//
-  	//	curl_global_cleanup ();
-	//
-	//}
-
-	//void Download (const c16* const& out, HWND progressBar) {
-	//	CURLcode res;
-	//	CURL* curl;
-	//	FILE* file;
-	//
-	//	curl_global_init (CURL_GLOBAL_DEFAULT);
-	//	file = _wfopen (out, L"wb");
-	//	curl = curl_easy_init ();
-	//
-	//	if (curl == nullptr) ERROR ("curl_easy_init() failed\n");
-	//	if (!file) ERROR ("File opening failed\n");
-	//
-	//	curl_easy_setopt (curl, CURLOPT_URL, URL_QUAIL);                		// URL of the file to download.
-	//	curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, WriteDataCallback); 		// Callback function to write.
-	//	curl_easy_setopt (curl, CURLOPT_WRITEDATA, file);            			// File to which we write the data.
-	//	curl_easy_setopt (curl, CURLOPT_NOPROGRESS, 0L);						// Enable progress callback being called.
-	//	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, progressBar);
-	//	curl_easy_setopt (curl, CURLOPT_XFERINFOFUNCTION, CallbackProgress);	// Callback function for progress.
-	//	curl_easy_setopt (curl, CURLOPT_FOLLOWLOCATION, 1L);					// Make libcurl follow the redirect.
-	//	res = curl_easy_perform (curl); 										// Perform the request.
-	//	
-	//	if (res != CURLE_OK) { LOGWARN ("CURL request failed: %s\n", curl_easy_strerror (res)); }
-	//	else { LOGINFO ("File downloaded successfully to %ls\n", out); }
-	//
-	//	fclose (file);
-	//	curl_easy_cleanup (curl);
-	//	curl_global_cleanup();
-	//}
 
 }

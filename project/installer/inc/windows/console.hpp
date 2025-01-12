@@ -1,4 +1,5 @@
-// Made by Matthew Strumillo 2024-12-11
+// Created 2024-12-11 by Matthew Strumiłło (dotBlueShoes)
+//  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
 
@@ -6,15 +7,6 @@
 #include <blue/error.hpp>
 
 #include <windows.h>
-//#include <fcntl.h>
-//#include <io.h>
-
-//#include <windows.h>
-//#include <stdio.h>
-//#include <fcntl.h>
-//#include <io.h>
-//#include <iostream>
-//#include <fstream>
 
 namespace WINDOWS {
 
