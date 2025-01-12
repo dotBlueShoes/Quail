@@ -1,6 +1,8 @@
 # Environmental stuff.
 /build/
 
+/.vs/
+
 # Personal stuff.
 /.ninja/secret.ninja
 */.vscode/

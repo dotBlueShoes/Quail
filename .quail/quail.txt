@@ -1,0 +1,65 @@
+# Quail is an Project-Oriented Alias-like tool.
+#  made by Matthew Strumiłło (dotBlueShoes)
+
+%project_color 	= #d11f48
+
+%quail_dir 		= C:\Program Files\dotBlueShoes\Quail
+%vcvarsall_dir 	= C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
+%vscode_path 	= C:\Program Files\Microsoft VS Code\Code.exe
+%shell			= pwsh -c
+
+%mt_path		= C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe
+%upx_path		= C:\ProgramFilesEx\upx-4.2.4-win64\upx
+
+#?quail_dir		= Path to Quail directory.
+#?vcvarsall_dir	= Path to vcvarsall directory.
+#?vscode_path	= Path to vscode executable.
+#?shell			= Prefered shell for e.g. "pwsh - c".
+
+%pr 			= x64-win-release
+%pd 			= x64-win-debug
+
+# BASIC
+
+!config 		= start "" notepad++ %_path%\.quail\quail.txt
+!terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
+!directory 		= explorer.exe "%_path%"
+!code 			= start "" "%vscode_path%" "%_path%"
+!github			= github "%_path%"
+
+# CMAKE
+
+!refresh_cmake	= %shell% "%_path%\.quail\cmake_refresh.bat" "%_path%" '%vcvarsall_dir%'
+!clear_cmake	= %shell% "%_path%\.quail\cmake_clear.ps1" "%_path%\build"
+
+# BUILDING
+
+!cpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pd%'
+!ccpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pr%'
+
+!bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
+!bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+
+!_ins			= start "" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
+!_iins			= start "" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+
+!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% Installer.exe
+!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% Installer.exe
+
+!compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\installer\Installer.exe" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
+!ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\installer\Installer.exe" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+
+# Issue `datains` requires a compiled executable to make a change inside an executable. (Double compiling)
+#  Instead of changing a header file I should reserve space and apply a post-compile change 
+#  similary to the way manifest files work.
+
+!datains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pd%
+!ddatains		= %shell% "%_path%\.quail\getinsdata" "%_path%" %pr%
+
+!license		= %shell% "%_path%\.quail\getlicense" "%_path%"
+
+|run			= bld,cpy
+|rrun			= bbld,ccpy
+
+|ins			= manifest,compress,_ins
+|iins			= mmanifest,ccompress,_iins
