@@ -2,6 +2,8 @@
 //
 #pragma once
 
+#include <blue/windows/controls.hpp>
+
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
@@ -9,8 +11,8 @@
 #include "../res/license.h"
 #include "../res/data.h"
 
-#include <blue/windows/controls.hpp>
 #include "registry.hpp"
+#include "download.hpp"
 
 namespace WINDOW {
 
@@ -18,10 +20,6 @@ namespace WINDOW {
 	// CANCEL CONFIRM MSG BOX
 	// Title as Window
 	// Install has not completed. Are you sure you want to exit?
-
-	// - Setting for: Add Quail to Path
-	// - Setting for: Add Quail Registry Keys 
-	// for now it's only path, but in future it will be text format for different outputs or some opti-data.
 
 	// TEXTS
 	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
@@ -31,31 +29,39 @@ namespace WINDOW {
 	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
 	const c16 msgRegistryTop[]		= L"Select the components you want to install clear the components you do not want to\ninstall. Click Next when you are ready to continue.";
 	const c16 msgConfirmationBot[] 	= L"Click 'Start' to install 'Quail'";
+	const c16 msgExitTag[]			= L"Completing the Quail Setup Wizard";
+	const c16 msgExitText[]			= L"Setup has finished installing Quail on your computer.";
 
 	const c16 msgLVRegistry[] 		= L"Create necessery Quail Registry Keys (Personal configuration settings)";
 	const c16 msgLVPath[] 			= L"Add Quail to 'Path' variable (Will make Quail accessible from anywere)";
 
 	const u8 MAX_EXE_SIZE = 20;
 
-	const u8 MSG_CONFIRMATION_TOP_WITHOUT_SIZE = 41;
+	const u8 MSG_CONFIRMATION_TOP_WITHOUT_SIZE = 39;
 	const u8 MSG_DISK_SPACE_WITHOUT_SIZE = 20;
 
-	c16 msgConfirmationTop[MSG_CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install 'Quail' into: \"";
+	c16 msgConfirmationTop[MSG_CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install Quail into: \"";
 	c16 msgDiskSpace[MSG_DISK_SPACE_WITHOUT_SIZE + MAX_EXE_SIZE + 1] 			= L"Disk space needed : ";
 
 	// TEXTS TAGS
 	const c16 msgTagLicense[] 		= L"License Agreement";
 	const c16 msgTagDirectory[] 	= L"Directory Selection";
-	const c16 msgTagRegistry[] 		= L"Select Components"; // L"Registry";
+	const c16 msgTagRegistry[] 		= L"Select Components";
 	const c16 msgTagConfirmation[] 	= L"Confirmation";
 	const c16 msgTagDownload[] 		= L"Download";
 
 	// TEXTS DESCRIPTIONS
-	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing 'Quail'.";
-	const c16 msgDescriptionDirectory[] 	= L"Where should 'Quail' software be installed?";
+	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing Quail.";
+	const c16 msgDescriptionDirectory[] 	= L"Where should Quail software be installed?";
 	const c16 msgDescriptionRegistry[] 		= L"Which components should be installed?";
-	const c16 msgDescriptionConfirmation[] 	= L"You are now ready to install 'Quail' software.";
-	const c16 msgDescriptionDownload[] 		= L"Download";
+	const c16 msgDescriptionConfirmation[] 	= L"You are now ready to install Quail software.";
+	const c16 msgDescriptionDownload[] 		= L"Please wait while Wizard installs Quail on your computer.";
+
+	// TEXTS INSTALLER TAGS
+	const c16 msgInstallerTagDownloading[] 	= L"Downloading files . . .";
+	const c16 msgInstallerTagExtracting[] 	= L"Extracting files . . .";
+	const c16 msgInstallerTagRegistry[] 	= L"Creating registry keys . . .";
+	const c16 msgInstallerTagFiles[] 		= L"Creating files . . .";
 
 	// TEXTS BUTTONS
 	const c16 msgButtonBrowse[] 	= L"Browse...";
@@ -98,18 +104,18 @@ namespace WINDOW {
 	const RECT textDescriptionRegion = { 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
 	const RECT textTagRegion = { 16, 5, textTagRegion.left + 40, textTagRegion.top + 10 };
 
-	const pair<s16> rePosition { 28 + 3, 102 + 1 };
-	const pair<s16> reSize { 354 - 3, 19 - 1 };
+	const pair<s16> rePosition { 29 + 3, 102 + 2 };
+	const pair<s16> reSize { 354 - 3, 18 - 1 };
 	const RECT reRectPadding { 
 		rePosition.x - 1 - 3, 
-		rePosition.y - 1 - 1, 
+		rePosition.y - 1 - 2, 
 		reSize.x + rePosition.x + 1, 
 		reSize.y + rePosition.y + 1
 	};
 
 	const u16 wsLeftMargin = 10;
-	const pair<s16> wsPosition { 29 + wsLeftMargin, 100 };
-	const pair<s16> wsSize { 439 - wsLeftMargin, 134 };
+	const pair<s16> wsPosition { 30 + wsLeftMargin, 100 };
+	const pair<s16> wsSize { 438 - wsLeftMargin, 134 };
 	const RECT wsLicensePadding { 
 		wsPosition.x - 1 - wsLeftMargin, 
 		wsPosition.y - 1, 
@@ -119,7 +125,7 @@ namespace WINDOW {
 
 	const pair<s16> wlbMargin { 2, 2 };
 	const pair<s16> wlbPosition { 29 + wlbMargin.x, 118 + wlbMargin.y };
-	const pair<s16> wlbSize { 439 - wlbMargin.x, 64 - wlbMargin.y };
+	const pair<s16> wlbSize { 438 - wlbMargin.x, 64 - wlbMargin.y };
 	const RECT wlbLicensePadding { 
 		wlbPosition.x - 1 - wlbMargin.x, 
 		wlbPosition.y - 1 - wlbMargin.y, 
@@ -127,10 +133,25 @@ namespace WINDOW {
 		wlbSize.y + wlbPosition.y + 1
 	};
 
+	const pair<u16> PROGRESSBAR_RANGE { 0, 255 };
+
 	WNDPROC topLicenseControlLoop;
+
+	bool isInstalling = false;
 	bool isLicense = false;
 	bool isRegistry = true;
 	bool isPath = true;
+
+
+	constexpr bool IsInstalled () {
+		return isInstalling == true && DOWNLOAD::runningHandles == 0;
+	}
+
+
+	constexpr bool IsNotInstalled () {
+		return isInstalling == false && DOWNLOAD::runningHandles == 1;
+	}
+
 
 	void DrawPage (const HDC& windowContext) {
 
@@ -164,23 +185,21 @@ namespace WINDOW {
 
 
 	void DrawFooter (const HDC& windowContext) {
-		{ // Drawing Bottom background.
-			HBRUSH brushFill, previousFill;
-			HPEN penBorder, previousBorder;
+		HBRUSH brushFill, previousFill;
+		HPEN penBorder, previousBorder;
 		
-			brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
-			penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
+		brushFill = CreateSolidBrush (BACKGROUND_SECONDARY);
+		penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
-			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
-			previousBorder = (HPEN) SelectObject (windowContext, penBorder);
+		previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
+		previousBorder = (HPEN) SelectObject (windowContext, penBorder);
 		
-			Rectangle (windowContext, 0, 314, 496, 314 + 46);
+		Rectangle (windowContext, 0, 314, 496, 314 + 46);
 
-			SelectObject (windowContext, previousFill); // reversing (restoring to original value)
-			SelectObject (windowContext, previousBorder); // reversing (restoring to original value)
-			DeleteObject (brushFill);
-			DeleteObject (penBorder);
-		}
+		SelectObject (windowContext, previousFill); // reversing (restoring to original value)
+		SelectObject (windowContext, previousBorder); // reversing (restoring to original value)
+		DeleteObject (brushFill);
+		DeleteObject (penBorder);
 	}
 
 
@@ -400,6 +419,7 @@ namespace WINDOW {
 
 	}
 
+
 	void DrawConfirmation (const HDC& windowContext) {
 
 		// Header Text
@@ -416,27 +436,31 @@ namespace WINDOW {
 		DrawTextW (windowContext, msgDescriptionConfirmation, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // TOP MSG
-		 	const RECT textRegion = { 29, 75, textRegion.left + 500, textRegion.top + (14 * 2) }; // top 
-			//const RECT textRegion = { 29, 155, textRegion.left + 500, textRegion.top + (14 * 4) }; // middle
+		
+		 	const RECT textRegion = { 
+				29, 75, 
+				textRegion.left + 500, 
+				textRegion.top + (14 * 3) 
+			};
 			
-    	 	s32 length = swprintf (msgConfirmationTop + MSG_CONFIRMATION_TOP_WITHOUT_SIZE, MAX_PATH, L"%s\".", REGISTRY::topConfigsFolderPath);
-			
-			LOGINFO ("Length: %d", length);
+    	 	const s32 stringLength = swprintf (
+				msgConfirmationTop + MSG_CONFIRMATION_TOP_WITHOUT_SIZE, 
+				MAX_PATH, 
+				L"%s\".", REGISTRY::topConfigsFolderPath
+			);
 
-			const u8 MAX_CHARACTERS_IN_LINE = 86;
+			{ // Emplace a single new line symbol if the text is to long.
+				const u8 MAX_CHARACTERS_IN_LINE = 86;
 
-			if (length > MAX_CHARACTERS_IN_LINE) {
-				// Issue: Possible Memory leak.
+				if (stringLength > MAX_CHARACTERS_IN_LINE) {
 
-				// Move all by one
-				for (u16 i = length; i > MAX_CHARACTERS_IN_LINE; --i) {
-					msgConfirmationTop[i] = msgConfirmationTop[i - 1];
-				}
+					// Issue: Possible Memory leak. // Move all by one
+					for (u16 i = stringLength; i > MAX_CHARACTERS_IN_LINE; --i) {
+						msgConfirmationTop[i] = msgConfirmationTop[i - 1];
+					}
 
-				msgConfirmationTop[MAX_CHARACTERS_IN_LINE] = L'\n';
-				
-			} else {
-
+					msgConfirmationTop[MAX_CHARACTERS_IN_LINE] = L'\n';
+				} 
 			}
 
     	 	DrawTextW (windowContext, msgConfirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
@@ -454,8 +478,7 @@ namespace WINDOW {
 			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
-		{ // BOT MSG
-		
+		if (IsNotInstalled ()) { // BOT MSG
 			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
 			DrawTextW (windowContext, msgConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
@@ -480,6 +503,21 @@ namespace WINDOW {
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionDownload, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
+
+		{ // Text Control
+			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
+			DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
+		SelectFont (windowContext, fontMono);
+
+		{ // Text Control
+			const RECT textRegion = { 29, 75 + 14 + 4, textRegion.left + 434 - 26, textRegion.top + 16 };
+			DrawTextA (windowContext, DOWNLOAD::URL_QUAIL, -1, (RECT*) &textRegion, 0);
+			const RECT restRegion = { textRegion.right, textRegion.top, 14, 14 };
+			DrawTextA (windowContext, "...", -1, (RECT*) &restRegion, DT_NOCLIP);
+		}
+
 		SelectFont (windowContext, previousFont);
 
 	}
@@ -500,6 +538,28 @@ namespace WINDOW {
         	DeleteDC (sourceContext);
 		}
 
+		{
+			// Header Text
+			HFONT previousFont = SelectFont (windowContext, fontBold);
+			SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
+			SetBkMode (windowContext, TRANSPARENT);   // TODO: why every draw?
+
+			{ // Text Control
+				const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
+				DrawTextW (windowContext, msgExitTag, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+			}
+
+			// Normal Text
+			SelectFont (windowContext, font);
+
+			{ // Text Control
+				const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
+				DrawTextW (windowContext, msgExitText, -1, (RECT*) &textRegion, DT_NOCLIP);
+			}
+
+			SelectFont (windowContext, previousFont);
+		}
+
 	}
 
 
@@ -508,7 +568,54 @@ namespace WINDOW {
 		GetWindowTextW (rePath, REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
 		REGISTRY::topConfigsFolderPathLength *= 2; // wide-character
 
+		LOGINFO ("SyncValidateRichEditPath () Call\n");
+		LOGINFO ("path: %ls\n", REGISTRY::topConfigsFolderPath);
+
 		return IsValidDirectory (REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
+	}
+
+
+	void OnDownloadStarted () {
+		isInstalling = true;
+
+		auto& directoryPathLength = REGISTRY::topConfigsFolderPathLength;
+		auto&& directoryPath = REGISTRY::topConfigsFolderPath;
+		
+		c16* buffer;
+
+		{ // CONSTRUCT (Executable Path)
+			ALLOCATE (c16, buffer, directoryPathLength + DOWNLOAD::EXECUTABLE_NAME_LENGTH + 1);
+
+			memcpy (buffer, directoryPath, directoryPathLength);
+			buffer[(directoryPathLength / 2) - 1] = L'\\';
+			memcpy (buffer + (directoryPathLength / 2), DOWNLOAD::EXECUTABLE_NAME, DOWNLOAD::EXECUTABLE_NAME_LENGTH);
+
+			LOGINFO ("executable filepath: %ls\n", buffer);
+		}
+
+		DOWNLOAD::file = _wfopen (buffer, L"wb");
+		if (!DOWNLOAD::file) ERROR ("File opening failed\n");
+
+		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, DOWNLOAD::file, wpbDownload);
+
+		FREE (buffer);
+	}
+
+
+	void OnDownloadFinished (HWND& window) {
+		isInstalling = false;
+
+		// We're simply simulating a wbNext Click Msg.
+		SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext);
+
+		DOWNLOAD::Delete (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle);
+		fclose (DOWNLOAD::file);
+
+		{ // TODO. Should be presented as seperate state.
+			if (isRegistry) REGISTRY::CreateKeys (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
+			if (isPath) REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
+			REGISTRY::CreateFiles (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
+		}
 	}
 
 }
@@ -525,12 +632,11 @@ namespace WINDOW {
 
 namespace WINDOW {
 
-	// Once License is read we don't check again for it.
-	void ScrollBarEvent (const HWND& window) {
+	void ScrollBarEvent (const HWND& window) { // Once License is read we don't check again for it.
 		if (!isLicense) {
 			isLicense = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
 
-			if (isLicense) {
+			if (isLicense) { // Trigger when scrollbar hit it's y's max value.
 				const auto& rect = wsLicensePadding;
 						
 				// Invalidate top border (1 pixel wide).
@@ -554,6 +660,7 @@ namespace WINDOW {
 		}
 	}
 
+
 	s64 LicenseControlLoop (
 		HWND window, 
 		UINT message, 
@@ -564,22 +671,19 @@ namespace WINDOW {
 		switch (message) {
 
 			// Weirldy WM_VSCROLL
-			// 1. Is not sent to it's Parent window
-			// 2. Is not being created via WM_MOUSEWHEEL, WM_MBUTTONDOWN, WM_MBUTTONUP
+			// 1. Is not sent to it's Parent window.
+			// 2. Is not being created via WM_MOUSEWHEEL, WM_MBUTTONDOWN, WM_MBUTTONUP.
 			//  - This code re-implements said functionality.
 
 			case WM_MOUSEWHEEL: {
-				//LOGINFO ("Mouse Wheel Scroll\n");
 				ScrollBarEvent (window);
 			} break;
 
 			case WM_MBUTTONDOWN: {
-            	//LOGINFO ("Mouse Wheel Pressed\n");
 				ScrollBarEvent (window);
 			} break;
 
 			case WM_MBUTTONUP: {
-				//LOGINFO ("Mouse Wheel Released\n");
 				ScrollBarEvent (window);
 			} break;
             
@@ -591,6 +695,7 @@ namespace WINDOW {
 		// Call the original RichEdit window procedure for other messages.
 		return CallWindowProcW (topLicenseControlLoop, window, message, wParam, lParam);
 	}
+
 
 	s64 WindowLoop (
 		HWND window, 
@@ -604,12 +709,13 @@ namespace WINDOW {
 
 				const HINSTANCE instance = GetWindowInstance (window);
 
-				{ // Extra Controls Initialization
+				{ // Extra controls initialization
 					INITCOMMONCONTROLSEX commonControls;
 					commonControls.dwSize = sizeof (commonControls);
 		
-					// ICC_BAR_CLASSES -> Toolbars, Statusbars, Tooltips, Progressbars
-					// ICC_LISTVIEW_CLASSES -> ListView
+					// Initializes:
+					//  - ICC_BAR_CLASSES -> Toolbars, Statusbars, Tooltips, Progressbars
+					//  - ICC_LISTVIEW_CLASSES -> ListView
 		
 					commonControls.dwICC = ICC_BAR_CLASSES | ICC_LISTVIEW_CLASSES;
 					InitCommonControlsEx (&commonControls);
@@ -618,12 +724,8 @@ namespace WINDOW {
 				WINDOWS::CONTROLS::CreateProgressBarRange (
 					wpbDownload, window, instance, 
 					WS_CHILD, 
-					{ 148, 60 + 42 }, { 200, 15 }, { 0, 255 }
+					{ 28, 60 + 55 }, { 440, 21 }, PROGRESSBAR_RANGE
 				);
-				
-				//SendMessageW (progressBar, PBM_SETPOS, (WPARAM) 17, 0); // Sets
-				//SendMessageW (progressBar, PBM_DELTAPOS, (WPARAM) 5, 0); // Adds
-				////SendMessageW (progressBar, PBM_STEPIT, 0, 0); // Adds a step. (by step variant)
 
 				{ // ListView
             		wlbComponents = CreateWindowExW (
@@ -634,25 +736,16 @@ namespace WINDOW {
             		    instance, nullptr
 					);
 
-					// LVS_EX_INFOTIP, LVS_EX_LABELTIP
-					//ListView_SetExtendedListViewStyleEx (wlbComponents, NULL, LVS_EX_CHECKBOXES);
+					// Adds Checkbox for each item in the list.
 					SendMessageW (wlbComponents, LVM_SETEXTENDEDLISTVIEWSTYLE, NULL, LVS_EX_CHECKBOXES);
 
-            		// Add items to the ListView
-					LVITEMW lvItem = { 0 }; //LVITEMW lvItem;
-            		lvItem.mask = LVIF_TEXT; // | LVIF_STATE;
+            		// Add items to the ListView.
+					LVITEMW lvItem = { 0 };
+            		lvItem.mask = LVIF_TEXT;
             		lvItem.iSubItem = 0;
 
-					//lvItem.stateMask = LVIS_STATEIMAGEMASK;  // Only modify the state (checkbox state)
-					//lvItem.state = INDEXTOSTATEIMAGEMASK (2);
-
-					//  lvItem.state = 1;
-
-            		// Item 1
             		lvItem.pszText = (LPWSTR) msgLVPath;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 0, (LPARAM) &lvItem);
-
-            		// Item 2
             		lvItem.pszText = (LPWSTR) msgLVRegistry;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 1, (LPARAM) &lvItem);
 
@@ -703,7 +796,7 @@ namespace WINDOW {
 				);
 
 				{
-					const pair<s16> position = { rePosition.x + reSize.x + 13, rePosition.y - 3 };
+					const pair<s16> position = { rePosition.x + reSize.x + 11, rePosition.y - 4 };
 					const pair<s16> size = { 75, 23 };
 
 					WINDOWS::CONTROLS::CreateButton (
@@ -724,17 +817,7 @@ namespace WINDOW {
 					SendMessageW (wsLicense, WM_SETFONT, WPARAM (fontMono), TRUE);
 				}
 
-				//SendMessageW (wsLicense, WM_VSCROLL, SB_LINEDOWN, 0);
-
 			} break;
-
-			//case WM_MOUSEWHEEL: {
-			//	LOGINFO ("call1!\n");
-			//} break;
-			//
-			//case WM_VSCROLL: {
-			//	LOGINFO ("call2!\n");
-			//} break;
 
 			case WM_PAINT: {
 
@@ -767,9 +850,6 @@ namespace WINDOW {
 			
         	            if (pnmv->uNewState & LVIS_STATEIMAGEMASK) {
 
-							//const u8 UNCHECKED = 1;
-							//const u8 CHECKED = 2;
-
         	                u8 state = ((pnmv->uNewState & LVIS_STATEIMAGEMASK) >> 12) - 1;
 							u8 item = pnmv->iItem;
 
@@ -777,12 +857,6 @@ namespace WINDOW {
 								case 0: isRegistry = state; break;
 								case 1: isPath = state; break;
 							}
-			
-        	                //if (state == CHECKED) {
-        	                //    LOGINFO ("%d - checked!\n", item);
-        	                //} else if (state == UNCHECKED) {
-							//	LOGINFO ("%d - unchecked!\n", item);
-        	                //}
 
         	            }
         	        }
@@ -846,8 +920,9 @@ namespace WINDOW {
 
 							if (SyncValidateRichEditPath ()) {
 								LOGINFO ("Selected a valid directory for installation.\n");
-
 								currentPage++;
+
+								//REGISTRY::ReplaceFolderPathWithFilePath (REGISTRY::mainConfigFilePath, REGISTRY::topConfigsFolderPathLength); // Update pointer value
 								InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
 							} else {
 								MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
@@ -872,12 +947,10 @@ namespace WINDOW {
             			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffor, MAX_PATH))) {
 
 							// SET.
-							REGISTRY::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;
-							LOGINFO ("length: %d\n", REGISTRY::topConfigsFolderPathLength);
-							memcpy (REGISTRY::topConfigsFolderPath, tempBuffor, REGISTRY::topConfigsFolderPathLength);
-
-							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); // Update RichEdit Control
-							CoTaskMemFree (tempBuffor);	// Release String created via BrowseFolder Control.
+							REGISTRY::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
+							memcpy (REGISTRY::topConfigsFolderPath, tempBuffor, REGISTRY::topConfigsFolderPathLength);	// Copy to my own memory.
+							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); 									// Update RichEdit Control
+							CoTaskMemFree (tempBuffor);																	// Release String created via BrowseFolder Control.
             			}
 						
 					}
@@ -956,7 +1029,11 @@ namespace WINDOW {
 							}
 
 							{ // THIS
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonStart);
+								if (IsNotInstalled ()) {
+									SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonStart);
+								} else {
+									EnableWindow (wbLast, false);
+								}
 							}
 
 							{ // NEXT
@@ -969,12 +1046,19 @@ namespace WINDOW {
 						case PAGE_TYPE_DOWNLOAD: {
 
 							{ // PREV
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64) msgButtonNext);
+								EnableWindow (wbLast, true);
 							}
 
 							{ // THIS
 								ShowWindow (wpbDownload, SHOW_OPENWINDOW);
+								EnableWindow (wbCancel, false);
 								EnableWindow (wbNext, false);
+
+								if (isInstalling == false) { // Once reached it gets blocked.
+									if (DOWNLOAD::runningHandles == 1) OnDownloadStarted ();
+									else SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext); // We're simply simulating a wbNext Click Msg.
+								}
 							}
 							
 						} break;
@@ -982,15 +1066,17 @@ namespace WINDOW {
 						case PAGE_TYPE_EXIT: {
 
 							{ // PREV
+								EnableWindow (wbCancel, true);
+								
 								ShowWindow (wpbDownload, HIDE_WINDOW);
 								ShowWindow (wbLast, HIDE_WINDOW);
 								ShowWindow (wbNext, HIDE_WINDOW);
 							}
 
 							{ // THIS
-								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64)msgButtonFinish); // Change "Close" msg to "Finish".
+								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) msgButtonFinish); // Change "Close" msg to "Finish".
 							}
-							
+
 						} break;
 
 					}

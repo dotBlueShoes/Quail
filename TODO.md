@@ -15,20 +15,23 @@
 19. Decide on 2-Read path + global.conf - so that we can define both at the very end and the begining constants, secrets and varaibles
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 28. Colored debuglogs
-34. Change Installer into Wizard because it's a (Installer, Deinstaller, Fix utility)
+
+--- INSTALLER
+
+34. Change Installer into Wizard because it's a (Installer, Deinstaller, Fix utility).
 35. Make the blp file socked inside .res file or something else.
-36. clear installer code 
-37. fix-do SelectObject clearing
+36. clear installer code.
+37. fix-do SelectObject clearing.
 38. Create another subproject to hold code that is being used by both installer and quail itself. "global" or smth.
-39. ? Maybe create a roadmap using that github tool (tables)
-40. Move created window objects outside WM_PAINT
+39. ? Maybe create a roadmap using that github tool (tables).
+40. Move created window objects outside WM_PAINT.
 41. Make sure everything is being destroyed properly.
-50. Make a proper DOWNLOAD page
 52. license script -> Make the header include the L"\n"\ (newline) ".
-53. Next button HIGHLIGHT and connection to eneter key
+53. Next button HIGHLIGHT and connection to eneter key.
 54. Arrows and Highlight with them.
-55. CURL download from github
-56. Make that download feedback an int that would represent the progress -> associate it with ProgressBar Control
-57. Make it so that when downloading all input controls are disabled (locked). because we no longer can apply changes.
 58. What happends when during download user click "Cancel" ?
-59. What to place at Download page aside ProgressBar ?
+61. Make sure path is always sended corectly.
+62. Clear CMAKE and scripts CMAKE rem does not work corectly.
+64. Mark every code file with license.
+65. Add Adding to registry and file creation to download page.
+66. Create and add an Quail Icon.

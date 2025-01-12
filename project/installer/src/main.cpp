@@ -2,9 +2,6 @@
 
 #include "windows/console.hpp"
 #include "windows/window.hpp"
-#include "registry.hpp"
-
-#include <curl/curl.h>
 
 // TODO
 // 2. See how to interpret curl exe code into libcurl syntax https://everything.curl.dev/examples/get.html
@@ -60,6 +57,11 @@ int WinMain (
 				TranslateMessage (&msg);
 				DispatchMessage (&msg);
 				continue;
+			}
+
+			if (WINDOW::isInstalling) {
+				if (DOWNLOAD::runningHandles == 1) DOWNLOAD::Progress (DOWNLOAD::asyncHandle);
+				else WINDOW::OnDownloadFinished (window);
 			}
 		}
 	}

@@ -34,16 +34,6 @@ target_include_directories (
 )
 
 # --- Add library 'headers' for use to said project
-target_link_libraries (${PROJECT_NAME} kernel32 Comctl32 dwmapi user32 shell32 ole32) #user32
+target_link_libraries (${PROJECT_NAME} kernel32 Comctl32 dwmapi user32 shell32 ole32)
 target_link_libraries (${PROJECT_NAME} BLUELIB)
-#target_link_libraries (${PROJECT_NAME} CURL)
-#target_link_libraries (${PROJECT_NAME} CURL::libcurl_shared)
 target_link_libraries (${PROJECT_NAME} CURL::libcurl_static)
-
-# --- Copy .dlls as 'Folder CPY' inside project build directory. (CURL)
-#add_custom_command ( 
-#	TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_directory
-#		$<TARGET_FILE:CURL> 
-#        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-#)

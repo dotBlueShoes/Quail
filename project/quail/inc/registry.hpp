@@ -22,6 +22,26 @@ namespace REGISTRY {
 
 	// FUNCTIONS
 
+	void ReplaceFolderPathWithFilePath (
+		const c16* const& folderPath,
+		const u32& folderPathLength
+	) {
+		const u32 configFilepathLength = folderPathLength + 1 + REGISTRY::CONFIG_LENGTH;
+		c16* configFilepath; ALLOCATE (c16, configFilepath, configFilepathLength);// = (c16*) malloc (configFilepathLength); // ALLOCATION
+
+		{ // CONSTRUCT
+			memcpy (configFilepath, folderPath, folderPathLength);
+			configFilepath[(folderPathLength / 2) - 1] = L'\\';
+			memcpy (configFilepath + (folderPathLength / 2), REGISTRY::CONFIG_W, REGISTRY::CONFIG_LENGTH);
+		}
+
+		{ // FREE AND SWAP
+			FREE (mainConfigFilePath);
+			mainConfigFilePathLength = configFilepathLength;
+			mainConfigFilePath = configFilepath;
+		}
+	}
+
 	void LoadKeyValues () {
 
 		LSTATUS error;
@@ -66,25 +86,7 @@ namespace REGISTRY {
 		topConfigsFolderPathLength = size;
     	mainConfigFilePath = data;
 
-		{ // Setting up final datatypes.
-			const auto& filepath 		= mainConfigFilePath;
-			const auto& filepathLength	= topConfigsFolderPathLength;
-
-			const u32 configFilepathLength = filepathLength + 1 + REGISTRY::CONFIG_LENGTH;
-			c16* configFilepath; ALLOCATE (c16, configFilepath, configFilepathLength);// = (c16*) malloc (configFilepathLength); // ALLOCATION
-
-			{ // CONSTRUCT
-				memcpy (configFilepath, filepath, filepathLength);
-				configFilepath[(filepathLength / 2) - 1] = L'\\';
-				memcpy (configFilepath + (filepathLength / 2), REGISTRY::CONFIG_W, REGISTRY::CONFIG_LENGTH);
-			}
-
-			{ // FREE AND SWAP
-				FREE (mainConfigFilePath);
-				mainConfigFilePathLength = configFilepathLength;
-				mainConfigFilePath = configFilepath;
-			}
-		}
+		ReplaceFolderPathWithFilePath (mainConfigFilePath, topConfigsFolderPathLength);
 
 	}
 }

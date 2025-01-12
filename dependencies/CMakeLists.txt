@@ -1,11 +1,13 @@
+include (FetchContent)
+
 # --- CURL (STATIC LINKING ALL INCLUDING IT'S LIBRARIES)
 
+set (CURL_USE_SCHANNEL ON)
 set (BUILD_SHARED_LIBS OFF)
 set (BUILD_STATIC_LIBS ON)
 set (CURL_STATICLIB ON)
 set (CURL_ZLIB OFF)
 
-include (FetchContent)
 FetchContent_Declare (
 	curl
 	GIT_REPOSITORY "https://github.com/curl/curl.git"
@@ -14,18 +16,3 @@ FetchContent_Declare (
 )
 
 FetchContent_MakeAvailable (curl)
-
-# --- CURL (DYNAMIC LINKING)
-#set (CURL_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/curl/include)
-#set (CURL_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/curl/bin)
-#set (CURL_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/curl/lib)
-#
-#add_library (CURL SHARED IMPORTED GLOBAL)
-#
-#set_property (TARGET CURL PROPERTY IMPORTED_IMPLIB_RELEASE ${CURL_LIB_DIR}/libcurl.lib)
-#set_property (TARGET CURL PROPERTY IMPORTED_IMPLIB_DEBUG ${CURL_LIB_DIR}/libcurl.lib)
-#set_property (TARGET CURL PROPERTY IMPORTED_LOCATION_RELEASE ${CURL_BIN_DIR})
-#set_property (TARGET CURL PROPERTY IMPORTED_LOCATION_DEBUG ${CURL_BIN_DIR})
-#
-#target_include_directories (CURL INTERFACE ${CURL_INC_DIR})
-# ---

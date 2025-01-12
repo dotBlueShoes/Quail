@@ -18,20 +18,77 @@ namespace REGISTRY {
 	const c16 DEFAULT_FOLDERPATH_W[] 	= L"C:\\Program Files\\dotBlueShoes\\Quail";
 	const u32 DEFAULT_FOLDERPATH_LENGTH	= sizeof (DEFAULT_FOLDERPATH_W);
 
-	const c16 CONFIG_W[]				= L"config.txt";
-	const u32 CONFIG_LENGTH				= sizeof (CONFIG_W);
+	const c16 MAIN_CONFIG_W[]			= L"config.txt";
+	const u32 MAIN_CONFIG_LENGTH		= sizeof (MAIN_CONFIG_W);
 
-	const c16 GLOBAL_W[]				= L"global.txt";
-	const u32 GLOBAL_LENGTH				= sizeof (GLOBAL_W);
+	const c16 GLOBAL_CONFIG_W[]			= L"global.txt";
+	const u32 GLOBAL_CONFIG_LENGTH		= sizeof (GLOBAL_CONFIG_W);
 
 	// VARIABLES
 
 	u32 topConfigsFolderPathLength;		// Where are quail top configs.
-	c16* topConfigsFolderPath; 
-	u32 mainConfigFilePathLength;		// Full filepath to quail "main" config.
-	c16* mainConfigFilePath;
+	c16* topConfigsFolderPath;
 
 	// FUNCTIONS
+
+	//void ReplaceFolderPathWithFilePath (
+	//	const c16* const& folderPath,
+	//	const u32& folderPathLength
+	//) {
+	//	const u32 configFilepathLength = folderPathLength + 1 + REGISTRY::CONFIG_LENGTH;
+	//	c16* configFilepath; ALLOCATE (c16, configFilepath, configFilepathLength);// = (c16*) malloc (configFilepathLength); // ALLOCATION
+	//
+	//	{ // CONSTRUCT
+	//		memcpy (configFilepath, folderPath, folderPathLength);
+	//		configFilepath[(folderPathLength / 2) - 1] = L'\\';
+	//		memcpy (configFilepath + (folderPathLength / 2), REGISTRY::CONFIG_W, REGISTRY::CONFIG_LENGTH);
+	//	}
+	//
+	//	{ // FREE AND SWAP
+	//		FREE (mainConfigFilePath);
+	//		mainConfigFilePathLength = configFilepathLength;
+	//		mainConfigFilePath = configFilepath;
+	//	}
+	//}
+
+	void CreateFiles (const u32& directoryPathLength, const c16* const& directoryPath) {
+		c16* buffer;
+
+		{ // Main Config
+			{ // CONSTRUCT (Main Config Path)
+				ALLOCATE (c16, buffer, directoryPathLength + REGISTRY::MAIN_CONFIG_LENGTH + 1);
+
+				memcpy (buffer, directoryPath, directoryPathLength);
+				buffer[(directoryPathLength / 2) - 1] = L'\\';
+				memcpy (buffer + (directoryPathLength / 2), REGISTRY::MAIN_CONFIG_W, REGISTRY::MAIN_CONFIG_LENGTH);
+
+				LOGINFO ("main config filepath: %ls\n", buffer);
+			}
+
+			if (!IO::IsExisting (buffer)) { IO::Create (buffer); }
+			else { LOGWARN ("main config file arleady exists.\n"); }
+
+			FREE (buffer);
+		}
+
+		{ // Global Config
+			{ // CONSTRUCT (Global Config Path)
+				ALLOCATE (c16, buffer, directoryPathLength + REGISTRY::GLOBAL_CONFIG_LENGTH + 1);
+
+				memcpy (buffer, directoryPath, directoryPathLength);
+				buffer[(directoryPathLength / 2) - 1] = L'\\';
+				memcpy (buffer + (directoryPathLength / 2), REGISTRY::GLOBAL_CONFIG_W, REGISTRY::GLOBAL_CONFIG_LENGTH);
+
+				LOGINFO ("global config filepath: %ls\n", buffer);
+			}
+
+			if (!IO::IsExisting (buffer)) { IO::Create (buffer); }
+			else { LOGWARN ("global config file arleady exists.\n"); }
+
+			FREE (buffer);
+		}
+	}
+
 
 	void AddQuailToPath (
 		const u16& quailLength,
@@ -97,7 +154,8 @@ namespace REGISTRY {
 
 	}
 
-	void CreateKeys (const c16*& filepath, const u32& filepathLength) {
+
+	void CreateKeys (const u32& filepathLength, const c16* const& filepath) {
 
 		//const auto& filepath 		= DEFAULT_FOLDERPATH_W;
 		//const auto& filepathLength	= DEFAULT_FOLDERPATH_LENGTH;
@@ -122,12 +180,10 @@ namespace REGISTRY {
         	ERROR ("Creating key failed.\n\n");
     	}
 
-		if (status == REG_CREATED_NEW_KEY) {
-			LOGINFO ("Key Created\n");
-		} else if (status == REG_OPENED_EXISTING_KEY) {
-			LOGINFO ("Key Openned\n");
-		} else {
-			ERROR ("Unknown key-status\n\n");
+		switch (status) {
+			case REG_CREATED_NEW_KEY: 		LOGINFO ("Key successfully created.\n"); 	break;
+			case REG_OPENED_EXISTING_KEY: 	LOGWWARN ("Key arleady exists.\n"); 		break;
+			default: 						ERROR ("Unknown key-status\n\n");
 		}
 
 		error = RegSetValueExW (
