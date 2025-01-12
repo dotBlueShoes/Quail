@@ -11,7 +11,8 @@
 
 namespace DOWNLOAD {
 
-	const c8* URL_QUAIL = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
+	//const c8* URL_QUAIL = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
+	const c8* URL_QUAIL = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
 	
 	const c16 EXECUTABLE_NAME[] 		= L"QuailNew.exe";
 	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
