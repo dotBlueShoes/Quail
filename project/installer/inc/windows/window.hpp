@@ -1126,9 +1126,7 @@ namespace WINDOW {
 		}
 
 		{ // IMAGES
-			const c16 pathFile[] = L"C:\\Projects\\Quail\\project\\installer\\res\\wizard-background.bmp";
-			image = (HBITMAP) LoadImageW (instance, pathFile, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-			DEBUG (DEBUG_FLAG_LOGGING) if (image == nullptr) { LOGERROR ("Could not load image! %d\n", GetLastError ()); }
+			image = LoadBitmap (GetModuleHandle (NULL), MAKEINTRESOURCE (IDB_BITMAP1));
 		}
 		
 		{ // FONTS

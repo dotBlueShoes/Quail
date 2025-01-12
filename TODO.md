@@ -20,17 +20,20 @@
 
 34. Change Installer into Wizard because it's a (Installer, Deinstaller, Fix utility).
 37. fix-do SelectObject clearing.
-38. Create another subproject to hold code that is being used by both installer and quail itself. "global" or smth.
+
 39. ? Maybe create a roadmap using that github tool (tables).
 40. Move created window objects outside WM_PAINT.
 41. Make sure everything is being destroyed properly.
 53. Next button HIGHLIGHT and connection to eneter key.
 54. Arrows and Highlight with them.
-62. Clear CMAKE and scripts CMAKE rem does not work corectly.
-66. Create and add an Quail Icon.
-67. Add Proper Adding to registry and file creation to download page.
+67. Add Proper Adding (it's own step) to registry and file creation to download page.
 68. Proper "Cancel" handling.
+69. Make script for automatic releases.
 
-35. Make the blp file socked inside .res file or something else.
-64. Mark every code file with license.
-52. license script -> Make the header include the L"\n"\ (newline) ".
+38. Create another subproject to hold code that is being used by both installer and quail itself. "global" or smth.
+66. Create and add an Quail Icon.
+62. Clear CMAKE and scripts CMAKE rem does not work corectly.
+70. Make script for creating bn.h (buildnumber) and use it.
+71. Make installer displayed centered.
+72. Clear everyting!
+
