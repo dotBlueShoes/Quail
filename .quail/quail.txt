@@ -1,6 +1,10 @@
 # Quail is an Project-Oriented Alias-like tool.
 #  made by Matthew Strumiłło (dotBlueShoes)
 
+# TODO
+# Subproject quail.
+# Quail Installer, Uninstaller
+
 %project_color 	= #d11f48
 
 %quail_dir 		= C:\Program Files\dotBlueShoes\Quail
@@ -42,6 +46,9 @@
 
 !_ins			= start "" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
 !_iins			= start "" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
+
+!_uni			= start "" "%_path%\build\%pd%\project\uninstaller\uninstall.exe"
+!_uuni			= start "" "%_path%\build\%pd%\project\uninstaller\uninstall.exe"
 
 !manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% Installer.exe
 !mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% Installer.exe

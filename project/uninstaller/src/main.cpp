@@ -4,6 +4,8 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
+#include <global/registry.hpp>
+
 int WinMain (
 	HINSTANCE	instance,
 	HINSTANCE	previousInstance,
@@ -16,6 +18,7 @@ int WinMain (
     UNREFERENCED_PARAMETER (isConsole);
 
 	LOGINFO ("Application Statred!\n");
+	WINDOWS::REGISTRY::Sample();
 
 	MessageBoxW (nullptr, L"Uninstallation was Succesfull", L"Quail Uninstallation", MB_OK);
 

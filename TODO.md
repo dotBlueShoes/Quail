@@ -28,12 +28,14 @@
 67. Add Proper Adding (it's own step) to registry and file creation to download page.
 68. Proper "Cancel" handling.
 69. Make script for automatic releases.
+75. Make it run on a seperate Threat if necessery.
 
 38. Create another subproject to hold code that is being used by both installer, uninstaller and quail itself. "global" or smth.
 66. Create and add an Quail Icon.
-62. Clear CMAKE and scripts CMAKE rem does not work corectly.
 70. Make script for creating bn.h (buildnumber) and use it.
 71. Make installer displayed centered.
 72. Clear everyting!
-73. make a simple uninstaller utility.
 
+73. Make a simple uninstaller utility.
+74. Make quail scripts for uninstaller to. (manifest file, upx) 
+76. 

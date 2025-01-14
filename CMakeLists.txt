@@ -23,6 +23,7 @@ add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
 # --- Project's sources
 
 add_subdirectory (project/bluelib)
+add_subdirectory (project/global)
 add_subdirectory (project/quail)
 add_subdirectory (project/installer)
 add_subdirectory (project/uninstaller)
