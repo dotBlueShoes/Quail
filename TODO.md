@@ -18,7 +18,6 @@
 
 --- INSTALLER
 
-34. Change Installer into Wizard because it's a (Installer, Deinstaller, Fix utility).
 37. fix-do SelectObject clearing.
 
 39. ? Maybe create a roadmap using that github tool (tables).
@@ -30,10 +29,11 @@
 68. Proper "Cancel" handling.
 69. Make script for automatic releases.
 
-38. Create another subproject to hold code that is being used by both installer and quail itself. "global" or smth.
+38. Create another subproject to hold code that is being used by both installer, uninstaller and quail itself. "global" or smth.
 66. Create and add an Quail Icon.
 62. Clear CMAKE and scripts CMAKE rem does not work corectly.
 70. Make script for creating bn.h (buildnumber) and use it.
 71. Make installer displayed centered.
 72. Clear everyting!
+73. make a simple uninstaller utility.
 

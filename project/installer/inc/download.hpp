@@ -8,25 +8,16 @@
 
 #include <curl/curl.h>
 
-#include "registry.hpp"
-
 namespace DOWNLOAD {
 
-	const c8* URL_QUAIL = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
-	//const c8* URL_QUAIL = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
-	
-	const c16 EXECUTABLE_NAME[] 		= L"QuailNew.exe";
-	//const c16 EXECUTABLE_NAME[] 		= L"Quail.exe";
-	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
-
-	s32 runningHandles = 1;
+	s32 runningHandles = 0;
 	CURLM* asyncHandle;
 	CURL* syncHandle;
-	FILE* file;
 
 	u64 WriteDataCallback (void* buffer, u64 size, u64 nmemb, FILE *stream) {
 		return fwrite (buffer, size, nmemb, stream);
 	}
+
 
 	int CallbackProgress (
 		void *clientp, 
@@ -47,11 +38,13 @@ namespace DOWNLOAD {
 		return 0; // SUCCESS
 	}
 
+
 	void Create (
 		/* OUT */ CURL*& sync, 
 		/* OUT */ CURLM*& async, 
 		/* OUT */ FILE*& filePath, 
-		/* IN  */ const HWND& progressBar
+		/* IN  */ const HWND& progressBar,
+		/* IN  */ const c8* const& url
 	) {
 		curl_global_init (CURL_GLOBAL_DEFAULT);
 		async = curl_multi_init ();
@@ -62,7 +55,7 @@ namespace DOWNLOAD {
 
 		curl_multi_add_handle (async, sync);
 
-		curl_easy_setopt (sync, CURLOPT_URL, URL_QUAIL);						// URL of the file to download.
+		curl_easy_setopt (sync, CURLOPT_URL, url);								// URL of the file to download.
 		curl_easy_setopt (sync, CURLOPT_WRITEFUNCTION, WriteDataCallback); 		// Callback function to write.
 		curl_easy_setopt (sync, CURLOPT_WRITEDATA, filePath);            		// File to which we write the data.
 		curl_easy_setopt (sync, CURLOPT_NOPROGRESS, 0L);						// Enable progress callback being called.
@@ -70,6 +63,7 @@ namespace DOWNLOAD {
 		curl_easy_setopt (sync, CURLOPT_XFERINFOFUNCTION, CallbackProgress);	// Callback function for progress.
 		curl_easy_setopt (sync, CURLOPT_FOLLOWLOCATION, 1L);					// Make libcurl follow the redirect.
 	}
+
 
 	void Progress (
 		/* OUT */ CURLM*& async
@@ -83,6 +77,7 @@ namespace DOWNLOAD {
 			LOGWARN ("curl_multi_poll() failed, code %d.\n", (int) errorCode);
 		}
 	}
+
 
 	void Delete (
 		/* OUT */ CURL*& sync,

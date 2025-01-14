@@ -8,6 +8,7 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
+#include "../installation.hpp"
 #include "registry.hpp"
 #include "download.hpp"
 
@@ -134,20 +135,15 @@ namespace WINDOWS::WINDOW {
 
 	WNDPROC topLicenseControlLoop;
 
-	bool isInstalling = false;
-	bool isLicense = false;
-	bool isRegistry = true;
-	bool isPath = true;
-
-
-	constexpr bool IsInstalled () {
-		return isInstalling == true && DOWNLOAD::runningHandles == 0;
-	}
-
-
-	constexpr bool IsNotInstalled () {
-		return isInstalling == false && DOWNLOAD::runningHandles == 1;
-	}
+	//bool isInstalling = false;
+	//constexpr bool IsInstalled () {
+	//	return isInstalling == true && DOWNLOAD::runningHandles == 0;
+	//}
+	//
+	//
+	//constexpr bool IsNotInstalled () {
+	//	return isInstalling == false && DOWNLOAD::runningHandles == 1;
+	//}
 
 
 	void DrawPage (const HDC& windowContext) {
@@ -320,7 +316,7 @@ namespace WINDOWS::WINDOW {
 		
 			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
 
-			if (isLicense) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			if (INSTALLATION::isLicense) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
 			else penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
@@ -463,19 +459,19 @@ namespace WINDOWS::WINDOW {
     	 	DrawTextW (windowContext, msgConfirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
 		}
 
-		if (isRegistry) {
+		if (INSTALLATION::isRegistry) {
 			const RECT textRegion = { 29, 75 + 56, textRegion.left + 500, textRegion.top + 14 };
 			c16 text[] = L"- Registry keys will be added.";
 			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
-		if (isPath) {
+		if (INSTALLATION::isPath) {
 			const RECT textRegion = { 29, 75 + 56 + 28, textRegion.left + 500, textRegion.top + 14 };
 			c16 text[] = L"- New entry in Environment Variable 'Path' will be added.";
 			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
-		if (IsNotInstalled ()) { // BOT MSG
+		if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) { // BOT MSG
 			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
 			DrawTextW (windowContext, msgConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
@@ -500,19 +496,38 @@ namespace WINDOWS::WINDOW {
 		// Text Control
 		DrawTextW (windowContext, msgDescriptionDownload, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
-
-		{ // Text Control
-			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &textRegion, DT_NOCLIP);
-		}
-
 		SelectFont (windowContext, fontMono);
 
-		{ // Text Control
-			const RECT textRegion = { 29, 75 + 14 + 4, textRegion.left + 434 - 26, textRegion.top + 16 };
-			DrawTextA (windowContext, DOWNLOAD::URL_QUAIL, -1, (RECT*) &textRegion, 0);
-			const RECT restRegion = { textRegion.right, textRegion.top, 14, 14 };
-			DrawTextA (windowContext, "...", -1, (RECT*) &restRegion, DT_NOCLIP);
+		switch (INSTALLATION::currentPhase) { // Text Control 
+
+			case INSTALLATION::PHASE_DOWNLOAD_MAIN: {
+				DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_EXECUTABLE, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
+			} break;
+
+			case INSTALLATION::PHASE_DOWNLOAD_UNINSTALLER: {
+				DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_UNINSTALLER, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
+			} break;
+
+			case INSTALLATION::PHASE_CREATE_REGISTRY: {
+				DrawTextW (windowContext, msgInstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, "Adding registry keys", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+			} break;
+
+			case INSTALLATION::PHASE_CREATE_PATH: {
+				DrawTextW (windowContext, msgInstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, "Adding quail to path enviroment variable", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+			} break;
+
+			case INSTALLATION::PHASE_CREATE_FILES: {
+				DrawTextW (windowContext, msgInstallerTagFiles, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, "Creating necessary quail files", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+			} break;
+
+			default: break;
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -572,47 +587,14 @@ namespace WINDOWS::WINDOW {
 	}
 
 
-	void OnDownloadStarted () {
-		isInstalling = true;
+	void FinishInstallation (HWND& window) {
 
-		auto& directoryPathLength = CONFIGURATION::topConfigsFolderPathLength;
-		auto&& directoryPath = CONFIGURATION::topConfigsFolderPath;
-		
-		c16* buffer;
-
-		{ // CONSTRUCT (Executable Path)
-			ALLOCATE (c16, buffer, directoryPathLength + DOWNLOAD::EXECUTABLE_NAME_LENGTH + 1);
-
-			memcpy (buffer, directoryPath, directoryPathLength);
-			buffer[(directoryPathLength / 2) - 1] = L'\\';
-			memcpy (buffer + (directoryPathLength / 2), DOWNLOAD::EXECUTABLE_NAME, DOWNLOAD::EXECUTABLE_NAME_LENGTH);
-
-			LOGINFO ("executable filepath: %ls\n", buffer);
-		}
-
-		DOWNLOAD::file = _wfopen (buffer, L"wb");
-		if (!DOWNLOAD::file) ERROR ("File opening failed\n");
-
-		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, DOWNLOAD::file, wpbDownload);
-
-		FREE (buffer);
-	}
-
-
-	void OnDownloadFinished (HWND& window) {
-		isInstalling = false;
+		INSTALLATION::currentPhase = INSTALLATION::PHASE_NONE;
+		currentPage = PAGE_TYPE_EXIT - 1;
 
 		// We're simply simulating a wbNext Click Msg.
 		SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext);
 
-		DOWNLOAD::Delete (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle);
-		fclose (DOWNLOAD::file);
-
-		{ // TODO. Should be presented as seperate state.
-			if (isRegistry) REGISTRY::CreateKeys (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
-			if (isPath) REGISTRY::AddQuailToPath (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
-			REGISTRY::CreateFiles (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
-		}
 	}
 
 }
@@ -630,10 +612,10 @@ namespace WINDOWS::WINDOW {
 namespace WINDOWS::WINDOW {
 
 	void ScrollBarEvent (const HWND& window) { // Once License is read we don't check again for it.
-		if (!isLicense) {
-			isLicense = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
+		if (!INSTALLATION::isLicense) {
+			INSTALLATION::isLicense = WINDOWS::CONTROLS::IsVerticalScrollbarAtMax (wsLicense, wsSize.y);
 
-			if (isLicense) { // Trigger when scrollbar hit it's y's max value.
+			if (INSTALLATION::isLicense) { // Trigger when scrollbar hit it's y's max value.
 				const auto& rect = wsLicensePadding;
 						
 				// Invalidate top border (1 pixel wide).
@@ -851,8 +833,8 @@ namespace WINDOWS::WINDOW {
 							u8 item = pnmv->iItem;
 
 							switch (item) {
-								case 0: isRegistry = state; break;
-								case 1: isPath = state; break;
+								case 0: INSTALLATION::isRegistry = state; break;
+								case 1: INSTALLATION::isPath = state; break;
 							}
 
         	            }
@@ -974,7 +956,7 @@ namespace WINDOWS::WINDOW {
 							}
 
 							{ // THIS
-								EnableWindow (wbNext, isLicense);
+								EnableWindow (wbNext, INSTALLATION::isLicense);
 								//if (wsLicenseIsActive == false) SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
 								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
 								ShowWindow (wsLicense, SHOW_OPENWINDOW);
@@ -1026,7 +1008,7 @@ namespace WINDOWS::WINDOW {
 							}
 
 							{ // THIS
-								if (IsNotInstalled ()) {
+								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
 									SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonStart);
 								} else {
 									EnableWindow (wbLast, false);
@@ -1052,9 +1034,12 @@ namespace WINDOWS::WINDOW {
 								EnableWindow (wbCancel, false);
 								EnableWindow (wbNext, false);
 
-								if (isInstalling == false) { // Once reached it gets blocked.
-									if (DOWNLOAD::runningHandles == 1) OnDownloadStarted ();
-									else SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext); // We're simply simulating a wbNext Click Msg.
+								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
+									INSTALLATION::BeginPhaseOne (wpbDownload);
+								}
+
+								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_END) {
+									SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext); // We're simply simulating a wbNext Click Msg.
 								}
 							}
 							

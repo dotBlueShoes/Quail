@@ -1,0 +1,4 @@
+#pragma code_page(1250)
+
+// With this WINDOWS OS will recognize what's the app icon.
+IDI_ICON_MAIN ICON "icon_main.ico"

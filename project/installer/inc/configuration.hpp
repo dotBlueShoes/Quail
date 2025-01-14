@@ -17,6 +17,20 @@ namespace CONFIGURATION {
 	
 	const c16 GLOBAL_CONFIG_W[]		= L"global.txt";
 	const u32 GLOBAL_CONFIG_LENGTH	= sizeof (GLOBAL_CONFIG_W);
+
+
+	const c8* URL_QUAIL_EXECUTABLE = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
+	//const c8* URL_QUAIL_EXECUTABLE = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
+
+	const c8* URL_QUAIL_UNINSTALLER = "https://github.com/dotBlueShoes/bta-Gems/releases/download/0.4.5/gems_mod-0.4.5.jar";
+	//const c8* URL_QUAIL_UNINSTALLER = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/uninstaller.exe";
+
+	const c16 EXECUTABLE_NAME[] 		= L"QuailNew.exe";
+	//const c16 EXECUTABLE_NAME[] 		= L"Quail.exe";
+	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
+
+	const c16 UNINSTALLER_NAME[] 		= L"uninstall.exe";
+	const u32 UNINSTALLER_NAME_LENGTH 	= sizeof (UNINSTALLER_NAME);
 	
 	u32 topConfigsFolderPathLength;		// Where are quail top configs.
 	c16* topConfigsFolderPath;

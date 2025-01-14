@@ -1,5 +1,5 @@
 # --- Define a 'subproject'
-project (Installer VERSION 0.3.0 LANGUAGES C CXX)
+project (uninstall VERSION 0.3.0 LANGUAGES C CXX)
 
 
 # --- Add 'headers' to a variable.
@@ -12,12 +12,12 @@ file (GLOB_RECURSE HEADER_FILES
 # --- Profile-based actions
 if ( ${PROFILE} EQUAL 0 ) 
 
-	message ("Debug Installer Compilation!")
+	message ("Debug uninstall Compilation!")
 	add_compile_definitions (DEBUG_TYPE=${DEBUG_FLAG_LOGGING}+${DEBUG_FLAG_MEMORY})
 	
 elseif ( ${PROFILE} EQUAL 1 )
 
-	message ("Release Installer Compilation!")
+	message ("Release uninstall Compilation!")
 	add_compile_definitions (DEBUG_TYPE=0)
 	
 endif ()
@@ -28,7 +28,7 @@ set (WIN_RESOURCES ${PROJECT_SOURCE_DIR}/res/res_main.rc)
 
 
 # --- Build Type
-add_executable ( # WinAPI EXE _winmain - starting point
+add_executable (
 	${PROJECT_NAME} WIN32 ${HEADER_FILES} 
 	src/main.cpp
 	${WIN_RESOURCES}

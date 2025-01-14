@@ -6,6 +6,8 @@
 #include "windows/console.hpp"
 #include "windows/window.hpp"
 
+#include "installation.hpp"
+
 int WinMain (
 	HINSTANCE	instance,
 	HINSTANCE	previousInstance,
@@ -31,6 +33,9 @@ int WinMain (
 		HWND window; WINDOWS::WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
 		MSG msg { 0 }; 
 
+
+		auto&& progressBar = WINDOWS::WINDOW::wpbDownload;
+
 		while (msg.message != WM_QUIT) { // Main loop
 			if (PeekMessage (&msg, NULL, 0U, 0U, PM_REMOVE)) {
 				TranslateMessage (&msg);
@@ -38,9 +43,26 @@ int WinMain (
 				continue;
 			}
 
-			if (WINDOWS::WINDOW::isInstalling) {
-				if (DOWNLOAD::runningHandles == 1) DOWNLOAD::Progress (DOWNLOAD::asyncHandle);
-				else WINDOWS::WINDOW::OnDownloadFinished (window);
+			switch (INSTALLATION::currentPhase) {
+
+				// TODO: If Else inside can be replaced with a function pointer array.
+
+				case INSTALLATION::PHASE_DOWNLOAD_MAIN: {
+					if (DOWNLOAD::runningHandles == 1) { DOWNLOAD::Progress (DOWNLOAD::asyncHandle); }
+					else { INSTALLATION::EndPhaseOne (); INSTALLATION::BeginPhaseTwo (progressBar); }
+				} break;
+
+				case INSTALLATION::PHASE_DOWNLOAD_UNINSTALLER: {
+					if (DOWNLOAD::runningHandles == 1) { DOWNLOAD::Progress (DOWNLOAD::asyncHandle); }
+					else { INSTALLATION::EndPhaseTwo (); }
+				} break;
+
+				case INSTALLATION::PHASE_CREATE_REGISTRY: 	INSTALLATION::PhaseThree (progressBar);			break;
+				case INSTALLATION::PHASE_CREATE_PATH: 		INSTALLATION::PhaseFour (progressBar); 			break;
+				case INSTALLATION::PHASE_CREATE_FILES: 		INSTALLATION::PhaseFive (progressBar); 			break;
+				case INSTALLATION::PHASE_END: 				WINDOWS::WINDOW::FinishInstallation (window);	break;
+				default: 																					break;
+
 			}
 		}
 	}

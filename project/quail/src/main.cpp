@@ -13,7 +13,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
 
-	REGISTRY::LoadKeyValues ();
+	WINDOWS::REGISTRY::LoadKeyValues ();
 
 	switch (argumentsCount) {
 

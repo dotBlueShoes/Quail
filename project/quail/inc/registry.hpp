@@ -5,7 +5,7 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
-namespace REGISTRY {
+namespace WINDOWS::REGISTRY {
 
 	// PROPERTIES
 

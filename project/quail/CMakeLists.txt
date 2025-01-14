@@ -20,12 +20,15 @@ elseif ( ${PROFILE} EQUAL 1 )
 	
 endif ()
 
+set (WIN_RESOURCES ${PROJECT_SOURCE_DIR}/res/res_main.rc)
+
 # --- Define as 'console only executable'
 add_executable (
 	${PROJECT_NAME} ${HEADER_FILES} 
 
 	# --- Add 'sources'
 	src/main.cpp
+	${WIN_RESOURCES}
 )
 
 # --- Add project 'headers' for use to said project

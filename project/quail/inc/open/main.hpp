@@ -342,7 +342,7 @@ namespace OPEN {
 		u32 includesCounter = 0;
 		u8 openType = OPEN_TYPE_LISTING;
 
-		IO::Read (REGISTRY::mainConfigFilePath, mainConfig);
+		IO::Read (WINDOWS::REGISTRY::mainConfigFilePath, mainConfig);
 		files.push_back (mainConfig);
 
 		const u32 lastDepth = depth - 1;
@@ -361,8 +361,8 @@ namespace OPEN {
 			}
 
 			{// MAIN CONFIG
-				currentConfigFolderLength = REGISTRY::topConfigsFolderPathLength;
-				currentConfigFolder = REGISTRY::mainConfigFilePath;
+				currentConfigFolderLength = WINDOWS::REGISTRY::topConfigsFolderPathLength;
+				currentConfigFolder = WINDOWS::REGISTRY::mainConfigFilePath;
 
 				GetIncludes (interpreter, includesCounter, mainConfig);
 				spaceFiles = includesCounter; // Store information about current module files amount.
@@ -617,7 +617,7 @@ namespace OPEN {
 		}
 
 		// ? That should be somewhere else ?
-		FREE (REGISTRY::mainConfigFilePath);
+		FREE (WINDOWS::REGISTRY::mainConfigFilePath);
 	}
 
 }
