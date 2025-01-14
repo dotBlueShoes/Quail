@@ -50,6 +50,11 @@
 		"ios": "cpp",
 		"istream": "cpp",
 		"ostream": "cpp",
-		"vector": "cpp"
+		"vector": "cpp",
+		"filesystem": "cpp",
+		"algorithm": "cpp",
+		"chrono": "cpp",
+		"optional": "cpp",
+		"forward_list": "cpp"
 	}
 }

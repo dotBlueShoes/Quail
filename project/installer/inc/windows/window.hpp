@@ -8,14 +8,10 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
-#include "../res/resource.h"
-#include "../res/license.h"
-#include "../res/data.h"
-
 #include "registry.hpp"
 #include "download.hpp"
 
-namespace WINDOW {
+namespace WINDOWS::WINDOW {
 
 	// TODO: CANCEL
 	// CANCEL CONFIRM MSG BOX
@@ -447,7 +443,7 @@ namespace WINDOW {
     	 	const s32 stringLength = swprintf (
 				msgConfirmationTop + MSG_CONFIRMATION_TOP_WITHOUT_SIZE, 
 				MAX_PATH, 
-				L"%s\".", REGISTRY::topConfigsFolderPath
+				L"%s\".", CONFIGURATION::topConfigsFolderPath
 			);
 
 			{ // Emplace a single new line symbol if the text is to long.
@@ -565,22 +561,22 @@ namespace WINDOW {
 
 
 	bool SyncValidateRichEditPath () {
-		REGISTRY::topConfigsFolderPathLength = GetWindowTextLengthW (rePath) + 1;
-		GetWindowTextW (rePath, REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
-		REGISTRY::topConfigsFolderPathLength *= 2; // wide-character
+		CONFIGURATION::topConfigsFolderPathLength = GetWindowTextLengthW (rePath) + 1;
+		GetWindowTextW (rePath, CONFIGURATION::topConfigsFolderPath, CONFIGURATION::topConfigsFolderPathLength);
+		CONFIGURATION::topConfigsFolderPathLength *= 2; // wide-character
 
 		LOGINFO ("SyncValidateRichEditPath () Call\n");
-		LOGINFO ("path: %ls\n", REGISTRY::topConfigsFolderPath);
+		LOGINFO ("path: %ls\n", CONFIGURATION::topConfigsFolderPath);
 
-		return IsValidDirectory (REGISTRY::topConfigsFolderPath, REGISTRY::topConfigsFolderPathLength);
+		return IsValidDirectory (CONFIGURATION::topConfigsFolderPath, CONFIGURATION::topConfigsFolderPathLength);
 	}
 
 
 	void OnDownloadStarted () {
 		isInstalling = true;
 
-		auto& directoryPathLength = REGISTRY::topConfigsFolderPathLength;
-		auto&& directoryPath = REGISTRY::topConfigsFolderPath;
+		auto& directoryPathLength = CONFIGURATION::topConfigsFolderPathLength;
+		auto&& directoryPath = CONFIGURATION::topConfigsFolderPath;
 		
 		c16* buffer;
 
@@ -613,9 +609,9 @@ namespace WINDOW {
 		fclose (DOWNLOAD::file);
 
 		{ // TODO. Should be presented as seperate state.
-			if (isRegistry) REGISTRY::CreateKeys (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
-			if (isPath) REGISTRY::AddQuailToPath (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
-			REGISTRY::CreateFiles (REGISTRY::topConfigsFolderPathLength, REGISTRY::topConfigsFolderPath);
+			if (isRegistry) REGISTRY::CreateKeys (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
+			if (isPath) REGISTRY::AddQuailToPath (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
+			REGISTRY::CreateFiles (CONFIGURATION::topConfigsFolderPathLength, CONFIGURATION::topConfigsFolderPath);
 		}
 	}
 
@@ -631,7 +627,7 @@ namespace WINDOW {
 
 
 
-namespace WINDOW {
+namespace WINDOWS::WINDOW {
 
 	void ScrollBarEvent (const HWND& window) { // Once License is read we don't check again for it.
 		if (!isLicense) {
@@ -764,7 +760,7 @@ namespace WINDOW {
 					rePath, window, instance, 
 					rePosition, reSize, 
 					WS_CHILD | WS_TABSTOP, 
-					ID_RICHEDIT, REGISTRY::DEFAULT_FOLDERPATH_W
+					ID_RICHEDIT, REGISTRY::VALUE_DEFAULT_QUAIL_FOLDER_W
 				);
 
 				WINDOWS::CONTROLS::CreateRichEdit (
@@ -948,9 +944,9 @@ namespace WINDOW {
             			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffor, MAX_PATH))) {
 
 							// SET.
-							REGISTRY::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
-							memcpy (REGISTRY::topConfigsFolderPath, tempBuffor, REGISTRY::topConfigsFolderPathLength);	// Copy to my own memory.
-							SetWindowTextW (rePath, REGISTRY::topConfigsFolderPath); 									// Update RichEdit Control
+							CONFIGURATION::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
+							memcpy (CONFIGURATION::topConfigsFolderPath, tempBuffor, CONFIGURATION::topConfigsFolderPathLength);	// Copy to my own memory.
+							SetWindowTextW (rePath, CONFIGURATION::topConfigsFolderPath); 									// Update RichEdit Control
 							CoTaskMemFree (tempBuffor);																	// Release String created via BrowseFolder Control.
             			}
 						

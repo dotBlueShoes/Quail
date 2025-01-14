@@ -22,13 +22,13 @@ int WinMain (
 	LOGINFO ("Application Statred!\n");
 
 	{ // PREP. Quail path buffor.
-		ALLOCATE (c16, REGISTRY::topConfigsFolderPath, MAX_PATH);
+		ALLOCATE (c16, CONFIGURATION::topConfigsFolderPath, MAX_PATH);
 	}
 
 	{ // Window Creation.
 		WINDOWS::CONTROLS::LoadRichEdit ();
 
-		HWND window; WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
+		HWND window; WINDOWS::WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
 		MSG msg { 0 }; 
 
 		while (msg.message != WM_QUIT) { // Main loop
@@ -38,9 +38,9 @@ int WinMain (
 				continue;
 			}
 
-			if (WINDOW::isInstalling) {
+			if (WINDOWS::WINDOW::isInstalling) {
 				if (DOWNLOAD::runningHandles == 1) DOWNLOAD::Progress (DOWNLOAD::asyncHandle);
-				else WINDOW::OnDownloadFinished (window);
+				else WINDOWS::WINDOW::OnDownloadFinished (window);
 			}
 		}
 	}
@@ -48,7 +48,7 @@ int WinMain (
 	LOGINFO ("Executed Installer Sucessfully.\n");
 
 	{ // Free assets.
-		FREE (REGISTRY::topConfigsFolderPath);
+		FREE (CONFIGURATION::topConfigsFolderPath);
 	}
 
 	return 0;

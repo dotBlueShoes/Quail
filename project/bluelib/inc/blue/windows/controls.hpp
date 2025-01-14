@@ -3,7 +3,6 @@
 //
 #pragma once
 #include "types.hpp"
-#include "../types.hpp"
 
 #include <RichEdit.h>
 #include <CommCtrl.h>
