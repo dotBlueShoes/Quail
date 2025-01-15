@@ -41,8 +41,10 @@
 !cpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pd%'
 !ccpy 			= %shell% "%_path%\.quail\cb" '%_path%' '%quail_dir%' '%pr%'
 
-!bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
-!bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+!_bld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pd%'
+!_bbld 			= %shell% "%_path%\.quail\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+
+!_bn 			= %shell% "%_path%\.quail\incrementBuildVersion" '%_path%'
 
 !_ins			= start "" "%_path%\build\%pd%\project\installer\QuailInstaller.exe"
 !_iins			= start "" "%_path%\build\%pr%\project\installer\QuailInstaller.exe"
@@ -65,8 +67,11 @@
 
 !license		= %shell% "%_path%\.quail\getlicense" "%_path%"
 
-|run			= bld,cpy
-|rrun			= bbld,ccpy
+|bld			= _bn,_bld
+|bbld			= _bn,_bbld
+
+|run			= _bn,_bld,cpy
+|rrun			= _bn,_bbld,ccpy
 
 |ins			= manifest,compress,_ins
 |iins			= mmanifest,ccompress,_iins

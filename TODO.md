@@ -32,10 +32,11 @@
 
 38. Create another subproject to hold code that is being used by both installer, uninstaller and quail itself. "global" or smth.
 66. Create and add an Quail Icon.
-70. Make script for creating bn.h (buildnumber) and use it.
 71. Make installer displayed centered.
 72. Clear everyting!
 
+-- UNINSTALLER
+
 73. Make a simple uninstaller utility.
 74. Make quail scripts for uninstaller to. (manifest file, upx) 
-76. 
+76. ins command creates "CONERR$" file see whats making it exacly.

@@ -1,0 +1,5 @@
+#pragma once
+#define QUAIL_FULL_VERSION_W L"0.6.61"
+#define QUAIL_FULL_VERSION "0.6.61"
+#define QUAIL_BUILD_VERSION 61
+

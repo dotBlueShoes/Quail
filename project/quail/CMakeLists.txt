@@ -39,11 +39,3 @@ target_include_directories (
 
 # --- Add library 'headers' for use to said project
 target_link_libraries (${PROJECT_NAME} BLUELIB)
-
-# --- Creation of a symlink to res inside build folder.
-#add_custom_command (
-#	TARGET ${PROJECT_NAME} POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E create_symlink
-#	${CMAKE_SOURCE_DIR}/project/res
-#	${CMAKE_CURRENT_BINARY_DIR}/res
-#)

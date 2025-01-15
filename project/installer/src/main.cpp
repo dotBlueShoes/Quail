@@ -8,6 +8,7 @@
 
 #include "installation.hpp"
 
+
 int WinMain (
 	HINSTANCE	instance,
 	HINSTANCE	previousInstance,
