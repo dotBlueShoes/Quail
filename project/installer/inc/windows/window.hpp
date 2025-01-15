@@ -688,7 +688,7 @@ namespace WINDOWS::WINDOW {
 				WINDOWS::CONTROLS::CreateButton (
 					wbNext, window, instance, 
 					{ 323, 314 + 11 }, { 75, 23 }, 
-					WS_CHILD | WS_VISIBLE, LOCAL::BUTTON_NEXT
+					WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, LOCAL::BUTTON_NEXT
 				);
 				
 				WINDOWS::CONTROLS::CreateButton (
@@ -979,6 +979,14 @@ namespace WINDOWS::WINDOW {
 
 							{ // THIS
 								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_FINISH); // Change "Close" msg to "Finish".
+								
+								{ // Make Finish Button now the default button.
+                					DWORD style = GetWindowLongPtr (wbCancel, GWL_STYLE);
+                					style |= BS_DEFPUSHBUTTON;
+                					SetWindowLongPtr (wbCancel, GWL_STYLE, style);
+									
+									InvalidateRect (wbCancel, nullptr, FALSE);
+								}
 							}
 
 						} break;
@@ -1077,13 +1085,21 @@ namespace WINDOWS::WINDOW {
 			const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 			RECT rect { 0, 0, size.x, size.y };
     		AdjustWindowRect (&rect, style, FALSE);
+
+			// Get Centralized Window.
+			RECT screenRect;
+    		SystemParametersInfo(SPI_GETWORKAREA, 0, &screenRect, 0);
+    		const s32 screenWidth = screenRect.right - screenRect.left;
+    		const s32 screenHeight = screenRect.bottom - screenRect.top;
+			const s32  xPos = (screenWidth - size.x) / 2 + screenRect.left;
+    		const s32  yPos = (screenHeight - size.y) / 2 + screenRect.top;
 		
 			window = CreateWindowExW (
 				0, windowName,
 				LOCAL::WINDOW_TITLE,
 				style,
-				position.x,
-				position.y,
+				xPos,
+				yPos,
 				rect.right - rect.left, 
 				rect.bottom - rect.top,
 				nullptr,
