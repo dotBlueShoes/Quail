@@ -7,9 +7,6 @@
 
 namespace WINDOWS::REGISTRY {
 
-	u32 Sample () {
-		LOGINFO ("Hello There!\n");
-		return 0;
-	}
+	
 
 }

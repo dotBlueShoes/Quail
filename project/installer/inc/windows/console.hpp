@@ -25,8 +25,8 @@ namespace WINDOWS {
 		if (errorCode != 0) ERRORWIN ("Could not redirect 'stdin'");
 		errorCode = freopen_s (&stream, "CONOUT$", "w", stdout); // STDOUT
 		if (errorCode != 0) ERRORWIN ("Could not redirect 'stdout'");
-		errorCode = freopen_s (&stream, "CONERR$", "w", stderr); // STDERR
-		if (errorCode != 0) ERRORWIN ("Could not redirect 'stderr'");
+		//errorCode = freopen_s (&stream, "CONERR$", "w", stderr); // STDERR
+		//if (errorCode != 0) ERRORWIN ("Could not redirect 'stderr'");
 	}
 
 }

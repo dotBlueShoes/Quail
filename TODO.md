@@ -40,3 +40,5 @@
 73. Make a simple uninstaller utility.
 74. Make quail scripts for uninstaller to. (manifest file, upx) 
 76. ins command creates "CONERR$" file see whats making it exacly.
+77. Move license.h" & "data.h" to GLOBAL project.
+78. 

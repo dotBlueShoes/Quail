@@ -3,6 +3,6 @@
 //
 #pragma once
 
-#include "../res/resource.h"
+//#include "../res/resource.h"
 #include "../res/license.h"
 #include "../res/data.h"

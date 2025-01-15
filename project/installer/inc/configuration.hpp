@@ -2,7 +2,16 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <global/version.h>
 #include <blue/types.hpp>
+
+
+#define QUAIL_NAME_W			L"Quail"
+#define QUAIL_NAME				"Quail"
+
+#define QUAIL_NAME_VERSION_W 	QUAIL_NAME_W L" " QUAIL_FULL_VERSION_W
+#define QUAIL_NAME_VERSION 		QUAIL_NAME " " QUAIL_FULL_VERSION
+
 
 namespace CONFIGURATION {
 

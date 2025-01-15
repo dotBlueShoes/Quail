@@ -4,72 +4,19 @@
 #pragma once
 
 #include <blue/windows/controls.hpp>
-
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
 #include "../installation.hpp"
+#include "../localization.hpp"
+#include "../res/resource.h"
 #include "registry.hpp"
 #include "download.hpp"
 
 namespace WINDOWS::WINDOW {
 
-	// TODO: CANCEL
-	// CANCEL CONFIRM MSG BOX
-	// Title as Window
-	// Install has not completed. Are you sure you want to exit?
+	///////////////////////////////////////////////////////////////////////////
 
-	// TEXTS
-	const c16 msgEntryWelcome[] 	= L"Welcome to Quail Setup Wizard";
-	const c16 msgEntryText[] 		= L"This wizard will guide you through the installation of\nQuail.\n\nClick 'Next' to continue.";
-	const c16 msgLicenseTop[] 		= L"Scroll down to see the rest of the agreement.";
-	const c16 msgLicenseBot[] 		= L"If you accept the terms of the agreement, click I Agree to continue. You must accept\nthe agreement to install `Quail`. Scrollbar handle has to reach the end.";
-	const c16 msgBrowseTip[] 		= L"To continue, click Next. If you would like to select a different folder, click Browse.";
-	const c16 msgRegistryTop[]		= L"Select the components you want to install clear the components you do not want to\ninstall. Click Next when you are ready to continue.";
-	const c16 msgConfirmationBot[] 	= L"Click 'Start' to install 'Quail'";
-	const c16 msgExitTag[]			= L"Completing the Quail Setup Wizard";
-	const c16 msgExitText[]			= L"Setup has finished installing Quail on your computer.";
-
-	const c16 msgLVRegistry[] 		= L"Create necessery Quail Registry Keys (Personal configuration settings)";
-	const c16 msgLVPath[] 			= L"Add Quail to 'Path' variable (Will make Quail accessible from anywere)";
-
-	const u8 MAX_EXE_SIZE = 20;
-
-	const u8 MSG_CONFIRMATION_TOP_WITHOUT_SIZE = 39;
-	const u8 MSG_DISK_SPACE_WITHOUT_SIZE = 20;
-
-	c16 msgConfirmationTop[MSG_CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install Quail into: \"";
-	c16 msgDiskSpace[MSG_DISK_SPACE_WITHOUT_SIZE + MAX_EXE_SIZE + 1] 			= L"Disk space needed : ";
-
-	// TEXTS TAGS
-	const c16 msgTagLicense[] 		= L"License Agreement";
-	const c16 msgTagDirectory[] 	= L"Directory Selection";
-	const c16 msgTagRegistry[] 		= L"Select Components";
-	const c16 msgTagConfirmation[] 	= L"Confirmation";
-	const c16 msgTagDownload[] 		= L"Download";
-
-	// TEXTS DESCRIPTIONS
-	const c16 msgDescriptionLicense[] 		= L"Please review the license terms before installing Quail.";
-	const c16 msgDescriptionDirectory[] 	= L"Where should Quail software be installed?";
-	const c16 msgDescriptionRegistry[] 		= L"Which components should be installed?";
-	const c16 msgDescriptionConfirmation[] 	= L"You are now ready to install Quail software.";
-	const c16 msgDescriptionDownload[] 		= L"Please wait while Wizard installs Quail on your computer.";
-
-	// TEXTS INSTALLER TAGS
-	const c16 msgInstallerTagDownloading[] 	= L"Downloading files . . .";
-	const c16 msgInstallerTagExtracting[] 	= L"Extracting files . . .";
-	const c16 msgInstallerTagRegistry[] 	= L"Creating registry keys . . .";
-	const c16 msgInstallerTagFiles[] 		= L"Creating files . . .";
-
-	// TEXTS BUTTONS
-	const c16 msgButtonBrowse[] 	= L"Browse...";
-	const c16 msgButtonAgree[] 		= L"I Agree";
-	const c16 msgButtonFinish[] 	= L"Finish";
-	const c16 msgButtonCancel[] 	= L"Cancel";
-	const c16 msgButtonLast[] 		= L"< Last";
-	const c16 msgButtonNext[] 		= L"Next >";
-	const c16 msgButtonStart[] 		= L"Start";
-	
 	// IDS
 	const u64 ID_RICHEDIT 	= 0b1001;
 	const u64 ID_STATIC	 	= 0b1010;
@@ -81,22 +28,6 @@ namespace WINDOWS::WINDOW {
 	const COLORREF BACKGROUND_FIRST 	= 0xffffff;
 	const COLORREF BACKGROUND_SECONDARY = 0xf0f0f0;
 	const COLORREF TEXT_FIRST			= 0x000000;
-
-	// PAGES
-	enum PAGE_TYPE: u8 {
-		PAGE_TYPE_ENTRY 		= 0,
-		PAGE_TYPE_LICENSE 		= 1,
-		PAGE_TYPE_DIRECTORY 	= 2,
-		PAGE_TYPE_REGISTRY  	= 3,
-		PAGE_TYPE_CONFIRMATION 	= 4,
-		PAGE_TYPE_DOWNLOAD  	= 5,
-		PAGE_TYPE_EXIT			= 6,
-	}; u8 currentPage = 0;
-
-	// HANDLERS
-	HBITMAP image = nullptr;
-	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense, wlbComponents;
-	HFONT font, fontBold, fontMono;
 
 	// RECTS
 	const RECT textDescriptionRegion = { 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
@@ -133,17 +64,29 @@ namespace WINDOWS::WINDOW {
 
 	const pair<u16> PROGRESSBAR_RANGE { 0, 255 };
 
-	WNDPROC topLicenseControlLoop;
+	///////////////////////////////////////////////////////////////////////////
 
-	//bool isInstalling = false;
-	//constexpr bool IsInstalled () {
-	//	return isInstalling == true && DOWNLOAD::runningHandles == 0;
-	//}
-	//
-	//
-	//constexpr bool IsNotInstalled () {
-	//	return isInstalling == false && DOWNLOAD::runningHandles == 1;
-	//}
+
+	// DYNAMIC TEXTS
+	c16 msgConfirmationTop	[LOCAL::CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install " QUAIL_NAME_VERSION L" into: \"";
+	c16 msgDiskSpace		[LOCAL::DISK_SPACE_WITHOUT_SIZE + LOCAL::MAX_EXE_SIZE + 1] 	= L"Disk space needed : ";
+	
+	// HANDLERS
+	HBITMAP image = nullptr;
+	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense, wlbComponents;
+	WNDPROC topLicenseControlLoop;
+	HFONT font, fontBold, fontMono;
+
+	// PAGES
+	enum PAGE_TYPE: u8 {
+		PAGE_TYPE_ENTRY 		= 0,
+		PAGE_TYPE_LICENSE 		= 1,
+		PAGE_TYPE_DIRECTORY 	= 2,
+		PAGE_TYPE_REGISTRY  	= 3,
+		PAGE_TYPE_CONFIRMATION 	= 4,
+		PAGE_TYPE_DOWNLOAD  	= 5,
+		PAGE_TYPE_EXIT			= 6,
+	}; u8 currentPage = 0;
 
 
 	void DrawPage (const HDC& windowContext) {
@@ -218,7 +161,7 @@ namespace WINDOWS::WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgEntryWelcome, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::EntryWelcome, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		// Normal Text
@@ -226,7 +169,7 @@ namespace WINDOWS::WINDOW {
 
 		{ // Text Control
 			const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgEntryText, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::EntryText, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont); // reversing (restoring to original value)
@@ -270,21 +213,21 @@ namespace WINDOWS::WINDOW {
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
 		// Text Control
-		DrawTextW (windowContext, msgTagDirectory, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::TagDirectory, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
 		// Text Control
-		DrawTextW (windowContext, msgDescriptionDirectory, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::DescriptionDirectory, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
 			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 14 };
-			DrawTextW (windowContext, msgBrowseTip, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::BrowseTip, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		{
 			const RECT textRegion = { 29, 294, textRegion.left + 40, textRegion.top + 14 };
-    		swprintf (msgDiskSpace + MSG_DISK_SPACE_WITHOUT_SIZE, MAX_EXE_SIZE, L"%.2f KB", DISK_SPACE_KB);
+    		swprintf (msgDiskSpace + LOCAL::DISK_SPACE_WITHOUT_SIZE, LOCAL::MAX_EXE_SIZE, L"%.2f KB", DISK_SPACE_KB);
     		DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
@@ -294,21 +237,6 @@ namespace WINDOWS::WINDOW {
 
 
 	void DrawLicense (const HDC& windowContext) {
-
-		// using RESOURCE file
-    	//HMODULE hModule = GetModuleHandleW (NULL); // Handle to the module (use the current executable) "this is instance variable"
-    	//HRSRC hRes = FindResourceW (hModule, MAKEINTRESOURCEW (IDR_LICENSE_FILE), MAKEINTRESOURCEW (10)); // RT_RCDATA // Load the resource
-		//
-		//if (hRes != NULL) {
-        //	HGLOBAL hData = LoadResource (hModule, hRes); // Load the resource into memory
-        //	if (hData != NULL) {
-        //	    
-        //	    char* pData = (char*) LockResource (hData); // Lock the resource to access its data
-        //	    if (pData != NULL) {
-        //	        LOGINFO ("%s\n", pData);
-        //	    }
-        //	}
-    	//}
 
 		{ // Drawing RICHEDIT outter.
 			HBRUSH brushFill, previousFill;
@@ -342,21 +270,21 @@ namespace WINDOWS::WINDOW {
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
 		// Text Control
-		DrawTextW (windowContext, msgTagLicense, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::TagLicense, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
 		// Text Control
-		DrawTextW (windowContext, msgDescriptionLicense, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::DescriptionLicense, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
 			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgLicenseTop, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::LicenseTop, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		{ // Text Control
 			const RECT textRegion = { 29, 257, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgLicenseBot, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::LicenseBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -396,16 +324,16 @@ namespace WINDOWS::WINDOW {
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 		
 		// Text Control
-		DrawTextW (windowContext, msgTagRegistry, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::TagRegistry, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
 		// Text Control
-		DrawTextW (windowContext, msgDescriptionRegistry, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::DescriptionRegistry, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // Text Control
 			const RECT textRegion = { 29, 75, textRegion.left + 40, textRegion.top + 10 };
-			DrawTextW (windowContext, msgRegistryTop, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::RegistryTop, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -421,12 +349,12 @@ namespace WINDOWS::WINDOW {
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
 		// Text Control
-		DrawTextW (windowContext, msgTagConfirmation, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::TagConfirmation, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
 		// Text Control
-		DrawTextW (windowContext, msgDescriptionConfirmation, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::DescriptionConfirmation, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		{ // TOP MSG
 		
@@ -437,7 +365,7 @@ namespace WINDOWS::WINDOW {
 			};
 			
     	 	const s32 stringLength = swprintf (
-				msgConfirmationTop + MSG_CONFIRMATION_TOP_WITHOUT_SIZE, 
+				msgConfirmationTop + LOCAL::CONFIRMATION_TOP_WITHOUT_SIZE, 
 				MAX_PATH, 
 				L"%s\".", CONFIGURATION::topConfigsFolderPath
 			);
@@ -461,19 +389,18 @@ namespace WINDOWS::WINDOW {
 
 		if (INSTALLATION::isRegistry) {
 			const RECT textRegion = { 29, 75 + 56, textRegion.left + 500, textRegion.top + 14 };
-			c16 text[] = L"- Registry keys will be added.";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+			
+			DrawTextW (windowContext, LOCAL::CONFIRMATION_REGISTRY, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		if (INSTALLATION::isPath) {
 			const RECT textRegion = { 29, 75 + 56 + 28, textRegion.left + 500, textRegion.top + 14 };
-			c16 text[] = L"- New entry in Environment Variable 'Path' will be added.";
-			DrawTextW (windowContext, text, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::CONFIRMATION_PATH, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) { // BOT MSG
 			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
-			DrawTextW (windowContext, msgConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
+			DrawTextW (windowContext, LOCAL::ConfirmationBot, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -489,42 +416,42 @@ namespace WINDOWS::WINDOW {
 		SetTextColor (windowContext, TEXT_FIRST); // TODO: why every draw?
 
 		// Text Control
-		DrawTextW (windowContext, msgTagDownload, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::TagDownload, -1, (RECT*) &textTagRegion, DT_SINGLELINE | DT_NOCLIP);
 
 		SelectFont (windowContext, font);
 
 		// Text Control
-		DrawTextW (windowContext, msgDescriptionDownload, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
+		DrawTextW (windowContext, LOCAL::DescriptionDownload, -1, (RECT*) &textDescriptionRegion, DT_NOCLIP);
 
 		SelectFont (windowContext, fontMono);
 
 		switch (INSTALLATION::currentPhase) { // Text Control 
 
 			case INSTALLATION::PHASE_DOWNLOAD_MAIN: {
-				DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextW (windowContext, LOCAL::InstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
 				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_EXECUTABLE, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
 			} break;
 
 			case INSTALLATION::PHASE_DOWNLOAD_UNINSTALLER: {
-				DrawTextW (windowContext, msgInstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextW (windowContext, LOCAL::InstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
 				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_UNINSTALLER, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
 			} break;
 
 			case INSTALLATION::PHASE_CREATE_REGISTRY: {
-				DrawTextW (windowContext, msgInstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
-				DrawTextA (windowContext, "Adding registry keys", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextW (windowContext, LOCAL::InstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, LOCAL::INSTALL_TASK_REGISTRY, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 			} break;
 
 			case INSTALLATION::PHASE_CREATE_PATH: {
-				DrawTextW (windowContext, msgInstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
-				DrawTextA (windowContext, "Adding quail to path enviroment variable", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextW (windowContext, LOCAL::InstallerTagRegistry, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, LOCAL::INSTALL_TASK_PATH, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 			} break;
 
 			case INSTALLATION::PHASE_CREATE_FILES: {
-				DrawTextW (windowContext, msgInstallerTagFiles, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
-				DrawTextA (windowContext, "Creating necessary quail files", -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextW (windowContext, LOCAL::InstallerTagFiles, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
+				DrawTextA (windowContext, LOCAL::INSTALL_TASK_FILES, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 			} break;
 
 			default: break;
@@ -558,7 +485,7 @@ namespace WINDOWS::WINDOW {
 
 			{ // Text Control
 				const RECT textRegion = { 164 + 16, 16, textRegion.left + 40, textRegion.top + 10 };
-				DrawTextW (windowContext, msgExitTag, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+				DrawTextW (windowContext, LOCAL::ExitTag, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 			}
 
 			// Normal Text
@@ -566,7 +493,7 @@ namespace WINDOWS::WINDOW {
 
 			{ // Text Control
 				const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
-				DrawTextW (windowContext, msgExitText, -1, (RECT*) &textRegion, DT_NOCLIP);
+				DrawTextW (windowContext, LOCAL::ExitText, -1, (RECT*) &textRegion, DT_NOCLIP);
 			}
 
 			SelectFont (windowContext, previousFont);
@@ -692,10 +619,6 @@ namespace WINDOWS::WINDOW {
 					INITCOMMONCONTROLSEX commonControls;
 					commonControls.dwSize = sizeof (commonControls);
 		
-					// Initializes:
-					//  - ICC_BAR_CLASSES -> Toolbars, Statusbars, Tooltips, Progressbars
-					//  - ICC_LISTVIEW_CLASSES -> ListView
-		
 					commonControls.dwICC = ICC_BAR_CLASSES | ICC_LISTVIEW_CLASSES;
 					InitCommonControlsEx (&commonControls);
 				}
@@ -723,9 +646,9 @@ namespace WINDOWS::WINDOW {
             		lvItem.mask = LVIF_TEXT;
             		lvItem.iSubItem = 0;
 
-            		lvItem.pszText = (LPWSTR) msgLVPath;
+            		lvItem.pszText = (LPWSTR) LOCAL::LVPath;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 0, (LPARAM) &lvItem);
-            		lvItem.pszText = (LPWSTR) msgLVRegistry;
+            		lvItem.pszText = (LPWSTR) LOCAL::LVRegistry;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 1, (LPARAM) &lvItem);
 
 					// Issue. Removing 'WS_VISIBLE' from Creation makes text cropped for some reason.
@@ -759,19 +682,19 @@ namespace WINDOWS::WINDOW {
 				WINDOWS::CONTROLS::CreateButton (
 					wbLast, window, instance, 
 					{ 244, 314 + 11 }, { 75, 23 }, 
-					WS_CHILD, msgButtonLast
+					WS_CHILD, LOCAL::BUTTON_LAST
 				);
 				
 				WINDOWS::CONTROLS::CreateButton (
 					wbNext, window, instance, 
 					{ 323, 314 + 11 }, { 75, 23 }, 
-					WS_CHILD | WS_VISIBLE, msgButtonNext
+					WS_CHILD | WS_VISIBLE, LOCAL::BUTTON_NEXT
 				);
 				
 				WINDOWS::CONTROLS::CreateButton (
 					wbCancel, window, instance, 
 					{ 323 + 75 + 11, 314 + 11 }, { 75, 23 }, 
-					WS_CHILD | WS_VISIBLE, msgButtonCancel
+					WS_CHILD | WS_VISIBLE, LOCAL::BUTTON_CANCEL
 				);
 
 				{
@@ -781,7 +704,7 @@ namespace WINDOWS::WINDOW {
 					WINDOWS::CONTROLS::CreateButton (
 						wbBrowse, window, instance, 
 						position, size,
-						WS_CHILD , msgButtonBrowse
+						WS_CHILD , LOCAL::BUTTON_BROWSE
 					);
 				}
 				
@@ -943,7 +866,7 @@ namespace WINDOWS::WINDOW {
 							
 							{ // Next
 								EnableWindow (wbNext, true);
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
 								ShowWindow (wsLicense, HIDE_WINDOW);
 							}
 
@@ -957,8 +880,7 @@ namespace WINDOWS::WINDOW {
 
 							{ // THIS
 								EnableWindow (wbNext, INSTALLATION::isLicense);
-								//if (wsLicenseIsActive == false) SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonAgree);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_AGREE);
 								ShowWindow (wsLicense, SHOW_OPENWINDOW);
 							}
 
@@ -972,7 +894,7 @@ namespace WINDOWS::WINDOW {
 						case PAGE_TYPE_DIRECTORY: {
 
 							{ // PREV
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
 								ShowWindow (wsLicense, HIDE_WINDOW);
 							}
 
@@ -996,7 +918,7 @@ namespace WINDOWS::WINDOW {
 							}
 
 							{ // NEXT
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonNext);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
 							}
 							
 						} break;
@@ -1009,7 +931,7 @@ namespace WINDOWS::WINDOW {
 
 							{ // THIS
 								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
-									SendMessageW (wbNext, WM_SETTEXT, 0, (u64)msgButtonStart);
+									SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_START);
 								} else {
 									EnableWindow (wbLast, false);
 								}
@@ -1025,7 +947,7 @@ namespace WINDOWS::WINDOW {
 						case PAGE_TYPE_DOWNLOAD: {
 
 							{ // PREV
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64) msgButtonNext);
+								SendMessageW (wbNext, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_NEXT);
 								EnableWindow (wbLast, true);
 							}
 
@@ -1056,7 +978,7 @@ namespace WINDOWS::WINDOW {
 							}
 
 							{ // THIS
-								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) msgButtonFinish); // Change "Close" msg to "Finish".
+								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_FINISH); // Change "Close" msg to "Finish".
 							}
 
 						} break;
@@ -1096,8 +1018,7 @@ namespace WINDOWS::WINDOW {
 			}
 		}
 
-		c16 windowTitle[] { L"Quail Setup Wizard" };
-		c16 windowName[] { L"PropSheetClass" };
+		const c16 windowName[] { L"PropSheetClass" };
 
 		HICON icon;
 
@@ -1159,7 +1080,7 @@ namespace WINDOWS::WINDOW {
 		
 			window = CreateWindowExW (
 				0, windowName,
-				windowTitle,
+				LOCAL::WINDOW_TITLE,
 				style,
 				position.x,
 				position.y,
