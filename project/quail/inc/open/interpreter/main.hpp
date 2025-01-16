@@ -203,9 +203,14 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 
 				AddTempW (TYPE_EOS);
 
+				//LOGINFO ("1 Temporary include: %ls, %lld\n", (c16*)temporary, includes.size())
+
 				u8* include; // Allocate & create FilePath string.
 				MEMORY::Construct2<u8> (include, currentConfigFolderLength, currentConfigFolder, temporaryLength, temporary);
 
+				//LOGINFO ("2 Temporary include: %ls, %lld\n", (c16*)include, includes.size())
+
+				// TODO: 
 				// Previously this code was cheching whether a said file was arleady included and if so returned an error.
 				//  However we've created an abstract structure that holds includes to a specific project therefore
 				//  the error was abandoned. Because of that an include file if specified more then once will be read more then once
@@ -224,6 +229,9 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 
 		success:	includes.push_back (include);
 					parsingstage = GetAllFiles;
+					//
+					//exit (1);
+					//
 					break;
 
 		error:		ERROR ("Said file is arleady being included: `%ls`\n", (c16*)include);

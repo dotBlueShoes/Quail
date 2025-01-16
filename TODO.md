@@ -15,6 +15,9 @@
 19. Decide on 2-Read path + global.conf - so that we can define both at the very end and the begining constants, secrets and varaibles
 21. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
 28. Colored debuglogs
+79. Make it so global.txt values can be overriden
+80. Make "_quail" variable to pass Quail directory - not sure if it's needed
+81. !!! Make it so during an Error memory is properly deallocated !!!
 
 --- INSTALLER
 
@@ -39,6 +42,5 @@
 
 73. Make a simple uninstaller utility.
 74. Make quail scripts for uninstaller to. (manifest file, upx) 
-76. ins command creates "CONERR$" file see whats making it exacly.
 77. Move license.h" & "data.h" to GLOBAL project.
-78. 
+82. 

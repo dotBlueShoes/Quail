@@ -39,3 +39,4 @@ target_include_directories (
 
 # --- Add library 'headers' for use to said project
 target_link_libraries (${PROJECT_NAME} BLUELIB)
+target_link_libraries (${PROJECT_NAME} GLOBAL)

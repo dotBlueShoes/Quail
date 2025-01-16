@@ -55,6 +55,7 @@
 		"algorithm": "cpp",
 		"chrono": "cpp",
 		"optional": "cpp",
-		"forward_list": "cpp"
+		"forward_list": "cpp",
+		"ratio": "cpp"
 	}
 }

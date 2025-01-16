@@ -2,6 +2,8 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <global/windows/registry.hpp>
+
 #include <blue/windows/registry.hpp>
 #include <blue/memory.hpp>
 #include <blue/types.hpp>
@@ -35,11 +37,6 @@ namespace WINDOWS::REGISTRY {
 	const c16 VALUE_UNINSTALL_PUBLISHER				[] = L".BlueShoes";
 	const c16 VALUE_UNINSTALL_URL_INFO_ABOUT		[] = L"0";
 	const c16 VALUE_UNINSTALL_URL_UPDATE_INFO		[] = L"0";
-
-
-	const c16 KEY_PATH_W							[] = L"SOFTWARE\\dotBlueShoes\\Quail";
-	const c16 PROPERTY_QUAIL_FILEPATH_W				[] = L"filepath";
-	const c16 VALUE_DEFAULT_QUAIL_FOLDER_W			[] = L"C:\\Program Files\\dotBlueShoes\\Quail";
 
 
 	void CreateFiles (const u32& directoryPathLength, const c16* const& directoryPath) {

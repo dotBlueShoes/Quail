@@ -51,7 +51,7 @@ namespace OPEN {
 
 				auto&& string = (c16*)(includes[includesCounter]);
 
-				//printf ("INFO: PATH: %ls\n", string);
+				LOGINFO ("INFO: PATH: %ls\n", string);
 
 				FILE* config = nullptr;
 				IO::Read (string, config);
@@ -337,35 +337,52 @@ namespace OPEN {
 		c8** const& actions
 	) {
 
+		INTERPRETER::Interpreter interpreter;
+		FILE* globalConfig = nullptr;
 		FILE* mainConfig = nullptr;
-		INTERPRETER::Interpreter interpreter { 0 };
 		u32 includesCounter = 0;
+
 		u8 openType = OPEN_TYPE_LISTING;
 
-		IO::Read (WINDOWS::REGISTRY::mainConfigFilePath, mainConfig);
-		files.push_back (mainConfig);
+		{ // Read Quail Configs.
+
+			// GLOBAL config is not put into "files" list because we want to
+			//  always read it first.
+			IO::Read (CONFIG::configGlobalFilePath, globalConfig);
+			IO::Read (CONFIG::configMainFilePath, mainConfig);
+
+		}
 
 		const u32 lastDepth = depth - 1;
 		auto&& lastAction = actions[lastDepth];
 		u16 lastActionLength = 0; 
-		u32 spaceFiles = 0;
+
+		u32 globalFiles = 0;	// Point how many global files are read.
+		u32 spaceFiles = 0; 	// Point how many files are from selected project.
 
 		{ // 1st READ
 
+			// At first we read config files from within Quail directory. -> main, global and their includes.
+			currentConfigFolderLength = CONFIG::topConfigsFolderLength;
+			currentConfigFolder = CONFIG::topConfigsFolder;
+
 			{ // GLOBAL CONFIG
-				// TODO: global.txt
-				// We will be alwayas reading this file 1st at 1st read and 1st at second read.
-				// and we want discard it's contents. Making it a global-data container that can be used across multiple modules
-				// For example we can define all the "unity_dir", "vsc_dir", "godot_dir" and so on inside this file
-				// and then only leave definitions inside the project-quail file itself.
+				interpreter.current = 0;
+				interpreter.special = 0;
+
+				GetIncludes (interpreter, includesCounter, globalConfig);
+
+				globalFiles = includesCounter;
 			}
 
-			{// MAIN CONFIG
-				currentConfigFolderLength = WINDOWS::REGISTRY::topConfigsFolderPathLength;
-				currentConfigFolder = WINDOWS::REGISTRY::mainConfigFilePath;
+			{ // MAIN CONFIG
+				interpreter.current = 0;
+				interpreter.special = 0;
 
+				files.push_back (mainConfig);
 				GetIncludes (interpreter, includesCounter, mainConfig);
-				spaceFiles = includesCounter; // Store information about current module files amount.
+
+				spaceFiles = includesCounter;
 			}
 
 			if (depth != 0) {
@@ -421,6 +438,48 @@ namespace OPEN {
 
 			LOGINFO ("2nd Read\n");
 
+			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
+			// 	const auto&& value = (c16*) constants.values[iConstant];
+			// 	const auto&& key = (c8*) constants.keys[iConstant];
+			// 	LOGINFO ("Constant: %s: %ls\n", key, value);
+			// }
+
+			if (projectId != -1) { // GLOBAL (Only for projects not for main config)
+
+				// Go through GLOBAL INCLUDES
+				for (u32 iFile = globalFiles; iFile > 0; --iFile) {
+
+					if (iFile == 0) exit (1);
+
+					const auto& config = files[iFile - 1];
+
+					LOGINFO ("HERE %lld\n", (u64)config);
+					
+					if (config == mainConfig) {
+						LOGINFO ("OHH GOD!!!\n");
+					} else {
+						rewind (config);
+					
+						INTERPRETER::parsingstage = INTERPRETER::MAIN::Main;
+						interpreter.current = 0;
+						interpreter.special = 0;
+
+						ReadFile (config, interpreter);
+					}
+				}
+
+				{ // Go through the Global file.
+					rewind (globalConfig);
+
+					INTERPRETER::parsingstage = INTERPRETER::MAIN::Main;
+					interpreter.current = 0;
+					interpreter.special = 0;
+
+					ReadFile (globalConfig, interpreter);
+				}
+				
+			}
+
 			// By calculating so we only 2-read those files instead of the whole tree.
 			//  Going from the last included file up to the sub/project file.
 			//  -1 stands for the project file.
@@ -435,7 +494,7 @@ namespace OPEN {
 				interpreter.current = 0;
 				interpreter.special = 0;
 
-				ReadFile(config, interpreter);
+				ReadFile (config, interpreter);
 				//while (interpreter.current != EOF) { // READ
 				//	interpreter.current = getc (config);
 				//	INTERPRETER::parsingstage (interpreter);
@@ -617,7 +676,9 @@ namespace OPEN {
 		}
 
 		// ? That should be somewhere else ?
-		FREE (WINDOWS::REGISTRY::mainConfigFilePath);
+		FREE (CONFIG::topConfigsFolder);
+		FREE (CONFIG::configMainFilePath);
+		FREE (CONFIG::configGlobalFilePath);
 	}
 
 }

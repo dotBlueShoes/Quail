@@ -2,46 +2,44 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <global/windows/registry.hpp>
+#include <global/config.hpp>
+
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
 namespace WINDOWS::REGISTRY {
 
-	// PROPERTIES
-
-	const c16 REGISTRY_PATH_W[]			= L"SOFTWARE\\dotBlueShoes\\Quail";
-	const c16 PROPERTY_FILEPATH_W[]		= L"filepath";
-
-	const c16 CONFIG_W[]				= L"config.txt";
-	const u32 CONFIG_LENGTH				= sizeof (CONFIG_W);
-
-	// VARIABLES
-
-	u32 topConfigsFolderPathLength; // Where are quail top configs.
-	u32 mainConfigFilePathLength; // Full filepath to quail "main" config.
-	c16* mainConfigFilePath;
-
-	// FUNCTIONS
-
-	void ReplaceFolderPathWithFilePath (
-		const c16* const& folderPath,
-		const u32& folderPathLength
+	void CreateQuailConfigsFilePaths (
+		/* IN & OUT */ u32& 	folderPathLength,
+		/* IN & OUT */ c16*& 	folderPath,
+		/* OUT */ u32& 			mConfigFilePathLength,
+		/* OUT */ c16*& 		mConfigFilePath,
+		/* OUT */ u32& 			gConfigFilePathLength,
+		/* OUT */ c16*& 		gConfigFilePath
 	) {
-		const u32 configFilepathLength = folderPathLength + 1 + REGISTRY::CONFIG_LENGTH;
-		c16* configFilepath; ALLOCATE (c16, configFilepath, configFilepathLength);// = (c16*) malloc (configFilepathLength); // ALLOCATION
+
+		{ // Replace '\0' with '\\'. So that we can later create strings with it simpler.
+			wmemset (folderPath + (folderPathLength / 2) - 1, L'\\', 1);
+		}
+
+		mConfigFilePathLength = folderPathLength + 1 + REGISTRY::CONFIG_MAIN_LENGTH;
+		ALLOCATE (c16, mConfigFilePath, mConfigFilePathLength);
 
 		{ // CONSTRUCT
-			memcpy (configFilepath, folderPath, folderPathLength);
-			configFilepath[(folderPathLength / 2) - 1] = L'\\';
-			memcpy (configFilepath + (folderPathLength / 2), REGISTRY::CONFIG_W, REGISTRY::CONFIG_LENGTH);
+			memcpy (mConfigFilePath, folderPath, folderPathLength);
+			memcpy (mConfigFilePath + (folderPathLength / 2), REGISTRY::CONFIG_MAIN_W, REGISTRY::CONFIG_MAIN_LENGTH);
 		}
 
-		{ // FREE AND SWAP
-			FREE (mainConfigFilePath);
-			mainConfigFilePathLength = configFilepathLength;
-			mainConfigFilePath = configFilepath;
+		gConfigFilePathLength = folderPathLength + 1 + REGISTRY::CONFIG_GLOBAL_LENGTH;
+		ALLOCATE (c16, gConfigFilePath, gConfigFilePathLength);
+
+		{ // CONSTRUCT
+			memcpy (gConfigFilePath, folderPath, folderPathLength);
+			memcpy (gConfigFilePath + (folderPathLength / 2), REGISTRY::CONFIG_GLOBAL_W, REGISTRY::CONFIG_GLOBAL_LENGTH);
 		}
 	}
+
 
 	void LoadKeyValues () {
 
@@ -54,8 +52,8 @@ namespace WINDOWS::REGISTRY {
 		// First get required size for memory allocation.
     	status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
-			REGISTRY_PATH_W, 
-			PROPERTY_FILEPATH_W, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			NULL, 
@@ -74,20 +72,24 @@ namespace WINDOWS::REGISTRY {
 		// Second get data.
         status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
-			REGISTRY_PATH_W, 
-			PROPERTY_FILEPATH_W, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			data,
 			&size
 		);
         	
-		LOGWINFO ("Successfully read property '%s' as: '%s'\n", PROPERTY_FILEPATH_W, data);
+		LOGWINFO ("Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
 
-		topConfigsFolderPathLength = size;
-    	mainConfigFilePath = data;
+		CONFIG::topConfigsFolderLength = size;
+    	CONFIG::topConfigsFolder = data;
 
-		ReplaceFolderPathWithFilePath (mainConfigFilePath, topConfigsFolderPathLength);
+		CreateQuailConfigsFilePaths (
+			CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder,
+			CONFIG::configMainFilePathLength, CONFIG::configMainFilePath,
+			CONFIG::configGlobalFilePathLength, CONFIG::configGlobalFilePath
+		);
 
 	}
 }
