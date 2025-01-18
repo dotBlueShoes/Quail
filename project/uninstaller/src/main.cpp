@@ -228,10 +228,12 @@ int WinMain (
 	}
 
 	LOGINFO ("Finalized Execution\n");
-	LOGMEMORY ();
-
-	DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
-	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
+	
+	DEBUG (DEBUG_FLAG_LOGGING) {
+		LOGMEMORY ();
+		Sleep (2000);
+		putc ('\n', stdout); // Align debug-logs
+	}
 
 	return 0;
 }
