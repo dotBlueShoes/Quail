@@ -2,6 +2,7 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <global/config.hpp>
 
 #include "configuration.hpp"
 #include "registry.hpp"
@@ -9,9 +10,9 @@
 
 namespace INSTALLATION {
 
-	const RECT CAPTION_REGION = { 29, 75, CAPTION_REGION.left + 40, CAPTION_REGION.top + 10 };
-	const RECT TEXT_REGION = { 29, 75 + 14 + 4, TEXT_REGION.left + 434 - 26, TEXT_REGION.top + 16 };
-	const RECT REST_REGION = { REST_REGION.right, REST_REGION.top, 14, 14 };
+	const RECT CAPTION_REGION 		{ 29, 75, CAPTION_REGION.left + 40, CAPTION_REGION.top + 10 };
+	const RECT TEXT_REGION 			{ 29, 75 + 14 + 4, TEXT_REGION.left + 434 - 26, TEXT_REGION.top + 16 };
+	const RECT REST_REGION 			{ TEXT_REGION.right, TEXT_REGION.top, 14, 14 };
 
 	// Phases
 	enum PHASE: u8 {
@@ -33,14 +34,11 @@ namespace INSTALLATION {
 
 	void BeginPhaseOne (HWND& progressBar) {
 
-		// Begin PHASE ONE.
 		DOWNLOAD::runningHandles = 1;
 		currentPhase = PHASE_DOWNLOAD_MAIN; 
-		
-		//LOGINFO ("call1\n");
 
-		auto& directoryPathLength = CONFIGURATION::topConfigsFolderPathLength;
-		auto&& directoryPath = CONFIGURATION::topConfigsFolderPath;
+		auto& directoryPathLength = CONFIG::topConfigsFolderLength;
+		auto&& directoryPath = CONFIG::topConfigsFolder;
 		c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::EXECUTABLE_NAME_LENGTH + 1);
 
 		{ // CONSTRUCT 
@@ -79,8 +77,8 @@ namespace INSTALLATION {
 		
 
 		{ // Actuall State Two
-			auto& directoryPathLength = CONFIGURATION::topConfigsFolderPathLength;
-			auto&& directoryPath = CONFIGURATION::topConfigsFolderPath;
+			auto& directoryPathLength = CONFIG::topConfigsFolderLength;
+			auto&& directoryPath = CONFIG::topConfigsFolder;
 			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::UNINSTALLER_NAME_LENGTH + 1);
 
 			{ // CONSTRUCT
@@ -117,8 +115,8 @@ namespace INSTALLATION {
 		}
 
 		if (isRegistry) WINDOWS::REGISTRY::CreateKeys (
-			CONFIGURATION::topConfigsFolderPathLength, 
-			CONFIGURATION::topConfigsFolderPath
+			CONFIG::topConfigsFolderLength, 
+			CONFIG::topConfigsFolder
 		);
 
 		++currentPhase;
@@ -134,8 +132,8 @@ namespace INSTALLATION {
 		}
 
 		if (isPath) WINDOWS::REGISTRY::AddQuailToPath (
-			CONFIGURATION::topConfigsFolderPathLength, 
-			CONFIGURATION::topConfigsFolderPath
+			CONFIG::topConfigsFolderLength, 
+			CONFIG::topConfigsFolder
 		);
 
 		++currentPhase;
@@ -150,8 +148,8 @@ namespace INSTALLATION {
 		}
 
 		WINDOWS::REGISTRY::CreateFiles (
-			CONFIGURATION::topConfigsFolderPathLength, 
-			CONFIGURATION::topConfigsFolderPath
+			CONFIG::topConfigsFolderLength, 
+			CONFIG::topConfigsFolder
 		);
 
 		++currentPhase;

@@ -12,6 +12,8 @@
 #define QUAIL_NAME_VERSION_W 	QUAIL_NAME_W L" " QUAIL_FULL_VERSION_W
 #define QUAIL_NAME_VERSION 		QUAIL_NAME " " QUAIL_FULL_VERSION
 
+const c8 QUAIL_NAME_VERSION_SIZE 	= sizeof (QUAIL_NAME_VERSION);
+const c8 QUAIL_NAME_SIZE 			= sizeof (QUAIL_NAME);
 
 namespace CONFIGURATION {
 
@@ -41,7 +43,7 @@ namespace CONFIGURATION {
 	const c16 UNINSTALLER_NAME[] 		= L"uninstall.exe";
 	const u32 UNINSTALLER_NAME_LENGTH 	= sizeof (UNINSTALLER_NAME);
 	
-	u32 topConfigsFolderPathLength;		// Where are quail top configs.
-	c16* topConfigsFolderPath;
+	//u32 topConfigsFolderPathLength;		// Where are quail top configs.
+	//c16* topConfigsFolderPath;
 
 }

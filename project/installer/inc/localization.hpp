@@ -25,8 +25,8 @@ namespace LOCAL {
 	const c16 ExitTag					[] = L"Completing the " QUAIL_NAME_VERSION_W L" Setup Wizard";
 	const c16 ExitText					[] = L"Setup has finished installing " QUAIL_NAME_VERSION_W L" on your computer.";
 
-	const c16 LVRegistry				[] = L"Create necessery " QUAIL_NAME_VERSION_W L" Registry Keys (Personal configuration settings)";
-	const c16 LVPath					[] = L"Add " QUAIL_NAME_VERSION_W L" to 'Path' variable (Will make " QUAIL_NAME_VERSION_W L" accessible from anywere)";
+	const c16 LVRegistry				[] = L"Create necessery " QUAIL_NAME_W L" Registry Keys (Personal configuration settings)";
+	const c16 LVPath					[] = L"Add " QUAIL_NAME_W L" to 'Path' variable (Will make " QUAIL_NAME_W L" accessible from anywere)";
 
 	// TEXTS TAGS
 	const c16 TagLicense				[] = L"License Agreement";
@@ -65,6 +65,16 @@ namespace LOCAL {
 	const c8 INSTALL_TASK_FILES			[] = "Creating necessary " QUAIL_NAME_VERSION " files";
 
 	const u8 MAX_EXE_SIZE = 20;
-	const u8 CONFIRMATION_TOP_WITHOUT_SIZE = 39;
-	const u8 DISK_SPACE_WITHOUT_SIZE = 20;
+	
+	#define CONFIRMATION_TOP_1 	L"This program will install " // 27
+	#define CONFIRMATION_TOP_2 	L" into: \"" // 9
+	#define DISK_SPACE_1		L"Disk space needed : " // 21
+
+	const u8 CONFIRMATION_TOP_1_SIZE 	= sizeof (CONFIRMATION_TOP_1) / sizeof (c16) - 1; // minus EOS sign.
+	const u8 CONFIRMATION_TOP_2_SIZE 	= sizeof (CONFIRMATION_TOP_2) / sizeof (c16) - 1; // minus EOS sign.
+	const u8 DISK_SPACE_1_SIZE 			= sizeof (DISK_SPACE_1) / sizeof (c16) - 1; // minus EOS sign.
+
+	// DYNAMIC TEXTS
+	c16 confirmationTop	[CONFIRMATION_TOP_1_SIZE + QUAIL_NAME_VERSION_SIZE + CONFIRMATION_TOP_2_SIZE + MAX_PATH] = CONFIRMATION_TOP_1 QUAIL_NAME_VERSION_W CONFIRMATION_TOP_2;
+	c16 diskSpace		[DISK_SPACE_1_SIZE + LOCAL::MAX_EXE_SIZE] = DISK_SPACE_1;
 }

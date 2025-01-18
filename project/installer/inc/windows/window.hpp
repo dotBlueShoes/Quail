@@ -18,9 +18,9 @@ namespace WINDOWS::WINDOW {
 	///////////////////////////////////////////////////////////////////////////
 
 	// IDS
-	const u64 ID_RICHEDIT 	= 0b1001;
-	const u64 ID_STATIC	 	= 0b1010;
-	const u64 ID_LISTVIEW 	= 0b1011;
+	const u64 ID_RICHEDIT 				= 0b1001;
+	const u64 ID_STATIC	 				= 0b1010;
+	const u64 ID_LISTVIEW 				= 0b1011;
 
 	// COLORS
 	const COLORREF ACCENT_COLOR			= 0xd77800; // 0xe597b5; -> my system accent color "purple".
@@ -30,11 +30,11 @@ namespace WINDOWS::WINDOW {
 	const COLORREF TEXT_FIRST			= 0x000000;
 
 	// RECTS
-	const RECT textDescriptionRegion = { 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
-	const RECT textTagRegion = { 16, 5, textTagRegion.left + 40, textTagRegion.top + 10 };
+	const RECT textDescriptionRegion 	{ 29, 25, textDescriptionRegion.left + 40, textDescriptionRegion.top + 10 };
+	const RECT textTagRegion 			{ 16, 5, textTagRegion.left + 40, textTagRegion.top + 10 };
 
-	const pair<s16> rePosition { 29 + 3, 102 + 2 };
-	const pair<s16> reSize { 354 - 3, 18 - 1 };
+	const pair<s16> rePosition 			{ 29 + 3, 102 + 2 };
+	const pair<s16> reSize 				{ 354 - 3, 18 - 1 };
 	const RECT reRectPadding { 
 		rePosition.x - 1 - 3, 
 		rePosition.y - 1 - 2, 
@@ -42,9 +42,9 @@ namespace WINDOWS::WINDOW {
 		reSize.y + rePosition.y + 1
 	};
 
-	const u16 wsLeftMargin = 10;
-	const pair<s16> wsPosition { 30 + wsLeftMargin, 100 };
-	const pair<s16> wsSize { 438 - wsLeftMargin, 134 };
+	const u16 wsLeftMargin 				= 10;
+	const pair<s16> wsPosition 			{ 30 + wsLeftMargin, 100 };
+	const pair<s16> wsSize 				{ 438 - wsLeftMargin, 134 };
 	const RECT wsLicensePadding { 
 		wsPosition.x - 1 - wsLeftMargin, 
 		wsPosition.y - 1, 
@@ -52,9 +52,9 @@ namespace WINDOWS::WINDOW {
 		wsSize.y + wsPosition.y + 1
 	};
 
-	const pair<s16> wlbMargin { 2, 2 };
-	const pair<s16> wlbPosition { 29 + wlbMargin.x, 118 + wlbMargin.y };
-	const pair<s16> wlbSize { 438 - wlbMargin.x, 64 - wlbMargin.y };
+	const pair<s16> wlbMargin 			{ 2, 2 };
+	const pair<s16> wlbPosition 		{ 29 + wlbMargin.x, 118 + wlbMargin.y };
+	const pair<s16> wlbSize 			{ 438 - wlbMargin.x, 64 - wlbMargin.y };
 	const RECT wlbLicensePadding { 
 		wlbPosition.x - 1 - wlbMargin.x, 
 		wlbPosition.y - 1 - wlbMargin.y, 
@@ -62,14 +62,9 @@ namespace WINDOWS::WINDOW {
 		wlbSize.y + wlbPosition.y + 1
 	};
 
-	const pair<u16> PROGRESSBAR_RANGE { 0, 255 };
+	const pair<u16> PROGRESSBAR_RANGE 	{ 0, 255 };
 
 	///////////////////////////////////////////////////////////////////////////
-
-
-	// DYNAMIC TEXTS
-	c16 msgConfirmationTop	[LOCAL::CONFIRMATION_TOP_WITHOUT_SIZE + MAX_PATH + 1] 	= L"This program will install " QUAIL_NAME_VERSION L" into: \"";
-	c16 msgDiskSpace		[LOCAL::DISK_SPACE_WITHOUT_SIZE + LOCAL::MAX_EXE_SIZE + 1] 	= L"Disk space needed : ";
 	
 	// HANDLERS
 	HBITMAP image = nullptr;
@@ -227,8 +222,8 @@ namespace WINDOWS::WINDOW {
 
 		{
 			const RECT textRegion = { 29, 294, textRegion.left + 40, textRegion.top + 14 };
-    		swprintf (msgDiskSpace + LOCAL::DISK_SPACE_WITHOUT_SIZE, LOCAL::MAX_EXE_SIZE, L"%.2f KB", DISK_SPACE_KB);
-    		DrawTextW (windowContext, msgDiskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
+    		swprintf (LOCAL::diskSpace + LOCAL::DISK_SPACE_1_SIZE, LOCAL::MAX_EXE_SIZE, L"%.2f KB", DISK_SPACE_KB);
+    		DrawTextW (windowContext, LOCAL::diskSpace, -1, (RECT*) &textRegion, DT_SINGLELINE | DT_NOCLIP);
 		}
 
 		SelectFont (windowContext, previousFont);
@@ -365,9 +360,9 @@ namespace WINDOWS::WINDOW {
 			};
 			
     	 	const s32 stringLength = swprintf (
-				msgConfirmationTop + LOCAL::CONFIRMATION_TOP_WITHOUT_SIZE, 
+				LOCAL::confirmationTop - 1 + LOCAL::CONFIRMATION_TOP_1_SIZE + QUAIL_NAME_VERSION_SIZE + LOCAL::CONFIRMATION_TOP_2_SIZE, 
 				MAX_PATH, 
-				L"%s\".", CONFIGURATION::topConfigsFolderPath
+				L"%s\".", CONFIG::topConfigsFolder
 			);
 
 			{ // Emplace a single new line symbol if the text is to long.
@@ -377,14 +372,14 @@ namespace WINDOWS::WINDOW {
 
 					// Issue: Possible Memory leak. // Move all by one
 					for (u16 i = stringLength; i > MAX_CHARACTERS_IN_LINE; --i) {
-						msgConfirmationTop[i] = msgConfirmationTop[i - 1];
+						LOCAL::confirmationTop[i] = LOCAL::confirmationTop[i - 1];
 					}
 
-					msgConfirmationTop[MAX_CHARACTERS_IN_LINE] = L'\n';
+					LOCAL::confirmationTop[MAX_CHARACTERS_IN_LINE] = L'\n';
 				} 
 			}
 
-    	 	DrawTextW (windowContext, msgConfirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
+    	 	DrawTextW (windowContext, LOCAL::confirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
 		}
 
 		if (INSTALLATION::isRegistry) {
@@ -492,8 +487,8 @@ namespace WINDOWS::WINDOW {
 			SelectFont (windowContext, font);
 
 			{ // Text Control
-				const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 40, textRegion.top + 10 };
-				DrawTextW (windowContext, LOCAL::ExitText, -1, (RECT*) &textRegion, DT_NOCLIP);
+				const RECT textRegion = { 164 + 16, 16 + 32, textRegion.left + 296, textRegion.top + (14 * 2) };
+				DrawTextW (windowContext, LOCAL::ExitText, -1, (RECT*) &textRegion, DT_WORDBREAK);
 			}
 
 			SelectFont (windowContext, previousFont);
@@ -503,14 +498,14 @@ namespace WINDOWS::WINDOW {
 
 
 	bool SyncValidateRichEditPath () {
-		CONFIGURATION::topConfigsFolderPathLength = GetWindowTextLengthW (rePath) + 1;
-		GetWindowTextW (rePath, CONFIGURATION::topConfigsFolderPath, CONFIGURATION::topConfigsFolderPathLength);
-		CONFIGURATION::topConfigsFolderPathLength *= 2; // wide-character
+		CONFIG::topConfigsFolderLength = GetWindowTextLengthW (rePath) + 1;
+		GetWindowTextW (rePath, CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
+		CONFIG::topConfigsFolderLength *= 2; // wide-character
 
 		LOGINFO ("SyncValidateRichEditPath () Call\n");
-		LOGINFO ("path: %ls\n", CONFIGURATION::topConfigsFolderPath);
+		LOGINFO ("path: %ls\n", CONFIG::topConfigsFolder);
 
-		return IsValidDirectory (CONFIGURATION::topConfigsFolderPath, CONFIGURATION::topConfigsFolderPathLength);
+		return IsValidDirectory (CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
 	}
 
 
@@ -849,9 +844,9 @@ namespace WINDOWS::WINDOW {
             			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffor, MAX_PATH))) {
 
 							// SET.
-							CONFIGURATION::topConfigsFolderPathLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
-							memcpy (CONFIGURATION::topConfigsFolderPath, tempBuffor, CONFIGURATION::topConfigsFolderPathLength);	// Copy to my own memory.
-							SetWindowTextW (rePath, CONFIGURATION::topConfigsFolderPath); 									// Update RichEdit Control
+							CONFIG::topConfigsFolderLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
+							memcpy (CONFIG::topConfigsFolder, tempBuffor, CONFIG::topConfigsFolderLength);	// Copy to my own memory.
+							SetWindowTextW (rePath, CONFIG::topConfigsFolder); 									// Update RichEdit Control
 							CoTaskMemFree (tempBuffor);																	// Release String created via BrowseFolder Control.
             			}
 						

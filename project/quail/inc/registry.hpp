@@ -23,20 +23,20 @@ namespace WINDOWS::REGISTRY {
 			wmemset (folderPath + (folderPathLength / 2) - 1, L'\\', 1);
 		}
 
-		mConfigFilePathLength = folderPathLength + 1 + REGISTRY::CONFIG_MAIN_LENGTH;
+		mConfigFilePathLength = folderPathLength + 1 + CONFIG::MAIN_LENGTH;
 		ALLOCATE (c16, mConfigFilePath, mConfigFilePathLength);
 
 		{ // CONSTRUCT
 			memcpy (mConfigFilePath, folderPath, folderPathLength);
-			memcpy (mConfigFilePath + (folderPathLength / 2), REGISTRY::CONFIG_MAIN_W, REGISTRY::CONFIG_MAIN_LENGTH);
+			memcpy (mConfigFilePath + (folderPathLength / 2), CONFIG::MAIN_W, CONFIG::MAIN_LENGTH);
 		}
 
-		gConfigFilePathLength = folderPathLength + 1 + REGISTRY::CONFIG_GLOBAL_LENGTH;
+		gConfigFilePathLength = folderPathLength + 1 + CONFIG::GLOBAL_LENGTH;
 		ALLOCATE (c16, gConfigFilePath, gConfigFilePathLength);
 
 		{ // CONSTRUCT
 			memcpy (gConfigFilePath, folderPath, folderPathLength);
-			memcpy (gConfigFilePath + (folderPathLength / 2), REGISTRY::CONFIG_GLOBAL_W, REGISTRY::CONFIG_GLOBAL_LENGTH);
+			memcpy (gConfigFilePath + (folderPathLength / 2), CONFIG::GLOBAL_W, CONFIG::GLOBAL_LENGTH);
 		}
 	}
 

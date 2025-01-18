@@ -5,6 +5,12 @@
 #include <blue/types.hpp>
 
 namespace CONFIG {
+
+	const c16 MAIN_W			[] = L"config.txt";
+	const u32 MAIN_LENGTH		= sizeof (MAIN_W);
+
+	const c16 GLOBAL_W			[] = L"global.txt";
+	const u32 GLOBAL_LENGTH		= sizeof (GLOBAL_W);
 	
 	u32 topConfigsFolderLength; 
 	c16* topConfigsFolder;

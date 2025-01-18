@@ -25,7 +25,7 @@ int WinMain (
 	LOGINFO ("Application Statred!\n");
 
 	{ // PREP. Quail path buffor.
-		ALLOCATE (c16, CONFIGURATION::topConfigsFolderPath, MAX_PATH);
+		ALLOCATE (c16, CONFIG::topConfigsFolder, MAX_PATH);
 	}
 
 	{ // Window Creation.
@@ -71,7 +71,7 @@ int WinMain (
 	LOGINFO ("Executed Installer Sucessfully.\n");
 
 	{ // Free assets.
-		FREE (CONFIGURATION::topConfigsFolderPath);
+		FREE (CONFIG::topConfigsFolder);
 	}
 
 	return 0;

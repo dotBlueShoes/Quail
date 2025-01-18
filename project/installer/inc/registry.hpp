@@ -14,21 +14,6 @@
 
 namespace WINDOWS::REGISTRY {
 
-	const c16 KEY_PATH_UNINSTALL_W					[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Quail";
-
-	const c16 PROPERTY_UNINSTALL_DISPLAY_ICON		[] = L"DisplayIcon";
-	const c16 PROPERTY_UNINSTALL_DISPLAY_NAME		[] = L"DisplayName";
-	const c16 PROPERTY_UNINSTALL_DISPLAY_VERSION	[] = L"DisplayVersion";
-	const c16 PROPERTY_UNINSTALL_ESTIMATED_SIZE		[] = L"EstimatedSize";
-	const c16 PROPERTY_UNINSTALL_NO_REPAIR			[] = L"NoRepair";
-	const c16 PROPERTY_UNINSTALL_NO_MODIFY			[] = L"NoModify";
-	const c16 PROPERTY_UNINSTALL_HELP_LINK			[] = L"HelpLink";
-	const c16 PROPERTY_UNINSTALL_INSTALL_LOCATION	[] = L"InstallLocation";
-	const c16 PROPERTY_UNINSTALL_PUBLISHER			[] = L"Publisher";
-	const c16 PROPERTY_UNINSTALL_UNINSTALL_STRING	[] = L"UninstallString";
-	const c16 PROPERTY_UNINSTALL_URL_INFO_ABOUT		[] = L"URLInfoAbout";
-	const c16 PROPERTY_UNINSTALL_URL_UPDATE_INFO	[] = L"URLUpdateInfo";
-
 	const c16 VALUE_UNINSTALL_DISPLAY_NAME			[] = L"Quail";
 	const s32 VALUE_UNINSTALL_ESTIMATED_SIZE		= DISK_SPACE_KB;
 	const s32 VALUE_UNINSTALL_NO_REPAIR				= 1;

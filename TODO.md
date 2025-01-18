@@ -44,3 +44,16 @@
 74. Make quail scripts for uninstaller to. (manifest file, upx) 
 77. Move license.h" & "data.h" to GLOBAL project.
 82. 
+
+
+-- 0.5
+-> Uninstaller
+-> Proper deallocation when failure
+-> Better error Quail logs
+-> Disable making projects in global.txt -> see how it works
+	Maybe if it works fine leave it.
+
+-- 0.6
+-> Roadmap
+-> yt-video
+-> ... things from todolist.
