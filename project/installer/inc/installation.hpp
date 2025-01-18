@@ -4,7 +4,6 @@
 #pragma once
 #include <global/config.hpp>
 
-#include "configuration.hpp"
 #include "registry.hpp"
 #include "download.hpp"
 
@@ -39,12 +38,12 @@ namespace INSTALLATION {
 
 		auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 		auto&& directoryPath = CONFIG::topConfigsFolder;
-		c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::EXECUTABLE_NAME_LENGTH + 1);
+		c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::EXECUTABLE_NAME_LENGTH + 1);
 
 		{ // CONSTRUCT 
 			memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
 			buffer[(directoryPathLength / 2) - 1] = L'\\';			// Emplace '\\' sign into a single of 2 bytes.
-			memcpy (buffer + (directoryPathLength / 2), CONFIGURATION::EXECUTABLE_NAME, CONFIGURATION::EXECUTABLE_NAME_LENGTH);
+			memcpy (buffer + (directoryPathLength / 2), CONFIG::EXECUTABLE_NAME, CONFIG::EXECUTABLE_NAME_LENGTH);
 			LOGINFO ("executable filepath: %ls\n", buffer);
 		}
 
@@ -54,7 +53,7 @@ namespace INSTALLATION {
 		FREE (buffer);
 
 		// Create download for Quail Executable.
-		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIGURATION::URL_QUAIL_EXECUTABLE);
+		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);
 
 	}
 
@@ -79,12 +78,12 @@ namespace INSTALLATION {
 		{ // Actuall State Two
 			auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 			auto&& directoryPath = CONFIG::topConfigsFolder;
-			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::UNINSTALLER_NAME_LENGTH + 1);
+			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::UNINSTALLER_NAME_LENGTH + 1);
 
 			{ // CONSTRUCT
 				memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
 				buffer[(directoryPathLength / 2) - 1] = L'\\';			// Emplace '\\' sign into a single of 2 bytes.
-				memcpy (buffer + (directoryPathLength / 2), CONFIGURATION::UNINSTALLER_NAME, CONFIGURATION::UNINSTALLER_NAME_LENGTH);
+				memcpy (buffer + (directoryPathLength / 2), CONFIG::UNINSTALLER_NAME, CONFIG::UNINSTALLER_NAME_LENGTH);
 				LOGINFO ("uninstaller filepath: %ls\n", buffer);
 			}
 
@@ -94,7 +93,7 @@ namespace INSTALLATION {
 			FREE (buffer);
 
 			// Create download for Quail Executable.
-			DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIGURATION::URL_QUAIL_EXECUTABLE);
+			DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);
 		}
 
 	}

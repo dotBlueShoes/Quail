@@ -3,6 +3,9 @@
 //
 #pragma once
 #include <blue/types.hpp>
+#include <blue/error.hpp>
+
+#include "global/config.hpp"
 
 namespace WINDOWS::REGISTRY {
 
@@ -24,5 +27,52 @@ namespace WINDOWS::REGISTRY {
 	const c16 PROPERTY_UNINSTALL_UNINSTALL_STRING	[] = L"UninstallString";
 	const c16 PROPERTY_UNINSTALL_URL_INFO_ABOUT		[] = L"URLInfoAbout";
 	const c16 PROPERTY_UNINSTALL_URL_UPDATE_INFO	[] = L"URLUpdateInfo";
+
+
+	void LoadPropertyTopConfigsFolder () {
+
+		LSTATUS error;
+		unsigned long status;
+
+    	c16* data;
+    	DWORD size = 0;
+
+		// First get required size for memory allocation.
+    	status = RegGetValueW (
+			HKEY_LOCAL_MACHINE, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_FILEPATH_W, 
+			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
+			NULL, 
+			NULL, 
+			&size
+		);
+		
+    	if ((status != ERROR_SUCCESS) && (size < 1)) {
+
+			WERROR ("Could not read key value: %d\n\n", size);
+
+		}
+
+		// ALLOCATION
+		ALLOCATE (c16, data, size);
+
+		// Second get data.
+        status = RegGetValueW (
+			HKEY_LOCAL_MACHINE, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_FILEPATH_W, 
+			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
+			NULL, 
+			data,
+			&size
+		);
+        	
+		LOGWINFO ("Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
+
+		CONFIG::topConfigsFolderLength = size;
+    	CONFIG::topConfigsFolder = data;
+
+	}
 
 }

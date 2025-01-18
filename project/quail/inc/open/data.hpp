@@ -2,10 +2,9 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <global/config.hpp>
 #include <blue/types.hpp>
 #include <vector>
-
-#include "registry.hpp"
 
 namespace OPEN { 
 

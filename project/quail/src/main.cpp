@@ -7,13 +7,22 @@
 //
 #include "locale/error_codes.hpp"
 #include "activities/match.hpp"
-#include "registry.hpp"
+#include "windows/registry.hpp"
 
 s32 main (s32 argumentsCount, c8* arguments[]) {
 
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
+	LOGINFO ("Application Statred!\n");
 
-	WINDOWS::REGISTRY::LoadKeyValues ();
+	{ // TODO. Clean and move it.
+		WINDOWS::REGISTRY::LoadPropertyTopConfigsFolder ();
+
+		WINDOWS::REGISTRY::CreateQuailConfigsFilePaths (
+			CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder,
+			CONFIG::configMainFilePathLength, CONFIG::configMainFilePath,
+			CONFIG::configGlobalFilePathLength, CONFIG::configGlobalFilePath
+		);
+	}
 
 	switch (argumentsCount) {
 

@@ -1,11 +1,10 @@
 // Created 2024.11.05 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+#include <blue/windows/console.hpp>
 #include <blue/io.hpp>
 
-#include "windows/console.hpp"
 #include "windows/window.hpp"
-
 #include "installation.hpp"
 
 
@@ -21,7 +20,7 @@ int WinMain (
     UNREFERENCED_PARAMETER (isConsole);
 
 	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
-
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
 	LOGINFO ("Application Statred!\n");
 
 	{ // PREP. Quail path buffor.
@@ -68,11 +67,15 @@ int WinMain (
 		}
 	}
 
-	LOGINFO ("Executed Installer Sucessfully.\n");
-
 	{ // Free assets.
 		FREE (CONFIG::topConfigsFolder);
 	}
+
+	LOGINFO ("Finalized Execution\n");
+	LOGMEMORY ();
+	
+	DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
 
 	return 0;
 }

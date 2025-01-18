@@ -29,11 +29,11 @@ namespace WINDOWS::REGISTRY {
 
 		{ // Main Config
 			{ // CONSTRUCT (Main Config Path)
-				ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::MAIN_CONFIG_LENGTH + 1);
+				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_MAIN_LENGTH + 1);
 
 				memcpy (buffer, directoryPath, directoryPathLength);
 				buffer[(directoryPathLength / 2) - 1] = L'\\';
-				memcpy (buffer + (directoryPathLength / 2), CONFIGURATION::MAIN_CONFIG_W, CONFIGURATION::MAIN_CONFIG_LENGTH);
+				memcpy (buffer + (directoryPathLength / 2), CONFIG::CONFIG_MAIN_W, CONFIG::CONFIG_MAIN_LENGTH);
 
 				LOGINFO ("main config filepath: %ls\n", buffer);
 			}
@@ -46,11 +46,11 @@ namespace WINDOWS::REGISTRY {
 
 		{ // Global Config
 			{ // CONSTRUCT (Global Config Path)
-				ALLOCATE (c16, buffer, directoryPathLength + CONFIGURATION::GLOBAL_CONFIG_LENGTH + 1);
+				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);
 
 				memcpy (buffer, directoryPath, directoryPathLength);
 				buffer[(directoryPathLength / 2) - 1] = L'\\';
-				memcpy (buffer + (directoryPathLength / 2), CONFIGURATION::GLOBAL_CONFIG_W, CONFIGURATION::GLOBAL_CONFIG_LENGTH);
+				memcpy (buffer + (directoryPathLength / 2), CONFIG::CONFIG_GLOBAL_W, CONFIG::CONFIG_GLOBAL_LENGTH);
 
 				LOGINFO ("global config filepath: %ls\n", buffer);
 			}
@@ -132,23 +132,23 @@ namespace WINDOWS::REGISTRY {
 
 		HKEY key; LSTATUS error; DWORD status;
 
-		u32 uninstallerFilepathLength = filepathLength + CONFIGURATION::UNINSTALLER_LENGTH ;
+		u32 uninstallerFilepathLength = filepathLength + CONFIG::UNINSTALLER_NAME_LENGTH ;
 		c16* uninstallerFilepath; ALLOCATE (c16, uninstallerFilepath, uninstallerFilepathLength);
 
-		u32 quailFilepathLength = filepathLength + CONFIGURATION::QUAIL_LENGTH ;
+		u32 quailFilepathLength = filepathLength + CONFIG::EXECUTABLE_NAME_LENGTH ;
 		c16* quailFilepath; ALLOCATE (c16, quailFilepath, quailFilepathLength);
 
 		{ // Construct UNINSTALLER
 			memcpy (uninstallerFilepath, filepath, filepathLength - 2); 			// don't cpy '\0'
 			wmemset (uninstallerFilepath + (filepathLength / 2) - 1, L'\\', 1); 	// emplace `\` sign
-			memcpy (uninstallerFilepath + (filepathLength / 2), CONFIGURATION::UNINSTALLER_W, CONFIGURATION::UNINSTALLER_LENGTH);
+			memcpy (uninstallerFilepath + (filepathLength / 2), CONFIG::UNINSTALLER_NAME, CONFIG::UNINSTALLER_NAME_LENGTH);
 			LOGINFO ("uninstaller filepath: %ls\n", uninstallerFilepath);
 		}
 
 		{ // Construct QUAIL
 			memcpy (quailFilepath, filepath, filepathLength - 2); 					// don't cpy '\0'
 			wmemset (quailFilepath + (filepathLength / 2) - 1, L'\\', 1); 			// emplace `\` sign
-			memcpy (quailFilepath + (filepathLength / 2), CONFIGURATION::QUAIL_W, CONFIGURATION::QUAIL_LENGTH);
+			memcpy (quailFilepath + (filepathLength / 2), CONFIG::EXECUTABLE_NAME, CONFIG::EXECUTABLE_NAME_LENGTH);
 			LOGINFO ("quail filepath: %ls\n", quailFilepath);
 		}
 
@@ -221,6 +221,7 @@ namespace WINDOWS::REGISTRY {
 			RegCloseKey (key);
 
 			FREE (uninstallerFilepath);
+			FREE (quailFilepath);
 		}
 
 	}

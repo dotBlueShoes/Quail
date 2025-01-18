@@ -360,7 +360,7 @@ namespace WINDOWS::WINDOW {
 			};
 			
     	 	const s32 stringLength = swprintf (
-				LOCAL::confirmationTop - 1 + LOCAL::CONFIRMATION_TOP_1_SIZE + QUAIL_NAME_VERSION_SIZE + LOCAL::CONFIRMATION_TOP_2_SIZE, 
+				LOCAL::confirmationTop - 1 + LOCAL::CONFIRMATION_TOP_1_SIZE + CONFIG::QUAIL_NAME_VERSION_SIZE + LOCAL::CONFIRMATION_TOP_2_SIZE, 
 				MAX_PATH, 
 				L"%s\".", CONFIG::topConfigsFolder
 			);
@@ -424,13 +424,13 @@ namespace WINDOWS::WINDOW {
 
 			case INSTALLATION::PHASE_DOWNLOAD_MAIN: {
 				DrawTextW (windowContext, LOCAL::InstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
-				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_EXECUTABLE, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextA (windowContext, CONFIG::URL_QUAIL_EXECUTABLE, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
 			} break;
 
 			case INSTALLATION::PHASE_DOWNLOAD_UNINSTALLER: {
 				DrawTextW (windowContext, LOCAL::InstallerTagDownloading, -1, (RECT*) &INSTALLATION::CAPTION_REGION, DT_NOCLIP);
-				DrawTextA (windowContext, CONFIGURATION::URL_QUAIL_UNINSTALLER, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
+				DrawTextA (windowContext, CONFIG::URL_QUAIL_UNINSTALLER, -1, (RECT*) &INSTALLATION::TEXT_REGION, 0);
 				DrawTextA (windowContext, "...", -1, (RECT*) &INSTALLATION::REST_REGION, DT_NOCLIP);
 			} break;
 

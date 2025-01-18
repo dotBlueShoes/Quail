@@ -1,6 +1,7 @@
 // Created 2024.01.14 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+#include <blue/windows/console.hpp>
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 
@@ -100,8 +101,9 @@ int WinMain (
 	UNREFERENCED_PARAMETER (commandline);
 	UNREFERENCED_PARAMETER (isConsole);
 
-	// TODO Connect to a console.
-	//LOGINFO ("Application Statred!\n");
+	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
+	LOGINFO ("Application Statred!\n");
 
 	s32 response = MessageBoxW (
 		nullptr, MSG_START, MSG_TITLE, MB_YESNO | MB_ICONQUESTION
@@ -119,6 +121,12 @@ int WinMain (
 
 		default: break;
 	}
+
+	LOGINFO ("Finalized Execution\n");
+	LOGMEMORY ();
+	
+	DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
+	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
 
 	return 0;
 }
