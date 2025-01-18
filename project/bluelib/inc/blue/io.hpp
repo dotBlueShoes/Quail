@@ -24,6 +24,16 @@ namespace IO {
 		outfile.close ();
 	}
 
+	void CreateAdd (
+		const c16* const& pathname,
+		c16*& context
+	) {
+		std::wofstream outfile (pathname);
+		//std::ofstream outfile (pathname);
+		outfile << context << std::endl;
+		outfile.close ();
+	}
+
 	void Read (
 		const c16* const& pathname,
 		FILE*& file

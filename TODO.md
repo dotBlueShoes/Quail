@@ -47,11 +47,17 @@
 
 
 -- 0.5
--> Uninstaller
 -> Proper deallocation when failure
 -> Better error Quail logs
 -> Disable making projects in global.txt -> see how it works
 	Maybe if it works fine leave it.
+
+Examples
+- unity
+- gimp
+- windows terminal
+- directory
+- opening config
 
 -- 0.6
 -> Roadmap

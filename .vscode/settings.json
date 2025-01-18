@@ -56,6 +56,9 @@
 		"chrono": "cpp",
 		"optional": "cpp",
 		"forward_list": "cpp",
-		"ratio": "cpp"
+		"ratio": "cpp",
+		"iomanip": "cpp",
+		"sstream": "cpp",
+		"string": "cpp"
 	}
 }

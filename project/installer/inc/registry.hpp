@@ -24,6 +24,30 @@ namespace WINDOWS::REGISTRY {
 	const c16 VALUE_UNINSTALL_URL_UPDATE_INFO		[] = L"0";
 
 
+	//void AddContentToMainConfig (FILE*& file) {
+	//	DWORD bytesWritten;
+	//	BOOL result;
+	//
+    //	result = WriteFile (
+    //	    file,                // Handle to the file
+    //	    data,                 // Pointer to the data to write
+    //	    (DWORD)strlen(data),  // Number of bytes to write
+    //	    &bytesWritten,        // Number of bytes written
+    //	    NULL                  // No overlapped structure
+    //	);
+	//
+    //	if (!result) {
+    //	    printf ("Failed to write to the file. Error code: %lu\n", GetLastError());
+    //	    CloseHandle (file);
+    //	    return;
+    //	}
+	//
+    //	printf ("Successfully written to the file.\n");
+	//
+    //	// Close the file handle
+    //	CloseHandle (file);
+	//}
+
 	void CreateFiles (const u32& directoryPathLength, const c16* const& directoryPath) {
 		c16* buffer;
 
@@ -38,8 +62,26 @@ namespace WINDOWS::REGISTRY {
 				LOGINFO ("main config filepath: %ls\n", buffer);
 			}
 
-			if (!IO::IsExisting (buffer)) { IO::Create (buffer); }
-			else { LOGWARN ("main config file arleady exists.\n"); }
+			if (!IO::IsExisting (buffer)) { 
+
+				const u32 length = 
+					CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + 
+					CONFIG::topConfigsFolderLength + 
+					CONFIG::DEFAULT_CONFIG_MAIN_2_LENGTH
+				;
+
+				c16* contetnt; ALLOCATE (c16, contetnt, length);
+
+				{ // CONSTRUCT
+					memcpy (contetnt, DEFAULT_CONFIG_MAIN_1, CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH);
+					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH / 2), CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength - 2);
+					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + CONFIG::topConfigsFolderLength - 2) / 2, DEFAULT_CONFIG_MAIN_2, CONFIG::DEFAULT_CONFIG_MAIN_2_LENGTH);
+					LOGINFO ("FINAL CONTENT: \n%ls\n\n", contetnt);
+				}
+
+				IO::CreateAdd (buffer, contetnt);
+
+			} else { LOGWARN ("main config file arleady exists.\n"); }
 
 			FREE (buffer);
 		}
@@ -71,50 +113,42 @@ namespace WINDOWS::REGISTRY {
 		c16* env; ALLOCATE (c16, env, 2048);
 		DWORD envSize = -1;
 		
+		LSTATUS errorCode;
 		HKEY key;
 
 		// OPEN
-    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIROMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
+    	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIROMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
+    	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIROMENT_VARIABLES_W); }
 
-    	if (error != ERROR_SUCCESS) {
-			ERROR ("Could not open key at `%ls`\n", KEY_ENVIROMENT_VARIABLES_W);
-		}
+		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_ANY, NULL, env, &envSize); // GET
+		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
 
-		error = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_ANY, NULL, env, &envSize); // GET
-
-		if (error != ERROR_SUCCESS) {
-			ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W);
-		} 
-
-		//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
-
-		if (wcsstr (env, quail) != NULL) {
+		if (wcsstr (env, quail) != nullptr) {
 			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.\n");
 		} else {
 			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.\n");
 
 			{ // Creating proper entry string representing Quail.
-				auto&& binary = ((u8*) env) + envSize; //642;
-				auto&& begin = (c16*) binary - 2;
-			
-				wmemset (begin + 0, L';', 1);					// Replace `\0` with `;`.
-				memcpy  (begin + 1, quail, quailLength);		// Add Quail
-				wmemset (begin + (quailLength / 2), L'\0', 1); 	// Replace `\\` with `\0`.
-			
+				auto&& begin = env + (envSize / 2) - 1; // - '\0' sign.
+
+				memcpy  (begin, quail, quailLength);	// Add Quail
+				wmemset (begin + (quailLength / 2) - 1, L';', 1);
+				wmemset (begin + (quailLength / 2), L'\0', 1);
+
 				envSize = envSize + quailLength + 1;
 			
-				LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
+				//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
 			}
 			
-			// Adding the entry to the path variable.
-    		error = RegSetValueExW (key, PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)env, envSize);
 			
-			if (error != ERROR_SUCCESS) {
-				ERROR ("Could not set `%ls` value with `%ls`\n", PROPERTY_PATH_W, env);
+			{ // Adding the entry to the path variable.
+				errorCode = RegSetValueExW (key, PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)env, envSize);
+				if (errorCode != ERROR_SUCCESS) { ERROR ("Could not set `%ls` value with `%ls`\n", PROPERTY_PATH_W, env); }
+
+				// Update all other applications because we did just edited enviroment varaibles!
+				SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
 			}
-			
-			// Update all other applications because we did just edited enviroment varaibles!
-			SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
+    		
 			LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
 		}
 

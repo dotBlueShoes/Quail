@@ -14,6 +14,13 @@ namespace CONFIG {
 	#define QUAIL_NAME_VERSION_W 	QUAIL_NAME_W L" " QUAIL_FULL_VERSION_W
 	#define QUAIL_NAME_VERSION 		QUAIL_NAME " " QUAIL_FULL_VERSION
 
+	#define DEFAULT_CONFIG_MAIN_1	L"%path = "
+	#define DEFAULT_CONFIG_MAIN_2	L"\n!config	= start \"\" notepad++ \"%path%\\config.txt\""
+
+
+	const u32 DEFAULT_CONFIG_MAIN_1_LENGTH = sizeof (DEFAULT_CONFIG_MAIN_1) - 2; // / sizeof (c16);
+	const u32 DEFAULT_CONFIG_MAIN_2_LENGTH = sizeof (DEFAULT_CONFIG_MAIN_2); // / sizeof (c16);
+
 	const c8 QUAIL_NAME_VERSION_SIZE 	= sizeof (QUAIL_NAME_VERSION);
 	const c8 QUAIL_NAME_SIZE 			= sizeof (QUAIL_NAME);
 
@@ -23,17 +30,17 @@ namespace CONFIG {
 	const c16 CONFIG_GLOBAL_W[]			= L"global.txt";
 	const u32 CONFIG_GLOBAL_LENGTH		= sizeof (CONFIG_GLOBAL_W);
 
-	const c8* URL_QUAIL_EXECUTABLE 		= "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
-	//const c8* URL_QUAIL_EXECUTABLE = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
+	const c8 URL_QUAIL_EXECUTABLE 		[] = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
+	//const c8 URL_QUAIL_EXECUTABLE 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
 
-	const c8* URL_QUAIL_UNINSTALLER 	= "https://github.com/dotBlueShoes/bta-Gems/releases/download/0.4.5/gems_mod-0.4.5.jar";
-	//const c8* URL_QUAIL_UNINSTALLER = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/uninstaller.exe";
+	const c8 URL_QUAIL_UNINSTALLER 		[] = "https://github.com/dotBlueShoes/bta-Gems/releases/download/0.4.5/gems_mod-0.4.5.jar";
+	//const c8 URL_QUAIL_UNINSTALLER 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/uninstaller.exe";
 
-	const c16 EXECUTABLE_NAME[] 		= L"QuailNew.exe";
-	//const c16 EXECUTABLE_NAME[] 		= L"Quail.exe";
+	const c16 EXECUTABLE_NAME			[] = L"QuailNew.exe";
+	//const c16 EXECUTABLE_NAME			[] = L"Quail.exe";
 	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
 
-	const c16 UNINSTALLER_NAME[] 		= L"uninstall.exe";
+	const c16 UNINSTALLER_NAME			[] = L"uninstall.exe";
 	const u32 UNINSTALLER_NAME_LENGTH 	= sizeof (UNINSTALLER_NAME);
 	
 	u32 topConfigsFolderLength; 
