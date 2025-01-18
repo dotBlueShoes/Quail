@@ -2,6 +2,7 @@ param (
 	[string]$mt_path = "",
 	[string]$path = "",
 	[string]$profile = "",
+	[string]$project = "",
 	[string]$file = ""
 )
 
@@ -9,4 +10,4 @@ param (
 #Write-Host "$path"
 #Write-Host "$profile"
 
-.$mt_path -nologo -manifest "$path\project\installer\res\Installer.exe.manifest" -outputresource:"$path\build\$profile\project\installer\$file;#1"
+.$mt_path -nologo -manifest "$path\project\$project\res\$file.manifest" -outputresource:"$path\build\$profile\project\$project\$file;#1"

@@ -28,8 +28,11 @@ namespace WINDOWS::REGISTRY {
 	const c16 PROPERTY_UNINSTALL_URL_INFO_ABOUT		[] = L"URLInfoAbout";
 	const c16 PROPERTY_UNINSTALL_URL_UPDATE_INFO	[] = L"URLUpdateInfo";
 
+	const c16 KEY_ENVIROMENT_VARIABLES_W 			[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
+	const c16 PROPERTY_PATH_W 						[] = L"path";
 
-	void LoadPropertyTopConfigsFolder () {
+
+	void ReadPropertyTopConfigsFolder () {
 
 		LSTATUS error;
 		unsigned long status;

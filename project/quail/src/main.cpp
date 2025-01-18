@@ -15,7 +15,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 	LOGINFO ("Application Statred!\n");
 
 	{ // TODO. Clean and move it.
-		WINDOWS::REGISTRY::LoadPropertyTopConfigsFolder ();
+		WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
 
 		WINDOWS::REGISTRY::CreateQuailConfigsFilePaths (
 			CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder,

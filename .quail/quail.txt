@@ -44,11 +44,14 @@
 !_ins			= start "" "%_path%\build\%pd%\%new_ins_path%"
 !_iins			= start "" "%_path%\build\%pr%\%new_ins_path%"
 
+!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% installer Installer.exe
+!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% installer Installer.exe
+
 !_uni			= start "" "%_path%\build\%pd%\project\uninstaller\uninstall.exe"
 !_uuni			= start "" "%_path%\build\%pd%\project\uninstaller\uninstall.exe"
 
-!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% Installer.exe
-!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% Installer.exe
+!umanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% uninstaller uninstall.exe
+!ummanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% uninstaller uninstall.exe
 
 !compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\installer\Installer.exe" "%_path%\build\%pd%\%new_ins_path%"
 !ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\installer\Installer.exe" "%_path%\build\%pr%\%new_ins_path%"

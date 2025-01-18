@@ -67,9 +67,6 @@ namespace WINDOWS::REGISTRY {
 		const u16& quailLength,
 		const c16* const& quail
 	) {
-		
-		const c16* keyPath = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
-		const c16* name = L"path";
 
 		c16* env; ALLOCATE (c16, env, 2048);
 		DWORD envSize = -1;
@@ -77,16 +74,16 @@ namespace WINDOWS::REGISTRY {
 		HKEY key;
 
 		// OPEN
-    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, keyPath, 0, KEY_ALL_ACCESS, &key);
+    	auto error = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIROMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
 
     	if (error != ERROR_SUCCESS) {
-			ERROR ("Could not open key at `%ls`\n", keyPath);
+			ERROR ("Could not open key at `%ls`\n", KEY_ENVIROMENT_VARIABLES_W);
 		}
 
-		error = RegGetValueW (key, NULL, name, RRF_RT_ANY, NULL, env, &envSize); // GET
+		error = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_ANY, NULL, env, &envSize); // GET
 
 		if (error != ERROR_SUCCESS) {
-			ERROR ("Could not get `%ls` value.\n", name);
+			ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W);
 		} 
 
 		//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
@@ -110,10 +107,10 @@ namespace WINDOWS::REGISTRY {
 			}
 			
 			// Adding the entry to the path variable.
-    		error = RegSetValueExW (key, name, 0, REG_SZ, (LPBYTE)env, envSize);
+    		error = RegSetValueExW (key, PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)env, envSize);
 			
 			if (error != ERROR_SUCCESS) {
-				ERROR ("Could not set `%ls` value with `%ls`\n", name, env);
+				ERROR ("Could not set `%ls` value with `%ls`\n", PROPERTY_PATH_W, env);
 			}
 			
 			// Update all other applications because we did just edited enviroment varaibles!
