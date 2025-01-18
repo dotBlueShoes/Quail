@@ -1,0 +1,2 @@
+# Create a new "Windows Terminal" host with a specified title and at specified directory path. The tab will also be in specified color.
+!terminal 		= wt -w 0 nt --title %title% -d "%directory%" --tabColor "%color%"

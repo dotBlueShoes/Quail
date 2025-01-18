@@ -40,15 +40,13 @@
 
 -- UNINSTALLER
 
-73. Make a simple uninstaller utility.
-74. Make quail scripts for uninstaller to. (manifest file, upx) 
+74. Make quail scripts for uninstaller to. (upx) 
 77. Move license.h" & "data.h" to GLOBAL project.
 82. 
 
 
 -- 0.5
--> Proper deallocation when failure
--> Better error Quail logs
+-> Proper deallocation when failure (ISSUE_XYZ1, syntax errors)
 -> Disable making projects in global.txt -> see how it works
 	Maybe if it works fine leave it.
 

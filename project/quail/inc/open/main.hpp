@@ -25,6 +25,14 @@ namespace OPEN {
 
 	//
 
+	void ErrorQuail (const HANDLE& console, const c8* const& msg) {
+		SetConsoleTextAttribute (console, 12);
+		printf ("\n\tQuail-Error");
+		SetConsoleTextAttribute (console, 7);
+		printf (": %s!\n\n", msg);
+	}
+
+
 	void ReadFile (
 		FILE* const& file,
 		INTERPRETER::Interpreter& interpreter
@@ -395,8 +403,10 @@ namespace OPEN {
 
 					projectId = FindProject (command, commandLength); // Store information about what module we're in.
 
+					// ISSUE_XYZ1 ?! DOES IT EVEN return projects.keys.size () anytime now ?
 					if (projectId == projects.keys.size ()) {
 						ERROR ("Could not match with any project.\n\n");
+						//ErrorQuail (console, "Could not match said string with any project");
 					} else { 	
 						GetProjects (interpreter, includesCounter, projectId); 
 						spaceFiles = projects.capes[projectId].special.includesCount; // Store information about current module files amount.
@@ -552,7 +562,9 @@ namespace OPEN {
 					);
 
 					if (index == queues.keys.size ()) { // Not a queue
-						ERROR ("Not a valid command or queue!\n");
+						//ERROR ("Not a valid command or queue!\n");
+						ErrorQuail (console, "Could not match said string with a command nor a queue");
+
 					} else {
 						const auto&& queue = (c8*) queues.values[index];
 						LOGINFO ("queue-id: [%d]: %s\n", index, queue);

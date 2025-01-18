@@ -1,0 +1,2 @@
+# Open "GitHub" at specified repository
+!github			= github "%local_directory_with_said_repo%"

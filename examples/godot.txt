@@ -1,0 +1,2 @@
+# Open a "Godot" project using specified version of "Godot" - Executable. 
+!godot			= start "" "%godot%" "%godot_project%"

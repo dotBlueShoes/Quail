@@ -15,7 +15,9 @@ namespace CONFIG {
 	#define QUAIL_NAME_VERSION 		QUAIL_NAME " " QUAIL_FULL_VERSION
 
 	#define DEFAULT_CONFIG_MAIN_1	L"%path = "
-	#define DEFAULT_CONFIG_MAIN_2	L"\n!config	= start \"\" notepad++ \"%path%\\config.txt\""
+	#define DEFAULT_CONFIG_MAIN_2	L"\n!config	= start \"\" notepad++ \"%path%\\config.txt\"" \
+									L"\n!global			= start \"\" notepad++ \"%path%\\global.txt\"" \
+									L"\n!directory 		= explorer.exe \"%path%\""
 
 
 	const u32 DEFAULT_CONFIG_MAIN_1_LENGTH = sizeof (DEFAULT_CONFIG_MAIN_1) - 2; // / sizeof (c16);
