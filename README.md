@@ -17,17 +17,19 @@
 
 # Examples
 
-- To display commands and queues of main config
+For simplicity sake I'll refer to commands, queues, projects and subprojects here as `aliases`.
+
+- To display aliases of main config
   > `quail -o`
-- To execute a command or a queue
+- To execute an alias
   > `quail -o [project_name] [command]`
-- To display project's commands and queues
+- To display project's aliases
   > `quail -o [project_name]`
-- To display subproject's commands and queues
+- To display subproject's aliases
   > `quail -o [project_name] [subproject_name]`
-- To execute subproject's command or a queue
+- To execute subproject's alias
   > `quail -o [project_name] [subproject_name] [command]`
-- To execute subproject subsubproject's command or a queue
+- To execute subproject subsubproject's alias
   > `quail -o [project_name] [subproject_name] [subsubproject_name] [command]`
 
 . . .
