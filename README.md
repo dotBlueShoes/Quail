@@ -12,7 +12,7 @@
   > Variable-like utility to store strings and use them with different Constants or Commands.
 - Use command queues
   > Run multiple defined commands as if it was a singular quail command.
-- Easly display all commands & queues.
+- Easly display all commands & queues
   > Simply run `Quail` with a selected project or a subproject to display it's contents. 
 
 # Examples
