@@ -5,7 +5,7 @@
 - Use shortcuts
   > Execute a command specified in a config file by refering to a user-defined command name instead.
 - Write even shorter
-  > Said user-defined command does not have to be fully written to be matched. Quail will always take 1st match.
+  > Said user-defined command does not have to be fully written to be matched. Be aware Quail will always take the 1st match.
 - Be modular
   > Supports identifing subprojects and allows for command grouping.
 - Define constants
