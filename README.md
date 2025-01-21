@@ -13,7 +13,7 @@
 - Use command queues
   > Run multiple defined commands as if it was a singular quail command.
 - Easly display all commands & queues
-  > Simply run `Quail` with a selected project or a subproject to display it's contents. 
+  > Simply run `Quail` with a selected project or a subproject to display it's contents.
 
 # Examples
 
@@ -33,3 +33,7 @@ For simplicity sake I'll refer to commands, queues, projects and subprojects her
   > `quail -o [project_name] [subproject_name] [subsubproject_name] [command]`
 
 . . .
+
+# Software Notes
+Why writting my own `Wizard` when WinApi provides a ready to use control with localization support -> [windows wizard sample](https://github.com/microsoft/Windows-classic-samples/tree/263dd514ad215d0a40d1ec44b4df84b30ec11dcf/Samples/Win7Samples/winui/shell/appplatform/aerowizards/migratingtoaerowizardssdksample/wizard97) ?
+  > My reasoning: It's a good learning example and it provides more flexibility like future custom optimalizations, darkmode support or making the window dpi-aware. Additionally the Wizard executable created is compressed which then competes well with `.msi` files, that usually weigh less.
