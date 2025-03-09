@@ -96,6 +96,75 @@ namespace OPEN {
 	Commands commands;
 	Queues queues;
 
+	void Destroy (void*) {
+
+		//for (s32 i = 0; i < projects.keys.size(); ++i) {
+		//	FREE (projects.configs[i]);
+		//	FREE (projects.paths[i]);
+		//	FREE (projects.keys[i]);
+		//}
+
+		for (s32 i = 0; i < projects.configs.size(); ++i) {
+			FREE (projects.configs[i]);
+		}
+
+		for (s32 i = 0; i < projects.paths.size(); ++i) {
+			FREE (projects.paths[i]);
+		}
+
+		for (s32 i = 0; i < projects.keys.size(); ++i) {
+			FREE (projects.keys[i]);
+		}
+
+		for (s32 i = 0; i < includes.size(); ++i) {
+			FREE (includes[i]);
+		}
+
+		//for (s32 i = 0; i < constants.keys.size(); ++i) {
+		//	FREE (constants.values[i]);
+		//	FREE (constants.keys[i]);
+		//}
+		//
+		//for (s32 i = 0; i < commands.keys.size(); ++i) {
+		//	FREE (commands.values[i]);
+		//	FREE (commands.keys[i]);
+		//}
+		//
+		//for (s32 i = 0; i < queues.keys.size(); ++i) {
+		//	FREE (queues.values[i]);
+		//	FREE (queues.keys[i]);
+		//}
+
+		for (s32 i = 0; i < constants.values.size(); ++i) {
+			FREE (constants.values[i]);
+		}
+
+		for (s32 i = 0; i < commands.values.size(); ++i) {
+			FREE (commands.values[i]);
+		}
+
+		for (s32 i = 0; i < queues.values.size(); ++i) {
+			FREE (queues.values[i]);
+		}
+
+		for (s32 i = 0; i < constants.keys.size(); ++i) {
+			FREE (constants.keys[i]);
+		}
+
+		for (s32 i = 0; i < commands.keys.size(); ++i) {
+			FREE (commands.keys[i]);
+		}
+
+		for (s32 i = 0; i < queues.keys.size(); ++i) {
+			FREE (queues.keys[i]);
+		}
+
+		for (u32 iFile = 0; iFile < files.size(); ++iFile) {
+			IO::Close (files[iFile]);
+		}
+
+	}
+
 	// We're using those 2 to form a string that later 
 	// copied and pushed to a specific vector.
 	u32 temporaryLength;

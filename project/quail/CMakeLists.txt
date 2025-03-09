@@ -1,5 +1,5 @@
 # --- Define a 'subproject'
-project (Quail VERSION 0.3.0 LANGUAGES C CXX)
+project (Quail VERSION 0.5.0 LANGUAGES C CXX)
 
 # --- Add 'headers' to a variable.
 file (GLOB_RECURSE HEADER_FILES

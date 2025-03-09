@@ -12,21 +12,6 @@ include (properties)
 
 add_subdirectory (dependencies)
 
-# --- Add a DUMMY variable that will force refresh every build.
-# ISSUE (CMAKE does not like edititng source files.)
-#
-#set (DUMMY_OUTPUT "${CMAKE_BINARY_DIR}/.dummy_output")
-#
-#add_custom_command (
-#    OUTPUT ${DUMMY_OUTPUT} 
-#    COMMAND powershell
-#	${CMAKE_SOURCE_DIR}/.quail/incrementBuildVersion.ps1 -filepath "${CMAKE_SOURCE_DIR}"
-#    COMMENT "Executing PowerShell script before building target"
-#    VERBATIM
-#)
-#
-#add_custom_target (BuildCallback ALL DEPENDS ${DUMMY_OUTPUT})
-
 # --- Add 'defines' to all projects
 
 add_compile_definitions (_CRT_SECURE_NO_WARNINGS)

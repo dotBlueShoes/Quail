@@ -25,7 +25,7 @@ bool IsValidDirectory (c16*& path, u32& pathLength) {
 	if (pathLength < 6 || pathLength > MAX_PATH) return false;
 
 	// Follows the specified format: "n:/..."
-	if (path[1] != L':' && path[1] != L'//') return false;
+	if (path[1] != L':' && path[1] != L'\\') return false;
 
     // Ensure the path contains no invalid characters.
 	const c16 invchars[] { L'<', L'>', L'\"', L'|', L'?', L'*', L'\0' };

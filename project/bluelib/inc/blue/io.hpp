@@ -39,7 +39,7 @@ namespace IO {
 		FILE*& file
 	) {
 		file = _wfopen (pathname, L"rb");
-		if (file == NULL) ERROR ("File could not be opened.\n\n");
+		if (file == NULL) ERROR ("File: '%ls' could not be opened." ERROR_NEW_LINE, pathname);
 	}
 
 	void Close (

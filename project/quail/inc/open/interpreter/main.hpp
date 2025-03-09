@@ -21,7 +21,7 @@ namespace OPEN::INTERPRETER {
 
 
 	#define ERROR_INTERPRETER(typeStr, character) { \
-		ERROR ("Invalid syntax '%s' ['%c'-%d] \n\n", typeStr, character, character); \
+		ERROR ("Invalid syntax '%s' ['%c'-%d]" ERROR_NEW_LINE, typeStr, character, character); \
 	}
 
 }
@@ -234,7 +234,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 					//
 					break;
 
-		error:		ERROR ("Said file is arleady being included: `%ls`\n", (c16*)include);
+		//error:		ERROR ("Said file is arleady being included: `%ls`\n", (c16*)include);
 
 				}
 
@@ -455,9 +455,10 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 				u8* project; // Allocate & create FilePath string.
 				MEMORY::Construct2<u8> (project, pathLength, path, temporaryLength, temporary);
+				MEMORY::EXIT::PUSH (project, FREE);
 
 				{ // See if said FilePath already occurs. If not save it.
-					for (u16 i = 0; i < projects.configs.size(); ++i) {
+					for (u16 i = 0; i < projects.configs.size (); ++i) {
 						u8 condition = 0;
 						IsEqualS3_16 (condition, (u16*)project, (u16*)projects.configs[i]);
 						if (condition == 2) goto error;
@@ -465,10 +466,12 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 		success:	current.configLength = temporaryLength - 2; // minus EOS
 					projects.configs.push_back (project);
+					MEMORY::EXIT::POP ();
 					parsingstage = GetAllFiles;
 					break;
 
-		error:		ERROR ("Said project file is arleady being loaded: `%ls`\n", (c16*)path);
+					// TODO. Look into it more.
+		error:		ERROR ("Said project file is arleady being loaded: `%ls`" ERROR_NEW_LINE, (c16*)path);
 
 				}
 
@@ -558,7 +561,7 @@ namespace OPEN::INTERPRETER::MAIN::CASCADE {
 					);
 
 					if (index == constants.keys.size ()) {
-						ERROR ("Invalid constant: %s\n\n", key);
+						ERROR ("Invalid cascaded constant: %s" ERROR_NEW_LINE, key);
 					}
 
 					const auto& foundLength = constants.valueLengths[index];

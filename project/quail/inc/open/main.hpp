@@ -22,17 +22,6 @@ namespace OPEN {
 	// 4. Jeśli depth jest równy więcej niż 1 to znaczy że mamy do czynienia z subprojektami
 	// 
 
-
-	//
-
-	void ErrorQuail (const HANDLE& console, const c8* const& msg) {
-		SetConsoleTextAttribute (console, 12);
-		printf ("\n\tQuail-Error");
-		SetConsoleTextAttribute (console, 7);
-		printf (": %s!\n\n", msg);
-	}
-
-
 	void ReadFile (
 		FILE* const& file,
 		INTERPRETER::Interpreter& interpreter
@@ -59,7 +48,7 @@ namespace OPEN {
 
 				auto&& string = (c16*)(includes[includesCounter]);
 
-				LOGINFO ("INFO: PATH: %ls\n", string);
+				//LOGINFO (" >> IncludePath: %ls\n", string);
 
 				FILE* config = nullptr;
 				IO::Read (string, config);
@@ -71,7 +60,7 @@ namespace OPEN {
 
 				ReadFile (config, interpreter);
 
-				LOGWINFO (">> IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
+				LOGWINFO (" >> IncludeFile [%d]:`%s` read successfully\n", includesCounter, string);
 
 				++includesCounter;
 			}
@@ -111,7 +100,7 @@ namespace OPEN {
 		const u32 configFilePathLength = (pathLength + configLength) / 2;
 		const auto&& configFilePath = (c16*) (projects.configs[index]);
 				
-		LOGINFO ("> ProjectFile [%d]:`%ls` read successfully\n", index, configFilePath);
+		LOGINFO (" > ProjectFile [%d]:`%ls` read successfully\n", index, configFilePath);
 
 		// And another one...
 		FILE* config = nullptr;
@@ -368,7 +357,12 @@ namespace OPEN {
 		u32 globalFiles = 0;	// Point how many global files are read.
 		u32 spaceFiles = 0; 	// Point how many files are from selected project.
 
+		// ISSUE. This is not perfect i believe as it's vectors underneath.
+		MEMORY::EXIT::PUSH (nullptr, OPEN::Destroy);
+
 		{ // 1st READ
+
+			LOGINFO ("[ 1ST READ ]\n");
 
 			// At first we read config files from within Quail directory. -> main, global and their includes.
 			currentConfigFolderLength = CONFIG::topConfigsFolderLength;
@@ -403,11 +397,12 @@ namespace OPEN {
 
 					projectId = FindProject (command, commandLength); // Store information about what module we're in.
 
-					// ISSUE_XYZ1 ?! DOES IT EVEN return projects.keys.size () anytime now ?
+					
 					if (projectId == projects.keys.size ()) {
-						ERROR ("Could not match with any project.\n\n");
-						//ErrorQuail (console, "Could not match said string with any project");
+						// Triggers when 'quail -o 'invalid' anything_else...'.
+						ERROR ("Could not match string with any project." ERROR_NEW_LINE);
 					} else { 	
+						LOGINFO ("CALL!, %s\n", command);
 						GetProjects (interpreter, includesCounter, projectId); 
 						spaceFiles = projects.capes[projectId].special.includesCount; // Store information about current module files amount.
 					}
@@ -420,7 +415,7 @@ namespace OPEN {
 
 					if (index == projects.keys.size ()) {
 
-						LOGWARN ("We are looking for a command not a listing.\n\n");
+						LOGWARN ("We are looking for a command not a listing.\n");
 						openType = OPEN_TYPE_COMMAND;
 
 					} else { 
@@ -446,7 +441,7 @@ namespace OPEN {
 
 		{ // 2nd Read
 
-			LOGINFO ("2nd Read\n");
+			LOGINFO ("[ 2ND READ ]\n");
 
 			// for (s32 iConstant = 0; iConstant < constants.keys.size(); ++iConstant) {
 			// 	const auto&& value = (c16*) constants.values[iConstant];
@@ -463,7 +458,7 @@ namespace OPEN {
 
 					const auto& config = files[iFile - 1];
 
-					LOGINFO ("HERE %lld\n", (u64)config);
+					//LOGINFO ("HERE %lld\n", (u64)config);
 					
 					if (config == mainConfig) {
 						LOGINFO ("OHH GOD!!!\n");
@@ -538,7 +533,7 @@ namespace OPEN {
 
 		HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
 
-		if (openType) { LOGINFO ("Execution\n");
+		if (openType) { LOGINFO (" > execution...\n");
 
 			u32 index = 0;
 
@@ -562,9 +557,8 @@ namespace OPEN {
 					);
 
 					if (index == queues.keys.size ()) { // Not a queue
-						//ERROR ("Not a valid command or queue!\n");
-						ErrorQuail (console, "Could not match said string with a command nor a queue");
-
+						// Triggers when 'quail -o 'invalid''.
+						ERROR ("Could not match string with a command nor a queue." ERROR_NEW_LINE);
 					} else {
 						const auto&& queue = (c8*) queues.values[index];
 						LOGINFO ("queue-id: [%d]: %s\n", index, queue);
@@ -625,7 +619,7 @@ namespace OPEN {
 				}
 			}
 
-		} else { LOGINFO ("Listing\n");
+		} else { LOGINFO (" > listing ...\n");
 
 			// TODO
 			// 2. List queues key and value.
@@ -658,39 +652,8 @@ namespace OPEN {
 
 		}
 
-		for (s32 i = 0; i < projects.keys.size(); ++i) {
-			FREE (projects.configs[i]);
-			FREE (projects.paths[i]);
-			FREE (projects.keys[i]);
-		}
+		OPEN::Destroy (nullptr);
 
-		for (s32 i = 0; i < includes.size(); ++i) {
-			FREE (includes[i]);
-		}
-
-		for (s32 i = 0; i < constants.keys.size(); ++i) {
-			FREE (constants.values[i]);
-			FREE (constants.keys[i]);
-		}
-
-		for (s32 i = 0; i < commands.keys.size(); ++i) {
-			FREE (commands.values[i]);
-			FREE (commands.keys[i]);
-		}
-
-		for (s32 i = 0; i < queues.keys.size(); ++i) {
-			FREE (queues.values[i]);
-			FREE (queues.keys[i]);
-		}
-
-		for (u32 iFile = 0; iFile < files.size(); ++iFile) {
-			IO::Close (files[iFile]);
-		}
-
-		// ? That should be somewhere else ?
-		FREE (CONFIG::topConfigsFolder);
-		FREE (CONFIG::configMainFilePath);
-		FREE (CONFIG::configGlobalFilePath);
 	}
 
 }

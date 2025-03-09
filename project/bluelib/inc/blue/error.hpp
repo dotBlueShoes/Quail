@@ -8,25 +8,28 @@
 
 #define ERRORWIN(text) { \
 	MSGERROR (text); \
+	MEMORY::EXIT::ATEXIT (); \
 	exit (-1); \
 }
 
 #define ERROR(...) { \
-	LOGERROR ("\n\t" __VA_ARGS__); \
+	LOGERROR (__VA_ARGS__); \
 	 \
+	MEMORY::EXIT::ATEXIT (); \
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
-	getchar (); \
 	exit (-1); \
 }
 
 #define WERROR(...) { \
-	LOGWERROR ("\n\t" __VA_ARGS__); \
+	LOGWERROR (__VA_ARGS__); \
 	 \
+	MEMORY::EXIT::ATEXIT (); \
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
-	getchar (); \
 	exit (-1); \
 }
+
+//getchar (); \

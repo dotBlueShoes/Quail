@@ -15,7 +15,7 @@
 
 
 %new_ins_path	= project\installer\installer_quail.exe
-%new_uni_path	= project\installer\uninstaller.exe
+%new_uni_path	= project\uninstaller\uninstaller.exe
 
 %project_color 	= #d11f48
 %pr 			= x64-win-release
@@ -30,8 +30,8 @@
 
 # CMAKE
 
-!refresh_cmake	= %shell% "%_path%\.quail\cmake_refresh.bat" "%_path%" '%vcvarsall_dir%'
-!clear_cmake	= %shell% "%_path%\.quail\cmake_clear.ps1" "%_path%\build"
+!refresh_cmake	= %shell% "%_path%\.quail\cmake_refresh" "%_path%" '%vcvarsall_dir%'
+!clear_cmake	= %shell% "%_path%\.quail\cmake_clear" "%_path%\build"
 
 # BUILDING
 

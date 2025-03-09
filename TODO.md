@@ -42,7 +42,12 @@
 
 74. Make quail scripts for uninstaller to. (upx) 
 77. Move license.h" & "data.h" to GLOBAL project.
-82. 
+
+
+82. Give an option in installer to create a batch file and name it by default 'o'.
+> So that instead of writting 'quail -o [...]' people can simply write 'o [...]'.
+83. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
+84. Do memory pushing and poping. // make sure it's done!
 
 
 -- 0.5

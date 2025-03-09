@@ -4,6 +4,7 @@
 #pragma once
 #include "types.hpp"
 
+// IN CASE OF AN EMPTY BUILD HAVE ALL ON BY DEFAULT.
 #ifndef DEBUG_TYPE
 	#define DEBUG_FLAG_LOGGING 		1
 	#define DEBUG_FLAG_MEMORY 		2

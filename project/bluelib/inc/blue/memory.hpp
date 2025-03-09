@@ -3,10 +3,15 @@
 //
 #pragma once
 #include "debug.hpp"
+//
+#ifndef MEMORY_EXIT_SIZE
+#define MEMORY_EXIT_SIZE 64
+#endif
 
-// NOTES
-//  Right now i only calculate number of allocations and deallocations
-//  in future if i would be using other allocators than malloc a much greater system would be needed.
+//  'About'
+// - Implements a simple wrapper around 'malloc'
+// - Implements a custom 'atexit' implementation that allows sending the parameter. 
+//
 
 #if DDEBUG (DEBUG_FLAG_MEMORY)
 
@@ -24,6 +29,10 @@
 		#define LOGMEMORY() {} // dummy
 	#endif
 
+	#define INCALLOCCO() ++allocationsCounter;
+	#define DECALLOCCO() --allocationsCounter;
+
+
 	template <typename Type>
 	void _ALLOCATE (Type*& address, const u64& size) {
 		++allocationsCounter;
@@ -40,8 +49,10 @@
 #else
 
 	#define ALLOCATE(type, address, size) address = (type*) malloc (size)
-	#define FREE(address) free (address)
+	void FREE (void* address) { free (address); }
 	#define LOGMEMORY() {} // dummy
+	#define INCALLOCCO() // dummy
+	#define DECALLOCCO() // dummy
 
 #endif
 
@@ -76,6 +87,38 @@ namespace MEMORY {
 		memcpy (newArray, aArray, aArrayLength);
 		memcpy (newArray + aArrayLength, bArray, bArrayLength);
 		memcpy (newArray + aArrayLength + bArrayLength, cArray, cArrayLength);
+	}
+
+}
+
+namespace MEMORY::EXIT {
+
+	using JUMPTABLE = void(*)(void*);
+
+	u8 memoryCounter = 0;
+	JUMPTABLE jumps[MEMORY_EXIT_SIZE];
+	void* memory[MEMORY_EXIT_SIZE];
+
+	void ATEXIT () {
+		
+		for (u8 i = memoryCounter; i != 0; --i) {
+			auto jump = jumps[i - 1];
+			auto address = memory[i - 1];
+			jump (address);
+		}
+
+		//LOGINFO("%d \n", memoryCounter);
+		//LOGINFO ("%lld, %lld\n", (u64)jump, (u64)address);
+	}
+
+	void PUSH (void* address, JUMPTABLE jumpTable) {
+		jumps[memoryCounter] = jumpTable;
+		memory[memoryCounter] = address;
+		++memoryCounter;
+	}
+
+	void POP () {
+		--memoryCounter;
 	}
 
 }
