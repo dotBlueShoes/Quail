@@ -3,9 +3,11 @@
 //
 #pragma once
 #include <blue/types.hpp>
+#include <global/version.h>
 
 namespace ACTIVITIES {
 
-	const c8* VERSION_ALL = "\n0.3.0\n\n";
+	//const c8* VERSION_ALL = "\n" QUAIL_FULL_VERSION "\n\n";
+	const c8* VERSION_ALL = QUAIL_FULL_VERSION "\n";
 
 }
