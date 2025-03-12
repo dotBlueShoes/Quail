@@ -11,11 +11,13 @@
 // https://learn.microsoft.com/en-us/cpp/code-quality/understanding-sal?view=msvc-170
 //
 
+// TODO
+// _Out_writes_() & _In_reads_() and other.
+
 // HACK. for now.
 #define OSWINDOWS
 
 #ifdef OSWINDOWS
-
 
 	#include <sal.h>
 

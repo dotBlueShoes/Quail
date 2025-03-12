@@ -25,6 +25,7 @@ using s64 = int64_t;
 
 using r32 = float;
 using r64 = double;
+
 template<class T, class S, S length>
 using array_t = std::array<T, length>;
 
@@ -50,9 +51,9 @@ struct pair {
 //  ...
 
 void IsEqualS3_8 (
-	/* OUT */ u8& condition,
-	/* IN  */ const u8* const& a,
-	/* IN  */ const u8* const& b
+	INOUT	u8& 				condition,
+	IN 		const u8* const& 	a,
+	IN		const u8* const& 	b
 ) {
 	for (u32 i = 0; condition == 0; ++i) {
 		condition += (a[i]	!= b[i]) << 2;  // 4
@@ -62,9 +63,9 @@ void IsEqualS3_8 (
 }
 
 void IsEqualS3_16 (
-	/* OUT */ u8& condition,
-	/* IN  */ const u16* const& a,
-	/* IN  */ const u16* const& b
+	INOUT	u8& 				condition,
+	IN		const u16* const& 	a,
+	IN		const u16* const& 	b
 ) {
 	for (u32 i = 0; condition == 0; ++i) {
 		condition += (a[i]	!= b[i]) << 2;  // 4
@@ -74,8 +75,8 @@ void IsEqualS3_16 (
 }
 
 void ToLowCase (
-	c8* const& data,
-	const u32& length
+	INOUT	c8* const& data,
+	IN		const u32& length
 ) {
 	for (u32 i = 0; i < length; ++i) {
 		data[i] = tolower (data[i]);
