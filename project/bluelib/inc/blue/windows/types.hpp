@@ -16,7 +16,10 @@
 	if (procedureName == nullptr) ERROR ("Function not created. Failed to load `%s` method: `%s`\n", #module, #procedureName); \
 }
 
-bool IsValidDirectory (c16*& path, u32& pathLength) {
+bool IsValidDirectory (
+	IN 		const c16* const& 	path, 
+	IN 		const u32& 			pathLength
+) {
 
 	// Is a valid pointer.
 	if (path == nullptr && path[0] != L'\0') return false;

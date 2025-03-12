@@ -7,12 +7,12 @@
 namespace COMPARESEARCH {
 
 	void ArrayPartFirstMatch (
-		/* IN  */ const void* const	compered,
-		/* IN  */ const u16&		comperedCount,
-		/* IN  */ const u8&			comperedSize,
-		/* OUT */ u32&				index,
-		/* IN  */ const u32&		elementsCount,
-		/* IN  */ const void* const	elements
+		IN		const void* const	compered,
+		IN		const u16&			comperedCount,
+		IN		const u8&			comperedSize,
+		OUT		u32&				index,
+		IN		const u32&			elementsCount,
+		IN		const void* const	elements
 	) {
 		auto& iElement = index;
 		u8 collision = 1;
@@ -33,12 +33,12 @@ namespace COMPARESEARCH {
 	}
 
 	void ArrayPartFirstMatchVector (
-		/* IN  */ const void* const&		compered,
-		/* IN  */ const u16&				comperedCount,
-		/* IN  */ const u8&					comperedSize,
-		/* OUT */ u32&						index,
-		/* IN  */ const u32&				elementsCount,
-		/* IN  */ const void* const* const&	elements
+		IN		const void* const&			compered,
+		IN		const u16&					comperedCount,
+		IN		const u8&					comperedSize,
+		OUT		u32&						index,
+		IN		const u32&					elementsCount,
+		IN		const void* const* const&	elements
 	) {
 		auto& iElement = index;
 		u8 collision = 1;
@@ -61,12 +61,12 @@ namespace COMPARESEARCH {
 	}
 
 	void ArrayPartFirstMatchVectorLowCase (
-		/* IN  */ const void* const&		compered,
-		/* IN  */ const u16&				comperedCount,
-		/* IN  */ const u8&					comperedSize,
-		/* OUT */ u32&						index,
-		/* IN  */ const u32&				elementsCount,
-		/* IN  */ const void* const* const&	elements
+		IN		const void* const&			compered,
+		IN		const u16&					comperedCount,
+		IN		const u8&					comperedSize,
+		OUT		u32&						index,
+		IN		const u32&					elementsCount,
+		IN		const void* const* const&	elements
 	) {
 		auto& iElement = index;
 		u8 collision = 1;

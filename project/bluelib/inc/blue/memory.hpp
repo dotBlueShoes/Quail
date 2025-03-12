@@ -62,11 +62,11 @@ namespace MEMORY {
 
 	template <typename T>
 	void Construct2 (
-		T*& newArray, 
-		const u32& aArrayLength, 
-		const void* const& aArray, 
-		const u32& bArrayLength, 
-		const void* const& bArray
+		OUT		T*& 				newArray, 
+		IN		const u32& 			aArrayLength, 
+		IN		const void* const& 	aArray, 
+		IN		const u32& 			bArrayLength, 
+		IN		const void* const& 	bArray
 	) {
 		ALLOCATE (T, newArray, aArrayLength + bArrayLength);
 		memcpy (newArray, aArray, aArrayLength);
@@ -75,13 +75,13 @@ namespace MEMORY {
 
 	template <typename T>
 	void Construct3 (
-		T*& newArray, 
-		const u32& aArrayLength, 
-		const void* const& aArray, 
-		const u32& bArrayLength, 
-		const void* const& bArray,
-		const u32& cArrayLength, 
-		const void* const& cArray
+		OUT		T*& 				newArray, 
+		IN		const u32& 			aArrayLength, 
+		IN		const void* const& 	aArray, 
+		IN		const u32& 			bArrayLength, 
+		IN		const void* const& 	bArray,
+		IN		const u32& 			cArrayLength, 
+		IN		const void* const& 	cArray
 	) {
 		ALLOCATE (T, newArray, aArrayLength + bArrayLength + cArrayLength);
 		memcpy (newArray, aArray, aArrayLength);
@@ -93,7 +93,7 @@ namespace MEMORY {
 
 namespace MEMORY::EXIT {
 
-	using JUMPTABLE = void(*)(void*);
+	using JUMPTABLE = void(*) (void*);
 
 	u8 memoryCounter = 0;
 	JUMPTABLE jumps[MEMORY_EXIT_SIZE];

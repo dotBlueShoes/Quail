@@ -17,7 +17,7 @@ namespace IO {
 	}
 
 	void Create (
-		const c16* const& pathname
+		IN		const c16* const& pathname
 	) {
 		std::ofstream outfile (pathname);
 		//outfile << "hello world" << std::endl;
@@ -25,8 +25,8 @@ namespace IO {
 	}
 
 	void CreateAdd (
-		const c16* const& pathname,
-		c16*& context
+		IN		const c16* const& pathname,
+		IN		const c16* const& context
 	) {
 		std::wofstream outfile (pathname);
 		//std::ofstream outfile (pathname);
@@ -35,15 +35,15 @@ namespace IO {
 	}
 
 	void Read (
-		const c16* const& pathname,
-		FILE*& file
+		IN		const c16* const& 	pathname,
+		OUT		FILE*& 				file
 	) {
 		file = _wfopen (pathname, L"rb");
 		if (file == nullptr) ERROR ("File could not be opened - '%ls'." ERROR_NEW_LINE, pathname);
 	}
 
 	void Close (
-		FILE*& file
+		INOUT	FILE*& file
 	) {
 		fclose (file);
 	}

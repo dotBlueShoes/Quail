@@ -6,15 +6,13 @@
 
 namespace WINDOWS::REGISTRY {
 
-
 	#define CHECK_PROPERTY(error, propertyName) { if (error != ERROR_SUCCESS) ERROR ("Setting up property '%ls' failed.\n\n", propertyName); }
 
-
 	void CreateKeyMachine (
-		/* OUT */ HKEY& key, 
-		/* OUT */ LSTATUS& error, 
-		/* OUT */ DWORD& status,
-		/* IN  */ const c16* const& keyName
+		OUT 	HKEY& 				key, 
+		OUT 	LSTATUS& 			error, 
+		OUT 	DWORD& 				status,
+		IN	 	const c16* const& 	keyName
 	) {
 		error = RegCreateKeyExW (
 			HKEY_LOCAL_MACHINE, 			// Type
@@ -31,11 +29,11 @@ namespace WINDOWS::REGISTRY {
 
 
 	void CreatePropertyC16 (
-		/* OUT */ HKEY key, 
-		/* OUT */ LSTATUS error,
-		/* IN  */ const c16* const& property,
-		/* IN  */ const c16* const& data,
-		/* IN  */ const u32& dataLength
+		OUT		HKEY 				key, 
+		OUT		LSTATUS 			error,
+		IN		const c16* const& 	property,
+		IN		const c16* const& 	data,
+		IN		const u32& 			dataLength
 	) {
 		error = RegSetValueExW (
 			key, 							// catalog (key)
@@ -49,10 +47,10 @@ namespace WINDOWS::REGISTRY {
 
 
 	void CreatePropertyS32 (
-		/* OUT */ HKEY key, 
-		/* OUT */ LSTATUS error,
-		/* IN  */ const c16* const& property,
-		/* IN  */ const u32& data
+		OUT		HKEY 				key, 
+		OUT		LSTATUS 			error,
+		IN		const c16* const& 	property,
+		IN		const u32& 			data
 	) {
 		error = RegSetValueExW (
 			key, 							// catalog (key)

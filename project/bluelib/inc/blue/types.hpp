@@ -47,8 +47,14 @@ struct pair {
 };
 
 
+//  TODO
+// REDO Equality String Test
+//
+
+//
 // Equality String Test Called `3` with its u8 and u16 version.
 //  ...
+//
 
 void IsEqualS3_8 (
 	INOUT	u8& 				condition,
@@ -73,6 +79,11 @@ void IsEqualS3_16 (
 		condition += b[i]	== '\0';		// 1
 	}
 }
+
+//  TODO
+// namespace STRINGCASE TransformToLowerCase ()
+//						TransformToUpperCase ()
+//
 
 void ToLowCase (
 	INOUT	c8* const& data,
