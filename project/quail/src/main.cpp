@@ -18,6 +18,8 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 	}
 
 	{ // TODO. Clean and move it.
+		LOGWINFO ("[ REGISTRY ]\n");
+		
 		WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
 
 		WINDOWS::REGISTRY::CreateQuailConfigsFilePaths (

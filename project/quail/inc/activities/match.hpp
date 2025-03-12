@@ -8,55 +8,55 @@
 
 namespace ACTIVITIES::MATCH {
 
-void Activity (
-	const u32& activityLength,
-	c8*& activity,
-	const u32& depth,
-	c8** const& commands
-) {
+	void Activity (
+		const u32& activityLength,
+		c8*& activity,
+		const u32& depth,
+		c8** const& commands
+	) {
 
-	if (activityLength < ACTIVITIES::MIN_LENGTH) {
+		if (activityLength < ACTIVITIES::MIN_LENGTH) {
 
-		ERROR ("Invalid argument: %s\n\n", activity);
+			ERROR ("Invalid argument: %s\n\n", activity);
 
-	} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
+		} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
 
-		ToLowCase (activity, activityLength); // Conversion
+			ToLowCase (activity, activityLength); // Conversion
 
-		u32 index = 0;
+			u32 index = 0;
 
-		// Match with MAX's
-		COMPARESEARCH::ArrayPartFirstMatch ( 
-			activity, activityLength, sizeof (c8),
-			index, 
-			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.size (),
-			ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
-		);
+			// Match with MAX's
+			COMPARESEARCH::ArrayPartFirstMatch ( 
+				activity, activityLength, sizeof (c8),
+				index, 
+				ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.size (),
+				ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
+			);
 
-		ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
+			ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
 
-	} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
+		} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
 
-		ERROR ("Invalid argument: %s\n\n", activity);
+			ERROR ("Invalid argument: %s\n\n", activity);
 
-	} else {
+		} else {
 
-		ToLowCase (activity, activityLength); // Conversion
+			ToLowCase (activity, activityLength); // Conversion
 
-		u32 index = 0;
+			u32 index = 0;
 
-		// Match with MIN's
-		COMPARESEARCH::ArrayPartFirstMatch ( 
-			activity, activityLength, sizeof (c8),
-			index, 
-			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.size (),
-			ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
-		);
-		
-		ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
-		
+			// Match with MIN's
+			COMPARESEARCH::ArrayPartFirstMatch ( 
+				activity, activityLength, sizeof (c8),
+				index, 
+				ACTIVITIES::MINS_WITHOUT_ARGUMENTS.size (),
+				ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
+			);
+
+			ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
+
+		}
+
 	}
-	
-}
 
 }

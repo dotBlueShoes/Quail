@@ -10,7 +10,7 @@
 #include "activities/version.hpp"
 #include "activities/help.hpp"
 //
-#include "open/main.hpp"
+#include "open/open.hpp"
 
 namespace ACTIVITIES {
 
@@ -90,4 +90,3 @@ namespace ACTIVITIES {
 	}
 
 }
-

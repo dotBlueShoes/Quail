@@ -10,8 +10,10 @@
 namespace ENVARS {
 
 	// This approach makes an enviroment variable that will not persist after the execution!
-	// use this instead: https://stackoverflow.com/questions/5246046/how-to-add-environment-variable-in-c
-	// also to make non persistant variables using this method would be better https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setenvironmentvariable.
+	// 1. use this instead: 
+	// https://stackoverflow.com/questions/5246046/how-to-add-environment-variable-in-c
+	// 2. also to make non persistant variables using this method would be better:
+	// https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setenvironmentvariable.
 
 	void AddQuailToPath (
 		const u16& quailLength,

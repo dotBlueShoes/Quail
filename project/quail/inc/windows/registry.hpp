@@ -7,12 +7,12 @@
 namespace WINDOWS::REGISTRY {
 
 	void CreateQuailConfigsFilePaths (
-		/* IN & OUT */ u32& 	folderPathLength,
-		/* IN & OUT */ c16*& 	folderPath,
-		/* OUT */ u32& 			mConfigFilePathLength,
-		/* OUT */ c16*& 		mConfigFilePath,
-		/* OUT */ u32& 			gConfigFilePathLength,
-		/* OUT */ c16*& 		gConfigFilePath
+		INOUT 	u32& 	folderPathLength,
+		INOUT 	c16*& 	folderPath,
+		OUT 	u32& 	mConfigFilePathLength,
+		OUT 	c16*& 	mConfigFilePath,
+		OUT 	u32& 	gConfigFilePathLength,
+		OUT 	c16*& 	gConfigFilePath
 	) {
 
 		{ // Replace '\0' with '\\'. So that we can later create strings with it simpler.

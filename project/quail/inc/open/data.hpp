@@ -170,11 +170,16 @@ namespace OPEN {
 	u32 temporaryLength;
 	u8 temporary[2048];
 
+
+	// So called modules or subprojects are being counted. 
+	// And we also need to say if we only read the main config for some checks.
+	const u32 PROJECT_MAIN_ID = -1;
+
 	// During 1st read when we possess all the files we need to offset
 	//  projects by a number that represents previously added projects at lower depth
 	//  so that we always check with newly added projects when looking for subprojects.
 	u32 projectsOffset = 0;
-	u32 projectId = -1;
+	u32 projectId = PROJECT_MAIN_ID;
 
 	void SetFirstTemp (const c8& value) {
 		temporary[0] = value;
@@ -208,6 +213,105 @@ namespace OPEN {
 
 	//// Cascading values require storing data
 	u32 cascadingLength;
-	//u8 cascading[256];
+
+}
+
+
+namespace OPEN {
+
+	//  ABOUT
+	// Adds "_", "_path" and "_name" constants for use in config.
+	//
+	void AddHiddenConstants ( 
+		IN 		const u32& 			pathLength,
+		IN 		const c16* const& 	path,
+		IN 		const u32& 			nameLength,
+		IN 		const c8* const& 	name
+	) {
+
+		{ // "_"
+
+			{ // - key
+				const u8 temp[] { "_" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
+
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // - value
+				const u8 temp[] { "%" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
+
+				u8* constantValue; ALLOCATE (u8, constantValue, tempLength);
+				memcpy (constantValue, temp, tempLength);
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (tempLength);
+			}
+
+		}
+
+		{ // "_name"
+
+			{ // - key
+				const u8 temp[] { "_name" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
+
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // - value
+
+				{ // Convertion c8* to c16*
+					SetFirstTempW (name[0]);
+					for (u32 i = 1; i < nameLength; ++i) {
+						AddTempW (name[i]);
+					}
+				}
+
+				u8* constantValue; ALLOCATE (u8, constantValue, temporaryLength);
+				memcpy (constantValue, temporary, temporaryLength);
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (temporaryLength - 2); // minus EOF
+			}
+
+		}
+		
+		{ // "_path"
+
+			{ // - key
+				const u8 temp[] { "_path" }; // Const defintion.
+				const u32 tempLength = sizeof (temp);
+
+				// Cpy -> We can easly deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // value (copy but with removal of '/' sign at the end)
+				u8* constantValue; ALLOCATE (u8, constantValue, pathLength); // should alloc one less char.
+				memcpy (constantValue, path, pathLength - 2);
+
+				constantValue[pathLength - 2] = 0;
+				constantValue[pathLength - 1] = 0;
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (pathLength - 2); // minus EOF
+			}
+
+		}
+		
+	}
 
 }

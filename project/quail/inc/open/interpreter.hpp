@@ -6,7 +6,7 @@
 #include "blue/error.hpp"
 #include "blue/comparesearch.hpp"
 
-#include "../data.hpp"
+#include "data.hpp"
 
 namespace OPEN::INTERPRETER {
 
@@ -28,7 +28,7 @@ namespace OPEN::INTERPRETER {
 
 	// //putc (interpreter.current, stdout);
 
-	// BUFFORS
+	// BUFFERS
 	//  1. Rules
 	//   CONSTANT (for every machine)
 	//   - Constants can be encapsulated in constants

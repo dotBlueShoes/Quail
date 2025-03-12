@@ -2,7 +2,7 @@
 	It does not check for EOS sign it simply goes through. Those string do have EOS.
 	But when we're checking against a string thats longer we simply bypass it. (and it might memory allocated by us?)
 04. Clocks (debug utility to check times of specific actions)
-05. DEBUG_FLAG_POSTLOGGING implementation - file/buffor logging
+05. DEBUG_FLAG_POSTLOGGING implementation - file/buffer logging
 09. Wrapper for Projects as to make memmory operations simpler and faster.
 10. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
 	then is being stored in Windows Registry and we reuse it as the first allocation for open command data.
@@ -47,7 +47,7 @@
 82. Give an option in installer to create a batch file and name it by default 'o'.
 > So that instead of writting 'quail -o [...]' people can simply write 'o [...]'.
 83. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
-84. Do memory pushing and poping. // make sure it's done!
+85. Does fresh reinstallation remove the quail config files? Check it it shouldn't remove them!
 
 
 -- 0.5

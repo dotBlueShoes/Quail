@@ -8,6 +8,8 @@
 #include <array>
 #include <ctype.h>
 
+#include "sal.hpp"
+
 using c8  = char;
 using c16 = wchar_t;
 

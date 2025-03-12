@@ -53,7 +53,7 @@ namespace WINDOWS::REGISTRY {
 		
     	if ((status != ERROR_SUCCESS) && (size < 1)) {
 
-			WERROR ("Could not read key value: %d\n\n", size);
+			WERROR ("Could not read key value: %d" ERROR_NEW_LINE, size);
 
 		}
 
@@ -71,7 +71,7 @@ namespace WINDOWS::REGISTRY {
 			&size
 		);
         	
-		LOGWINFO ("Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
+		LOGWINFO (" > Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
 
 		CONFIG::topConfigsFolderLength = size;
     	CONFIG::topConfigsFolder = data;
