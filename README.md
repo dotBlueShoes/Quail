@@ -3,16 +3,16 @@
 # FEATURES
 
 - Use shortcuts
-  > Execute a command specified in a config file by refering to a user-defined command name instead.
+  > Execute a command specified in a config file by referring to a user-defined command name instead.
 - Write even shorter
   > Said user-defined command does not have to be fully written to be matched. Be aware Quail will always take the 1st match.
 - Be modular
-  > Supports identifing subprojects and allows for command grouping.
+  > Supports identifying subprojects and allows for command grouping.
 - Define constants
   > Variable-like utility to store strings and use them with different Constants or Commands.
 - Use command queues
   > Run multiple defined commands as if it was a singular quail command.
-- Easly display all commands & queues
+- Easily display all commands & queues
   > Simply run `Quail` with a selected project or a subproject to display it's contents.
 
 # Examples
@@ -35,7 +35,7 @@ For simplicity sake I'll refer to commands, queues, projects and subprojects her
 . . .
 
 # Software Notes
-Why writting my own `Wizard` when WinApi provides a ready to use control with localization support?
+Why writing my own `Wizard` when WinApi provides a ready to use control with localization support?
 
 [Official Windows Wizard Sample](https://github.com/microsoft/Windows-classic-samples/tree/263dd514ad215d0a40d1ec44b4df84b30ec11dcf/Samples/Win7Samples/winui/shell/appplatform/aerowizards/migratingtoaerowizardssdksample/wizard97)
   > My reasoning: It's a good learning example and it provides more flexibility like future custom optimalizations, darkmode support or making the window dpi-aware. Additionally the Wizard executable created is compressed which then competes well with `.msi` files, that usually weigh less.

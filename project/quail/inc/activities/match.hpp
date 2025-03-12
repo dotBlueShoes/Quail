@@ -4,7 +4,6 @@
 #pragma once
 #include "blue/comparesearch.hpp"
 #include "activities.hpp"
-//
 
 namespace ACTIVITIES::MATCH {
 

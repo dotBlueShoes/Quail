@@ -232,10 +232,10 @@ namespace OPEN {
 		{ // "_"
 
 			{ // - key
-				const u8 temp[] { "_" }; // Const defintion.
+				const u8 temp[] { "_" }; // Const definition.
 				const u32 tempLength = sizeof (temp);
 
-				// Cpy -> We can easly deallocate it with others later.
+				// Cpy -> We can easily deallocate it with others later.
 				u8* constantName; ALLOCATE (u8, constantName, tempLength);
 				memcpy (constantName, temp, tempLength);
 
@@ -243,7 +243,7 @@ namespace OPEN {
 			}
 
 			{ // - value
-				const u8 temp[] { "%" }; // Const defintion.
+				const u8 temp[] { "%" }; // Const definition.
 				const u32 tempLength = sizeof (temp);
 
 				u8* constantValue; ALLOCATE (u8, constantValue, tempLength);
@@ -258,10 +258,10 @@ namespace OPEN {
 		{ // "_name"
 
 			{ // - key
-				const u8 temp[] { "_name" }; // Const defintion.
+				const u8 temp[] { "_name" }; // Const definition.
 				const u32 tempLength = sizeof (temp);
 
-				// Cpy -> We can easly deallocate it with others later.
+				// Cpy -> We can easily deallocate it with others later.
 				u8* constantName; ALLOCATE (u8, constantName, tempLength);
 				memcpy (constantName, temp, tempLength);
 
@@ -270,7 +270,7 @@ namespace OPEN {
 
 			{ // - value
 
-				{ // Convertion c8* to c16*
+				{ // Conversion c8* to c16*
 					SetFirstTempW (name[0]);
 					for (u32 i = 1; i < nameLength; ++i) {
 						AddTempW (name[i]);
@@ -289,10 +289,10 @@ namespace OPEN {
 		{ // "_path"
 
 			{ // - key
-				const u8 temp[] { "_path" }; // Const defintion.
+				const u8 temp[] { "_path" }; // Const definition.
 				const u32 tempLength = sizeof (temp);
 
-				// Cpy -> We can easly deallocate it with others later.
+				// Cpy -> We can easily deallocate it with others later.
 				u8* constantName; ALLOCATE (u8, constantName, tempLength);
 				memcpy (constantName, temp, tempLength);
 

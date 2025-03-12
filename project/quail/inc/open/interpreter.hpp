@@ -34,7 +34,7 @@ namespace OPEN::INTERPRETER {
 	//   - Constants can be encapsulated in constants
 	//   - Constants can be encapsulated in variables
 	//   - Constants can be encapsulated in secrets
-	//   - Constants can be encaspulated in commands
+	//   - Constants can be encapsulated in commands
 	//	 // NOPE // - Constants can be encapsulated in includes
 	//	 // NOPE // - Constants can be encapsulated in projects
 	//   SECRET (for single machine)
@@ -50,12 +50,12 @@ namespace OPEN::INTERPRETER {
 	//   // NOPE // - Variables can be encapsulated in includes
 	//	 // NOPE // - Variables can be encapsulated in projects
 	//   PROJECT (modules - subprojects)
-	//   - Project remembers project name. so we can use sufix command like `quail -o project subproject command`
+	//   - Project remembers project name. so we can use suffix command like `quail -o project subproject command`
 	//   INCLUDE (hold project data in more then 1 file)
 	//   - Includes are being stored so that we fight with recurency if possible.
 	//   - Includes add values from within different quail config files.
 	//   COMMAND (run)
-	//   - Lunches a specifc command.
+	//   - Lunches a specific command.
 	//   MULTI_COMMAND (run multiple with single input)
 	//   - Lunches one or more commands.
 
@@ -110,7 +110,7 @@ namespace OPEN::INTERPRETER::MAIN {
 
 	void GetAllFiles (const Interpreter& interpreter) {
 
-		// We're basically cheking only 1st character after each new line
+		// We're basically checking only 1st character after each new line
 		//  If its something we want we read the line the way we want otherwise
 		//  we're treating it as whitespace or comments.
 
@@ -125,7 +125,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_TAB: 
 			case TYPE_EOF: break;
 
-			// If the line does not start with an indicator treat it like a TYPE_COMENT line.
+			// If the line does not start with an indicator treat it like a TYPE_COMMENT line.
 			default: parsingstage = Comment; specialStage = GetAllFiles;
 
 		}
@@ -149,7 +149,7 @@ namespace OPEN::INTERPRETER::MAIN {
 			case TYPE_QUEUE: QUEUE::Initialize (); break;
 
 			// We're also skipping TYPE_INCLUDE, TYPE_PROJECT by doing so.
-			// If the line does not start with an indicator treat it like a TYPE_COMENT line.
+			// If the line does not start with an indicator treat it like a TYPE_COMMENT line.
 			default: parsingstage = Comment; specialStage = Main;
 
 		}
@@ -211,7 +211,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 				//LOGINFO ("2 Temporary include: %ls, %lld\n", (c16*)include, includes.size())
 
 				// TODO: 
-				// Previously this code was cheching whether a said file was arleady included and if so returned an error.
+				// Previously this code was checking whether a said file was already included and if so returned an error.
 				//  However we've created an abstract structure that holds includes to a specific project therefore
 				//  the error was abandoned. Because of that an include file if specified more then once will be read more then once
 				//  that is an issue that should be solved in the future. For now no matter what we need to save that inlucde
@@ -222,7 +222,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 						u8 condition = 0;
 						IsEqualS3_16 (condition, (u16*)include, (u16*)includes[i]);
 						if (condition == 2) {
-							LOGWARN ("Said file is arleady being included: `%ls`\n", (c16*)include);
+							LOGWARN ("Said file is already being included: `%ls`\n", (c16*)include);
 							goto success; //goto error;
 						}
 					}
@@ -234,7 +234,7 @@ namespace OPEN::INTERPRETER::MAIN::INCLUDE {
 					//
 					break;
 
-		//error:		ERROR ("Said file is arleady being included: `%ls`\n", (c16*)include);
+		//error:		ERROR ("Said file is already being included: `%ls`\n", (c16*)include);
 
 				}
 
@@ -298,7 +298,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 			case TYPE_SPACE:
 			case TYPE_TAB: break; // nothing
 
-			case '/':		// Skip '/' or '\' sign at the beggining.
+			case '/':		// Skip '/' or '\' sign at the beginning.
 			case '\\': { 	//  this also helps with subprojects that are in the same folder as parent project.
 				parsingstage = specialStage;
 				temporaryLength = 0;
@@ -338,7 +338,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 				AddTemp (TYPE_EOS);
 
-				// CPY. So it stays in memmory.
+				// CPY. So it stays in memory.
 				u8* project; ALLOCATE (u8, project, temporaryLength);
 				memcpy (project, temporary, temporaryLength);
 
@@ -471,7 +471,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 					break;
 
 					// TODO. Look into it more.
-		error:		ERROR ("Said project file is arleady being loaded: `%ls`" ERROR_NEW_LINE, (c16*)path);
+		error:		ERROR ("Said project file is already being loaded: `%ls`" ERROR_NEW_LINE, (c16*)path);
 
 				}
 

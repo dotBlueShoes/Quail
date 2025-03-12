@@ -19,11 +19,11 @@ namespace WINDOWS::REGISTRY {
 			keyName, 						// Path
 			0, 								// RESERVED
 			NULL, 							// optional. Class Type
-			REG_OPTION_NON_VOLATILE, 		// defualt - store data in file not in RAM.
+			REG_OPTION_NON_VOLATILE, 		// default - store data in file not in RAM.
 			KEY_WRITE | KEY_QUERY_VALUE, 	// Access rights for the key to be created.
 			NULL, 							// Security descriptor for the new key.
 			&key, 							// A pointer to a variable that receives a handle to the opened or created key.
-			&status							// Was key created or was it only openned because it arleady exsisted.
+			&status							// Was key created or was it only opened because it already existed.
 		);
 	}
 

@@ -24,8 +24,8 @@ namespace LOCAL {
 	const c16 ExitTag					[] = L"Completing the " QUAIL_NAME_VERSION_W L" Setup Wizard";
 	const c16 ExitText					[] = L"Setup has finished installing " QUAIL_NAME_VERSION_W L" on your computer.";
 
-	const c16 LVRegistry				[] = L"Create necessery " QUAIL_NAME_W L" Registry Keys (Personal configuration settings)";
-	const c16 LVPath					[] = L"Add " QUAIL_NAME_W L" to 'Path' variable (Will make " QUAIL_NAME_W L" accessible from anywere)";
+	const c16 LVRegistry				[] = L"Create necessary " QUAIL_NAME_W L" Registry Keys (Personal configuration settings)";
+	const c16 LVPath					[] = L"Add " QUAIL_NAME_W L" to 'Path' variable (Will make " QUAIL_NAME_W L" accessible from anywhere)";
 
 	// TEXTS TAGS
 	const c16 TagLicense				[] = L"License Agreement";
@@ -60,7 +60,7 @@ namespace LOCAL {
 	const c16 CONFIRMATION_PATH			[] = L"- New entry in Environment Variable 'Path' will be added.";
 
 	const c8 INSTALL_TASK_REGISTRY		[] = "Adding registry keys";
-	const c8 INSTALL_TASK_PATH			[] = "Adding " QUAIL_NAME_VERSION " to path enviroment variable";
+	const c8 INSTALL_TASK_PATH			[] = "Adding " QUAIL_NAME_VERSION " to path environment variable";
 	const c8 INSTALL_TASK_FILES			[] = "Creating necessary " QUAIL_NAME_VERSION " files";
 
 	const u8 MAX_EXE_SIZE = 20;

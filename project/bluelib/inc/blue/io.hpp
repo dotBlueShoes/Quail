@@ -16,11 +16,17 @@ namespace IO {
   		return (stat (name, &buffer) == 0); 
 	}
 
-	void Create (
+	void CreateEmpty (
 		IN		const c16* const& pathname
 	) {
+		std::wofstream outfile (pathname);
+		outfile.close ();
+	}
+
+	void CreateEmpty (
+		IN		const c8* const& pathname
+	) {
 		std::ofstream outfile (pathname);
-		//outfile << "hello world" << std::endl;
 		outfile.close ();
 	}
 
@@ -29,7 +35,15 @@ namespace IO {
 		IN		const c16* const& context
 	) {
 		std::wofstream outfile (pathname);
-		//std::ofstream outfile (pathname);
+		outfile << context << std::endl;
+		outfile.close ();
+	}
+
+	void CreateAdd (
+		IN		const c8* const& pathname,
+		IN		const c8* const& context
+	) {
+		std::ofstream outfile (pathname);
 		outfile << context << std::endl;
 		outfile.close ();
 	}

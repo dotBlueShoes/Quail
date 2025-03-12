@@ -48,7 +48,7 @@ bool IsValidDirectory (
     } else {
 
 		if (GetLastError () == ERROR_ALREADY_EXISTS) {
-			return true; // Directory arleady exsist.
+			return true; // Directory already exist.
 		}
 
         return false;  // Cannot create the directory due to permission issues.

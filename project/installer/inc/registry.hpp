@@ -81,7 +81,7 @@ namespace WINDOWS::REGISTRY {
 
 				IO::CreateAdd (buffer, contetnt);
 
-			} else { LOGWARN ("main config file arleady exists.\n"); }
+			} else { LOGWARN ("main config file already exists.\n"); }
 
 			FREE (buffer);
 		}
@@ -97,8 +97,8 @@ namespace WINDOWS::REGISTRY {
 				LOGINFO ("global config filepath: %ls\n", buffer);
 			}
 
-			if (!IO::IsExisting (buffer)) { IO::Create (buffer); }
-			else { LOGWARN ("global config file arleady exists.\n"); }
+			if (!IO::IsExisting (buffer)) { IO::CreateEmpty (buffer); }
+			else { LOGWARN ("global config file already exists.\n"); }
 
 			FREE (buffer);
 		}
@@ -117,16 +117,16 @@ namespace WINDOWS::REGISTRY {
 		HKEY key;
 
 		// OPEN
-    	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIROMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
-    	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIROMENT_VARIABLES_W); }
+    	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
+    	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIRONMENT_VARIABLES_W); }
 
 		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_ANY, NULL, env, &envSize); // GET
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
 
 		if (wcsstr (env, quail) != nullptr) {
-			LOGWWARN ("Enviroment Variable `PATH` entry for Quail arleady exists.\n");
+			LOGWWARN ("Environment Variable `PATH` entry for Quail already exists.\n");
 		} else {
-			LOGWINFO ("Creating new entry in Enviroment Variable `PATH` for Quail.\n");
+			LOGWINFO ("Creating new entry in Environment Variable `PATH` for Quail.\n");
 
 			{ // Creating proper entry string representing Quail.
 				auto&& begin = env + (envSize / 2) - 1; // - '\0' sign.
@@ -145,11 +145,11 @@ namespace WINDOWS::REGISTRY {
 				errorCode = RegSetValueExW (key, PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)env, envSize);
 				if (errorCode != ERROR_SUCCESS) { ERROR ("Could not set `%ls` value with `%ls`\n", PROPERTY_PATH_W, env); }
 
-				// Update all other applications because we did just edited enviroment varaibles!
+				// Update all other applications because we did just edited environment variables!
 				SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
 			}
     		
-			LOGWINFO ("Successfully added Quail to `Path` enviroment varaible.\n");
+			LOGWINFO ("Successfully added Quail to `Path` environment variable.\n");
 		}
 
 		// FREE
@@ -190,7 +190,7 @@ namespace WINDOWS::REGISTRY {
 				if (error != ERROR_SUCCESS) 		ERROR 		("Creating key failed.\n\n");
 				switch (status) {
 					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Key successfully created.\n"); 	break;
-					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key arleady exists.\n"); 			break;
+					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key already exists.\n"); 			break;
 					default: 						ERROR 		("Unknown key-status\n\n");
 				}
 			}
@@ -208,7 +208,7 @@ namespace WINDOWS::REGISTRY {
 				if (error != ERROR_SUCCESS) 		ERROR 		("Creating key failed.\n\n");
 				switch (status) {
 					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Key successfully created.\n"); 	break;
-					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key arleady exists.\n"); 			break;
+					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key already exists.\n"); 			break;
 					default: 						ERROR 		("Unknown key-status\n\n");
 				}
 			}

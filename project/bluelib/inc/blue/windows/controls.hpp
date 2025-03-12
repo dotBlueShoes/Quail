@@ -233,7 +233,7 @@ namespace WINDOWS::CONTROLS {
 		//#define WS_EX_OVERLAPPEDWINDOW  (WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE)
 		//#define WS_EX_PALETTEWINDOW     (WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST)
 		//#define WS_EX_LAYERED           0x00080000
-		//#define WS_EX_NOINHERITLAYOUT   0x00100000L // Disable inheritence of mirroring by children
+		//#define WS_EX_NOINHERITLAYOUT   0x00100000L // Disable inheritance of mirroring by children
 		//#define WS_EX_NOREDIRECTIONBITMAP 0x00200000L
 		//#define WS_EX_LAYOUTRTL         0x00400000L // Right to left mirroring
 		//#define WS_EX_COMPOSITED        0x02000000L

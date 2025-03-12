@@ -139,13 +139,13 @@ namespace WINDOWS::WINDOW {
 		{ // Drawing Image background.
 			BITMAP bitmap;
 
-			HDC sourceContext = CreateCompatibleDC (windowContext); // Create a separete context for said bitmap.
-			HGDIOBJ previosBitmap = SelectObject (sourceContext, image); // Keep a handle to the replaced object.
+			HDC sourceContext = CreateCompatibleDC (windowContext); // Create a separate context for said bitmap.
+			HGDIOBJ previousBitmap = SelectObject (sourceContext, image); // Keep a handle to the replaced object.
 
-        	GetObject (image, sizeof (bitmap), &bitmap); // Load from Handle into an actuall rendering datatype.
+        	GetObject (image, sizeof (bitmap), &bitmap); // Load from Handle into an actual rendering datatype.
         	BitBlt (windowContext, 0, 0, bitmap.bmWidth, bitmap.bmHeight, sourceContext, 0, 0, SRCCOPY); // Copy.
 
-        	SelectObject (sourceContext, previosBitmap); // reversing (restoring to original value)
+        	SelectObject (sourceContext, previousBitmap); // reversing (restoring to original value)
         	DeleteDC (sourceContext);
 		}
 
@@ -174,7 +174,7 @@ namespace WINDOWS::WINDOW {
 
 	void DrawDirectory (const HDC& windowContext) {
 
-		{ // Drawing RICHEDIT outter.
+		{ // Drawing RICHEDIT outer.
 			HBRUSH brushFill, previousFill;
 			HPEN penBorder, previousBorder;
 		
@@ -233,7 +233,7 @@ namespace WINDOWS::WINDOW {
 
 	void DrawLicense (const HDC& windowContext) {
 
-		{ // Drawing RICHEDIT outter.
+		{ // Drawing RICHEDIT outer.
 			HBRUSH brushFill, previousFill;
 			HPEN penBorder, previousBorder;
 		
@@ -289,7 +289,7 @@ namespace WINDOWS::WINDOW {
 
 	void DrawRegistry (const HDC& windowContext) {
 
-		{ // Drawing RICHEDIT outter.
+		{ // Drawing RICHEDIT outer.
 			HBRUSH brushFill, previousFill;
 			HPEN penBorder, previousBorder;
 		
@@ -462,13 +462,13 @@ namespace WINDOWS::WINDOW {
 		{ // Drawing Image background.
 			BITMAP bitmap;
 
-			HDC sourceContext = CreateCompatibleDC (windowContext); // Create a separete context for said bitmap.
-			HGDIOBJ previosBitmap = SelectObject (sourceContext, image); // Keep a handle to the replaced object.
+			HDC sourceContext = CreateCompatibleDC (windowContext); // Create a separate context for said bitmap.
+			HGDIOBJ previousBitmap = SelectObject (sourceContext, image); // Keep a handle to the replaced object.
 
-        	GetObject (image, sizeof (bitmap), &bitmap); // Load from Handle into an actuall rendering datatype.
+        	GetObject (image, sizeof (bitmap), &bitmap); // Load from Handle into an actual rendering datatype.
         	BitBlt (windowContext, 0, 0, bitmap.bmWidth, bitmap.bmHeight, sourceContext, 0, 0, SRCCOPY); // Copy.
 
-        	SelectObject (sourceContext, previosBitmap); // reversing (restoring to original value)
+        	SelectObject (sourceContext, previousBitmap); // reversing (restoring to original value)
         	DeleteDC (sourceContext);
 		}
 
@@ -571,7 +571,7 @@ namespace WINDOWS::WINDOW {
 		
 		switch (message) {
 
-			// Weirldy WM_VSCROLL
+			// Weirdly WM_VSCROLL
 			// 1. Is not sent to it's Parent window.
 			// 2. Is not being created via WM_MOUSEWHEEL, WM_MBUTTONDOWN, WM_MBUTTONUP.
 			//  - This code re-implements said functionality.
@@ -839,15 +839,15 @@ namespace WINDOWS::WINDOW {
 
 					} else if (selectedWindow == wbBrowse) {
 
-						c16* tempBuffor = nullptr;
+						c16* tempBuffer = nullptr;
 
-            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffor, MAX_PATH))) {
+            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffer, MAX_PATH))) {
 
 							// SET.
-							CONFIG::topConfigsFolderLength = (wcslen (tempBuffor) + 1) * 2;						// Calculate the actuall length in byes.
-							memcpy (CONFIG::topConfigsFolder, tempBuffor, CONFIG::topConfigsFolderLength);	// Copy to my own memory.
+							CONFIG::topConfigsFolderLength = (wcslen (tempBuffer) + 1) * 2;						// Calculate the actual length in byes.
+							memcpy (CONFIG::topConfigsFolder, tempBuffer, CONFIG::topConfigsFolderLength);	// Copy to my own memory.
 							SetWindowTextW (rePath, CONFIG::topConfigsFolder); 									// Update RichEdit Control
-							CoTaskMemFree (tempBuffor);																	// Release String created via BrowseFolder Control.
+							CoTaskMemFree (tempBuffer);																	// Release String created via BrowseFolder Control.
             			}
 						
 					}
@@ -1017,7 +1017,7 @@ namespace WINDOWS::WINDOW {
 			GetVersionEx (&operatingSystem);
 
 			if (operatingSystem.dwMajorVersion <= 4) {
-				ERROR ("Running on unsuported windows version!\n");
+				ERROR ("Running on unsupported windows version!\n");
 			}
 		}
 
@@ -1073,9 +1073,9 @@ namespace WINDOWS::WINDOW {
 
 		if (!RegisterClassExW (&windowClass)) exit (1);
 
-		{ // We're ensuring here that this value coresponds to client area.
+		{ // We're ensuring here that this value corresponds to client area.
 
-			// Apparently WinAPI `CreateWindow` actually uses said size.x, size.y params as whole size includind non-client area.
+			// Apparently WinAPI `CreateWindow` actually uses said size.x, size.y params as whole size including non-client area.
 			// ... Why and how does I learn about it only now. 
 			const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 			RECT rect { 0, 0, size.x, size.y };

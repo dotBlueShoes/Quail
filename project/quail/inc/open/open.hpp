@@ -12,7 +12,7 @@
 //  ABOUT
 // 1st read.
 //  a) We're reading for modules (projects) & includes for "GLOBAL" space
-//   > Data that is available globaly across all projects.
+//   > Data that is available globally across all projects.
 //  b) We're reading for modules (projects) & includes for "MAIN" space
 //   > It's the ROOT of all our projects definitions. Also contains commands and other.
 //  c) We're then reading all cascading includes of both global and main space.
@@ -31,7 +31,7 @@ namespace OPEN {
 		//  LOGIC
 		// 'INTERPRETER::parsingstage' is a jump table like function pointer
 		//  This concept helps us define a starting stage for each read thing
-		//  meaning we can easly disqualify certain strings if they're invalid.
+		//  meaning we can easily disqualify certain strings if they're invalid.
 		// 
 
 		while (interpreter.current != EOF) {
@@ -92,7 +92,7 @@ namespace OPEN {
 			(void**)(projects.keys.data () + projectsOffset)
 		);
 
-		index += projectsOffset; // Add what we removed. We offseted it before to search it the right way.
+		index += projectsOffset; // Add what we removed. We offsetted it before to search it the right way.
 		projectsOffset = projects.keys.size ();
 
 		return index;
@@ -259,7 +259,7 @@ namespace OPEN {
 			LOGINFO ("[ 2ND READ ]\n");
 
 			//  ABOUT
-			// This read is inverse it goes from the last file to the fisrt (if necessary).
+			// This read is inverse it goes from the last file to the first (if necessary).
 			//
 
 			//  CHECK
@@ -333,10 +333,10 @@ namespace OPEN {
 			//	LOGINFO ("Command: %s: %ls\n", key, value);
 			//}
 
-			// Currently I am loading all constants, varaibles, secrets
-			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessery needed.
+			// Currently I am loading all constants, variables, secrets
+			//  and that might not be very smart. Because doing so I am loading a lot of things that are not necessary needed.
 			//  It would be much smarter to only load strings that are being used by a specific command or a queue of commands.
-			//   - Its a different approach completly. We would look for a command then it's constants, varaibles, secrets
+			//   - Its a different approach completely. We would look for a command then it's constants, variables, secrets
 			//    and we would assemble the whole command part by part. However `Queues` and `Lists` would be much more difficult.
 			//    It also does not seem to be a big optimalization too.
 
@@ -377,7 +377,7 @@ namespace OPEN {
 						const auto&& queueValue = (c8*) queues.values[index];
 						const auto&& queueKey = (c8*) queues.keys[index];
 
-						// 1. calculate amout of ',' characters
+						// 1. calculate amount of ',' characters
 						// 2. add + 1 -> this is the number of commands we're be calling
 						// 3. reserve an a array to hold ',' positions
 						// 4. for each command do execution.

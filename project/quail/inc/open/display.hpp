@@ -15,7 +15,7 @@ namespace OPEN::DISPLAY {
 
 	//  ABOUT
 	// Writes a line to better visualize what command in queue is being 
-	// executed at a certaint time.
+	// executed at a certain time.
 	//
 	void QueueProgress (
 		const HANDLE& console,

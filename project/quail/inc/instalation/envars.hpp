@@ -9,10 +9,10 @@
 
 namespace ENVARS {
 
-	// This approach makes an enviroment variable that will not persist after the execution!
+	// This approach makes an environment variable that will not persist after the execution!
 	// 1. use this instead: 
 	// https://stackoverflow.com/questions/5246046/how-to-add-environment-variable-in-c
-	// 2. also to make non persistant variables using this method would be better:
+	// 2. also to make non persistent variables using this method would be better:
 	// https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setenvironmentvariable.
 
 	void AddQuailToPath (
@@ -40,9 +40,9 @@ namespace ENVARS {
 		u32 error = _wputenv (env);
 
 		if (error) {
-			ERROR ("Could not add `Quail` to the enviroment var: `path`.\n");
+			ERROR ("Could not add `Quail` to the environment var: `path`.\n");
 		} else {
-			LOGINFO ("Successfully added `Quail` to the enviroment variable `path`.\n");
+			LOGINFO ("Successfully added `Quail` to the environment variable `path`.\n");
 		}
 
 		FREE (env);

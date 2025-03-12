@@ -23,7 +23,7 @@ int WinMain (
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
 	LOGINFO ("Application Statred!\n");
 
-	{ // PREP. Quail path buffor.
+	{ // PREP. Quail path buffer.
 		ALLOCATE (c16, CONFIG::topConfigsFolder, MAX_PATH);
 	}
 

@@ -1,3 +1,6 @@
+// Created 2025.03.12 by Matthew Strumiłło (dotBlueShoes)
+//  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+//
 #pragma once
 
 //  About

@@ -19,7 +19,7 @@
 
 const c16 MSG_TITLE		[] = L"Quail Uninstaller";
 const c16 MSG_START		[] = L"Are you sure u want to proceed the uninstallation of all Quail components";
-const c16 MSG_SUCCESS	[] = L"Uninstallation was Succesfull";
+const c16 MSG_SUCCESS	[] = L"Uninstallation was Successful";
 const c16 MSG_FAILURE	[] = L"Uninstallation was Interrupted";
 
 bool isRemoveDirectory = false;
@@ -68,8 +68,8 @@ void RemoveQuailFromPath () {
 	DWORD pathEnvVarSize = -1;
 
 	{ // Get 
-		errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_ENVIROMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
-		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", WINDOWS::REGISTRY::KEY_ENVIROMENT_VARIABLES_W); }
+		errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
+		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", WINDOWS::REGISTRY::KEY_ENVIRONMENT_VARIABLES_W); }
 
 		errorCode = RegGetValueW (key, NULL, WINDOWS::REGISTRY::PROPERTY_PATH_W, RRF_RT_ANY, NULL, pathEnvVar, &pathEnvVarSize);
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", WINDOWS::REGISTRY::PROPERTY_PATH_W); } 
@@ -77,7 +77,7 @@ void RemoveQuailFromPath () {
 
 	c16* occurrence = wcsstr (pathEnvVar, CONFIG::topConfigsFolder);
 
-	if (occurrence == nullptr) { LOGWARN ("Quail directory was not found in the 'path' varaible.\n") FREE (pathEnvVar); return; }
+	if (occurrence == nullptr) { LOGWARN ("Quail directory was not found in the 'path' variable.\n") FREE (pathEnvVar); return; }
 
 
 	const auto length = CONFIG::topConfigsFolderLength / sizeof (c16);
@@ -99,7 +99,7 @@ void RemoveQuailFromPath () {
 		errorCode = RegSetValueExW (key, WINDOWS::REGISTRY::PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)pathEnvVar, newLength);	
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not set `%ls` value with `%ls`\n", WINDOWS::REGISTRY::PROPERTY_PATH_W, pathEnvVar); }
 			
-		// Update all other applications because we did just edited an enviroment varaible!
+		// Update all other applications because we did just edited an environment variable!
 		SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
 	}
 
@@ -121,7 +121,7 @@ void RemoveItself () {
 	BOOL errorCode;
 
 	errorCode = DeleteFileW (buffer);
-	if (errorCode != TRUE) LOGWARN ("Cound not remove uninstaller file!\n");
+	if (errorCode != TRUE) LOGWARN ("Could not remove uninstaller file!\n");
 
 	FREE (buffer);
 }

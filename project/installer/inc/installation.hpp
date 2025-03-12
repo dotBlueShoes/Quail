@@ -75,7 +75,7 @@ namespace INSTALLATION {
 		DOWNLOAD::runningHandles = 1;
 		
 
-		{ // Actuall State Two
+		{ // Actual State Two
 			auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 			auto&& directoryPath = CONFIG::topConfigsFolder;
 			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::UNINSTALLER_NAME_LENGTH + 1);
