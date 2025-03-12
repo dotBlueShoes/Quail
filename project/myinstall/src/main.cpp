@@ -19,9 +19,18 @@ int WinMain (
 	UNREFERENCED_PARAMETER (commandline);
     UNREFERENCED_PARAMETER (isConsole);
 
-	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
-	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
-	LOGINFO ("Application Statred!\n");
+	{ // Initialize Logging
+		DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
+		DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
+		LOGINFO ("Application Statred!\n");
+	}
+
+	// Check for Adming Rights.
+	//IsUserAnAdmin()
+	if (!IsUserAnAdmin()) {
+		MessageBoxA (nullptr, "Instalator requires admin rights.", "ERROR", MB_OK);
+		return -2;
+	}
 
 	{ // PREP. Quail path buffer.
 		ALLOCATE (c16, CONFIG::topConfigsFolder, MAX_PATH);
@@ -71,11 +80,12 @@ int WinMain (
 		FREE (CONFIG::topConfigsFolder);
 	}
 
-	LOGINFO ("Finalized Execution\n");
-	LOGMEMORY ();
-	
-	DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
-	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
+	{ // Deinitialize Logging
+		LOGINFO ("Finalized Execution\n");
+		LOGMEMORY ();
+		DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
+		DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
+	}
 
 	return 0;
 }

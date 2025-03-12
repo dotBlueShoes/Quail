@@ -33,6 +33,9 @@ namespace INSTALLATION {
 
 	void BeginPhaseOne (HWND& progressBar) {
 
+		//LOGINFO ("1\n");
+		//getchar ();
+
 		DOWNLOAD::runningHandles = 1;
 		currentPhase = PHASE_DOWNLOAD_MAIN; 
 
@@ -47,19 +50,46 @@ namespace INSTALLATION {
 			LOGINFO ("executable filepath: %ls\n", buffer);
 		}
 
-		// Create file for Quail Executable. Check. Free unused.
-		fileHandle = _wfopen (buffer, L"wb"); 
-		if (!fileHandle) ERROR ("File opening failed\n"); 
+		//LOGINFO ("2\n");
+		//getchar ();
+
+		{
+
+			DWORD fileAttribs = GetFileAttributesW (CONFIG::topConfigsFolder);
+
+			// Check if directory exists.
+    		if (fileAttribs == INVALID_FILE_ATTRIBUTES || !(fileAttribs & FILE_ATTRIBUTE_DIRECTORY)) {
+        		// Does not exist - therefore we create one.
+        		BOOL error = CreateDirectoryW (CONFIG::topConfigsFolder, NULL);
+
+				if (error == 0) {
+					ERROR ("Folder creation for file failed\n");
+				}
+    		}  
+
+			// Create file for Quail Executable. Check. Free unused.
+			fileHandle = _wfopen (buffer, L"wb"); 
+			if (!fileHandle) ERROR ("File creation failed\n");
+
+		}
+		
+		
 		FREE (buffer);
+
+		//LOGINFO ("3\n");
+		//getchar ();
 
 		// Create download for Quail Executable.
 		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);
+
+		//LOGINFO ("4\n");
+		//getchar ();
 
 	}
 
 	void EndPhaseOne () {
 		DOWNLOAD::Delete (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle);
-		fclose (INSTALLATION::fileHandle);
+		fclose (fileHandle);
 
 		++currentPhase;
 	}
@@ -100,7 +130,7 @@ namespace INSTALLATION {
 
 	void EndPhaseTwo () {
 		DOWNLOAD::Delete (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle);
-		fclose (INSTALLATION::fileHandle);
+		fclose (fileHandle);
 
 		++currentPhase;
 	}
@@ -130,6 +160,9 @@ namespace INSTALLATION {
 			InvalidateRect (GetParent (progressBar), &REST_REGION, FALSE);
 		}
 
+		//LOGINFO ("HERE: [%d], %ls\n", CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder);
+		//getchar ();
+
 		if (isPath) WINDOWS::REGISTRY::AddQuailToPath (
 			CONFIG::topConfigsFolderLength, 
 			CONFIG::topConfigsFolder
@@ -145,6 +178,9 @@ namespace INSTALLATION {
 			InvalidateRect (GetParent (progressBar), &TEXT_REGION, FALSE);
 			InvalidateRect (GetParent (progressBar), &REST_REGION, FALSE);
 		}
+
+		//LOGINFO ("1\n");
+		//getchar ();
 
 		WINDOWS::REGISTRY::CreateFiles (
 			CONFIG::topConfigsFolderLength, 

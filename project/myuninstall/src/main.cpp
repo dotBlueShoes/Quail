@@ -22,8 +22,8 @@ const c16 MSG_START		[] = L"Are you sure u want to proceed the uninstallation of
 const c16 MSG_SUCCESS	[] = L"Uninstallation was Successful";
 const c16 MSG_FAILURE	[] = L"Uninstallation was Interrupted";
 
-bool isRemoveDirectory = false;
-bool isRemoveRegistry = false;
+bool isRemoveDirectory = true; //false;
+bool isRemoveRegistry = true; //false;
 bool isRemovePath = true;
 
 
@@ -83,6 +83,7 @@ void RemoveQuailFromPath () {
 	const auto length = CONFIG::topConfigsFolderLength / sizeof (c16);
 	const auto&& end = occurrence + length;
 
+	LOGINFO ("HERE: [%d], %ls\n", CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder);
 	LOGINFO ("Before: %ls\n\n", pathEnvVar);
 
 	u32 index = 0;
@@ -93,7 +94,8 @@ void RemoveQuailFromPath () {
 
 	LOGINFO ("After: %ls\n\n", pathEnvVar);
 
-	const u32 newLength = pathEnvVarSize - length;
+	const u32 newLength = pathEnvVarSize - CONFIG::topConfigsFolderLength;
+	LOGINFO ("HERE: [%d], [%d]\n", pathEnvVarSize, newLength);
 
 	{ // SET
 		errorCode = RegSetValueExW (key, WINDOWS::REGISTRY::PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)pathEnvVar, newLength);	
@@ -166,26 +168,50 @@ void RemoveDirectory () {
 
 void UninstallALL() {
 
+	{ // Check if valid unistallation.
+
+		HKEY key = nullptr;
+
+		LSTATUS error = RegOpenKeyExW (
+			HKEY_LOCAL_MACHINE,
+			WINDOWS::REGISTRY::KEY_PATH_W,
+			0,
+			KEY_ALL_ACCESS,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS || key == nullptr) {
+			ERRORWIN ("Could not get quail filepath from registry. Quail might be arleady uninstalled.");
+		} else {
+			RegCloseKey (key);
+		}
+	}
+
 	// Get quail filepath.
 	WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
 	
 	{ // Remove UNINSTALLER Registry Keys
+		LOGINFO ("1. Removing Uninstaller Registry\n");
 		RemoveRegistryUninstaller ();
 	}
 
 	if (isRemoveRegistry) { // Remove Quail Registry Keys
+		LOGINFO ("2. Removing Quail Registry\n");
 		RemoveRegistryQuail ();
 	}
 
 	if (isRemovePath) { // Remove Quail From Path
+		LOGINFO ("3. Removing Path Entry\n");
 		RemoveQuailFromPath ();
 	}
 
 	if (isRemoveDirectory) { // Remove itself.
+		LOGINFO ("4. Removing Itself\n");
 		RemoveItself ();
     }
 
 	if (isRemoveDirectory) { // Remove Quail directory.
+		LOGINFO ("5. Removing Directories\n");
 		RemoveDirectory ();
 	}
 

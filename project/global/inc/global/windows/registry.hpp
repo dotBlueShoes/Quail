@@ -29,7 +29,7 @@ namespace WINDOWS::REGISTRY {
 	const c16 PROPERTY_UNINSTALL_URL_UPDATE_INFO	[] = L"URLUpdateInfo";
 
 	const c16 KEY_ENVIRONMENT_VARIABLES_W 			[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
-	const c16 PROPERTY_PATH_W 						[] = L"path";
+	const c16 PROPERTY_PATH_W 						[] = L"Path";
 
 
 	void ReadPropertyTopConfigsFolder () {
@@ -51,9 +51,9 @@ namespace WINDOWS::REGISTRY {
 			&size
 		);
 		
-    	if ((status != ERROR_SUCCESS) && (size < 1)) {
+    	if ((status != ERROR_SUCCESS) || (size < 1)) {
 
-			WERROR ("Could not read key value: %d" ERROR_NEW_LINE, size);
+			ERROR ("Could not get quail filepath from registry. #1\n");
 
 		}
 
@@ -70,6 +70,12 @@ namespace WINDOWS::REGISTRY {
 			data,
 			&size
 		);
+
+		if ((status != ERROR_SUCCESS)) {
+
+			ERROR ("Could not get quail filepath from registry. #2\n");
+
+		}
         	
 		LOGWINFO (" > Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
 

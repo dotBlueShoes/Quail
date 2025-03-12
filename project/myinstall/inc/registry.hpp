@@ -22,36 +22,13 @@ namespace WINDOWS::REGISTRY {
 	const c16 VALUE_UNINSTALL_PUBLISHER				[] = L".BlueShoes";
 	const c16 VALUE_UNINSTALL_URL_INFO_ABOUT		[] = L"0";
 	const c16 VALUE_UNINSTALL_URL_UPDATE_INFO		[] = L"0";
-
-
-	//void AddContentToMainConfig (FILE*& file) {
-	//	DWORD bytesWritten;
-	//	BOOL result;
-	//
-    //	result = WriteFile (
-    //	    file,                // Handle to the file
-    //	    data,                 // Pointer to the data to write
-    //	    (DWORD)strlen(data),  // Number of bytes to write
-    //	    &bytesWritten,        // Number of bytes written
-    //	    NULL                  // No overlapped structure
-    //	);
-	//
-    //	if (!result) {
-    //	    printf ("Failed to write to the file. Error code: %lu\n", GetLastError());
-    //	    CloseHandle (file);
-    //	    return;
-    //	}
-	//
-    //	printf ("Successfully written to the file.\n");
-	//
-    //	// Close the file handle
-    //	CloseHandle (file);
-	//}
+	
 
 	void CreateFiles (const u32& directoryPathLength, const c16* const& directoryPath) {
 		c16* buffer;
 
 		{ // Main Config
+
 			{ // CONSTRUCT (Main Config Path)
 				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_MAIN_LENGTH + 1);
 
@@ -62,7 +39,7 @@ namespace WINDOWS::REGISTRY {
 				LOGINFO ("main config filepath: %ls\n", buffer);
 			}
 
-			if (!IO::IsExisting (buffer)) { 
+			BRANCH if (!IO::IsExisting (buffer)) { 
 
 				const u32 length = 
 					CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + 
@@ -80,13 +57,16 @@ namespace WINDOWS::REGISTRY {
 				}
 
 				IO::CreateAdd (buffer, contetnt);
+				FREE (contetnt);
 
-			} else { LOGWARN ("main config file already exists.\n"); }
+			} else { LOGWARN ("Main config file already exists.\n"); }
 
 			FREE (buffer);
+
 		}
 
 		{ // Global Config
+
 			{ // CONSTRUCT (Global Config Path)
 				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);
 
@@ -97,12 +77,38 @@ namespace WINDOWS::REGISTRY {
 				LOGINFO ("global config filepath: %ls\n", buffer);
 			}
 
-			if (!IO::IsExisting (buffer)) { IO::CreateEmpty (buffer); }
-			else { LOGWARN ("global config file already exists.\n"); }
+			BRANCH if (!IO::IsExisting (buffer)) { IO::CreateEmpty (buffer); }
+			else { LOGWARN ("Global config file already exists.\n"); }
 
 			FREE (buffer);
+
+		}
+
+		{ // Executable Shortcut
+
+			{ // CONSTRUCT (Global Config Path)
+				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);
+
+				memcpy (buffer, directoryPath, directoryPathLength);
+				buffer[(directoryPathLength / 2) - 1] = L'\\';
+				memcpy (buffer + (directoryPathLength / 2), CONFIG::QUAIL_SHOURTCUT_NAME, CONFIG::QUAIL_SHOURTCUT_NAME_LENGTH);
+				LOGINFO ("executable shortcut filepath: %ls\n", buffer);
+				
+			}
+
+			BRANCH if (!IO::IsExisting (buffer)) { 
+
+				IO::CreateAdd (buffer, CONFIG::QUAIL_SHOURTCUT_CONTENT);
+
+			} else { LOGWARN ("Executable shortcut file already exists.\n"); }
+
+			FREE (buffer);
+
 		}
 	}
+
+
+	//[72], C:\Program Files\dotBlueShoes\Quail
 
 
 	void AddQuailToPath (
@@ -111,34 +117,51 @@ namespace WINDOWS::REGISTRY {
 	) {
 
 		c16* env; ALLOCATE (c16, env, 2048);
-		DWORD envSize = -1;
+		DWORD envSize = 2048;
 		
 		LSTATUS errorCode;
 		HKEY key;
+
+		//LOGINFO ("1\n");
+		//getchar ();
 
 		// OPEN
     	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
     	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIRONMENT_VARIABLES_W); }
 
-		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_ANY, NULL, env, &envSize); // GET
+		if (key == nullptr) LOGINFO ("WUT!\n");
+
+		//LOGINFO ("Pre-Path\n");
+		//getchar ();
+
+		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_REG_SZ, NULL, env, &envSize); // GET
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
+
+		//LOGINFO ("Post-Path: %ls\n", quail);
+		//getchar ();
 
 		if (wcsstr (env, quail) != nullptr) {
 			LOGWWARN ("Environment Variable `PATH` entry for Quail already exists.\n");
 		} else {
 			LOGWINFO ("Creating new entry in Environment Variable `PATH` for Quail.\n");
 
+			LOGINFO ("%d\n", envSize);
+			//getchar ();
+
 			{ // Creating proper entry string representing Quail.
-				auto&& begin = env + (envSize / 2) - 1; // - '\0' sign.
+				auto&& begin = env + ((envSize / 2) - 2); // - '\0' sign.
 
-				memcpy  (begin, quail, quailLength);	// Add Quail
-				wmemset (begin + (quailLength / 2) - 1, L';', 1);
-				wmemset (begin + (quailLength / 2), L'\0', 1);
+				wmemset (begin, L';', 1);							// Add Separator
+				memcpy  (begin + 1, quail, quailLength);			// Add Quail
+				wmemset (begin + 1 + (quailLength / 2), L'\0', 1);	// Add EOL !
 
-				envSize = envSize + quailLength + 1;
+				envSize = envSize + quailLength;
 			
 				//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
 			}
+
+			//LOGINFO ("4\n");
+			//getchar ();
 			
 			
 			{ // Adding the entry to the path variable.
@@ -151,6 +174,9 @@ namespace WINDOWS::REGISTRY {
     		
 			LOGWINFO ("Successfully added Quail to `Path` environment variable.\n");
 		}
+
+		//LOGINFO ("5\n");
+		//getchar ();
 
 		// FREE
     	RegCloseKey (key);
@@ -183,35 +209,50 @@ namespace WINDOWS::REGISTRY {
 			LOGINFO ("quail filepath: %ls\n", quailFilepath);
 		}
 
+		//LOGINFO ("1");
+		//getchar ();
+
 		{ // Quail Key
 			CreateKeyMachine (key, error, status, KEY_PATH_W);
 
+			//LOGINFO ("2");
+
 			{ // STATUS
-				if (error != ERROR_SUCCESS) 		ERROR 		("Creating key failed.\n\n");
+				if (error != ERROR_SUCCESS) 		ERROR 		("Quail - Creating key failed.\n\n");
 				switch (status) {
-					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Key successfully created.\n"); 	break;
-					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key already exists.\n"); 			break;
-					default: 						ERROR 		("Unknown key-status\n\n");
+					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Quail - Key successfully created.\n"); 	break;
+					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Quail - Key already exists.\n"); 			break;
+					default: 						ERROR 		("Quail - Unknown key-status\n\n");
 				}
 			}
+
+			//LOGINFO ("3");
 
 			CreatePropertyC16 (key, error, PROPERTY_QUAIL_FILEPATH_W, filepath, filepathLength);
 			CHECK_PROPERTY (error, PROPERTY_QUAIL_FILEPATH_W);
 
+			//LOGINFO ("4");
+
 			RegCloseKey (key);
 		}
+
+		//LOGINFO ("2");
+		//getchar ();
 
 		{ // Uninstaller Key
 			CreateKeyMachine (key, error, status, KEY_PATH_UNINSTALL_W);
 
 			{ // STATUS
-				if (error != ERROR_SUCCESS) 		ERROR 		("Creating key failed.\n\n");
+				if (error != ERROR_SUCCESS) 		ERROR 		("Unins - Creating key failed.\n\n");
 				switch (status) {
-					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Key successfully created.\n"); 	break;
-					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Key already exists.\n"); 			break;
-					default: 						ERROR 		("Unknown key-status\n\n");
+					case REG_CREATED_NEW_KEY: 		LOGINFO 	("Unins - Key successfully created.\n"); 	break;
+					case REG_OPENED_EXISTING_KEY: 	LOGWWARN 	("Unins - Key already exists.\n"); 			break;
+					default: 						ERROR 		("Unins - Unknown key-status\n\n");
 				}
 			}
+
+			//LOGINFO ("3");
+			//getchar ();
 
 			CreatePropertyC16 (key, error, PROPERTY_UNINSTALL_DISPLAY_ICON, quailFilepath, quailFilepathLength);
 			CHECK_PROPERTY (error, PROPERTY_UNINSTALL_DISPLAY_ICON);
@@ -249,10 +290,16 @@ namespace WINDOWS::REGISTRY {
 			CreatePropertyC16 (key, error, PROPERTY_UNINSTALL_URL_UPDATE_INFO, VALUE_UNINSTALL_URL_UPDATE_INFO, sizeof (VALUE_UNINSTALL_URL_UPDATE_INFO));
 			CHECK_PROPERTY (error, PROPERTY_UNINSTALL_URL_UPDATE_INFO);
 
+			//LOGINFO ("4");
+			//getchar ();
+
 			RegCloseKey (key);
 
 			FREE (uninstallerFilepath);
 			FREE (quailFilepath);
+
+			//LOGINFO ("5");
+			//getchar ();
 		}
 
 	}

@@ -19,6 +19,11 @@ namespace CONFIG {
 									L"\n!global			= start \"\" notepad++ \"%path%\\global.txt\"" \
 									L"\n!directory 		= explorer.exe \"%path%\""
 
+	const c16 QUAIL_SHOURTCUT_NAME		[] = L"o.bat";
+	const c16 QUAIL_SHOURTCUT_CONTENT	[] = L"@echo off\nQuail.exe -o %*\n";
+
+	const u32 QUAIL_SHOURTCUT_NAME_LENGTH 		= sizeof (QUAIL_SHOURTCUT_NAME);
+	const u32 QUAIL_SHOURTCUT_CONTENT_LENGTH 	= sizeof (QUAIL_SHOURTCUT_CONTENT);
 
 	const u32 DEFAULT_CONFIG_MAIN_1_LENGTH = sizeof (DEFAULT_CONFIG_MAIN_1) - 2; // / sizeof (c16);
 	const u32 DEFAULT_CONFIG_MAIN_2_LENGTH = sizeof (DEFAULT_CONFIG_MAIN_2); // / sizeof (c16);
@@ -26,10 +31,10 @@ namespace CONFIG {
 	const c8 QUAIL_NAME_VERSION_SIZE 	= sizeof (QUAIL_NAME_VERSION);
 	const c8 QUAIL_NAME_SIZE 			= sizeof (QUAIL_NAME);
 
-	const c16 CONFIG_MAIN_W[]			= L"config.txt";
+	const c16 CONFIG_MAIN_W				[] = L"config.txt";
 	const u32 CONFIG_MAIN_LENGTH		= sizeof (CONFIG_MAIN_W);
 	
-	const c16 CONFIG_GLOBAL_W[]			= L"global.txt";
+	const c16 CONFIG_GLOBAL_W			[] = L"global.txt";
 	const u32 CONFIG_GLOBAL_LENGTH		= sizeof (CONFIG_GLOBAL_W);
 
 	const c8 URL_QUAIL_EXECUTABLE 		[] = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
@@ -38,8 +43,8 @@ namespace CONFIG {
 	const c8 URL_QUAIL_UNINSTALLER 		[] = "https://github.com/dotBlueShoes/bta-Gems/releases/download/0.4.5/gems_mod-0.4.5.jar";
 	//const c8 URL_QUAIL_UNINSTALLER 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/uninstaller.exe";
 
-	const c16 EXECUTABLE_NAME			[] = L"QuailNew.exe";
-	//const c16 EXECUTABLE_NAME			[] = L"Quail.exe";
+	//const c16 EXECUTABLE_NAME			[] = L"QuailNew.exe";
+	const c16 EXECUTABLE_NAME			[] = L"Quail.exe";
 	const u32 EXECUTABLE_NAME_LENGTH 	= sizeof (EXECUTABLE_NAME);
 
 	const c16 UNINSTALLER_NAME			[] = L"uninstall.exe";

@@ -14,8 +14,8 @@
 # ?shell		= Prefered shell for e.g. "pwsh - c".
 
 
-%new_ins_path	= project\installer\installer_quail.exe
-%new_uni_path	= project\uninstaller\uninstaller.exe
+%new_ins_path	= project\myinstall\installer.exe
+%new_uni_path	= project\myuninstall\uninstaller.exe
 
 %project_color 	= #d11f48
 %pr 			= x64-win-release
@@ -46,20 +46,20 @@
 !_ins			= start "" "%_path%\build\%pd%\%new_ins_path%"
 !_iins			= start "" "%_path%\build\%pr%\%new_ins_path%"
 
-!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% installer Installer.exe
-!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% installer Installer.exe
+!manifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% myinstall myinstall.exe
+!mmanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% myinstall myinstall.exe
 
 !_uni			= start "" "%_path%\build\%pd%\%new_uni_path%"
 !_uuni			= start "" "%_path%\build\%pr%\%new_uni_path%"
 
-!umanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% uninstaller uninstall.exe
-!ummanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% uninstaller uninstall.exe
+!umanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pd% myuninstall myuninstall.exe
+!ummanifest		= %shell% "%_path%\.quail\manifest" "'%mt_path%'" "%_path%" %pr% myuninstall myuninstall.exe
 
-!compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\installer\Installer.exe" "%_path%\build\%pd%\%new_ins_path%"
-!ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\installer\Installer.exe" "%_path%\build\%pr%\%new_ins_path%"
+!compress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\myinstall\myinstall.exe" "%_path%\build\%pd%\%new_ins_path%"
+!ccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\myinstall\myinstall.exe" "%_path%\build\%pr%\%new_ins_path%"
 
-!ucompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\uninstaller\uninstall.exe" "%_path%\build\%pd%\%new_uni_path%"
-!uccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\uninstaller\uninstall.exe" "%_path%\build\%pr%\%new_uni_path%"
+!ucompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\myuninstall\myuninstall.exe" "%_path%\build\%pd%\%new_uni_path%"
+!uccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\myuninstall\myuninstall.exe" "%_path%\build\%pr%\%new_uni_path%"
 
 # Issue `datains` requires a compiled executable to make a change inside an executable. (Double compiling)
 #  Instead of changing a header file I should reserve space and apply a post-compile change 
@@ -79,5 +79,10 @@
 |ins			= manifest,compress,_ins
 |iins			= mmanifest,ccompress,_iins
 
-|uni			= umanifest,ucompress,_uni
-|uuni			= ummanifest,uccompress,_uuni
+#
+# ISSUE
+# We don't want to run _uni or _uuni from here. Config files would not be removed properly!
+#
+
+|uni			= umanifest,ucompress,
+|uuni			= ummanifest,uccompress,

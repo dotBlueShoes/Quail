@@ -6,6 +6,55 @@
 
 namespace WINDOWS::REGISTRY {
 
+	//bool IsAdmin () {
+	//	
+	//	HANDLE currentProcessToken = nullptr;
+	//	BOOL isAdmin = false;
+	//	BOOL error = false;
+	//	
+	//	error = OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &currentProcessToken);
+	//	if (!error) return false;
+	//
+	//	//  LOGIC
+	//	// We're checking if User is in Administrators group.
+	//	//
+	//
+	//	LOGINFO ("AAA!\n");
+	//
+	//	SID_IDENTIFIER_AUTHORITY authority = SECURITY_NT_AUTHORITY;
+	//	PSID administratorsGroup = nullptr;
+	//
+	//	error = AllocateAndInitializeSid (
+	//		&authority, 2, 
+	//		SECURITY_BUILTIN_DOMAIN_RID, 
+	//		DOMAIN_ALIAS_RID_ADMINS, 
+	//		0, 0, 0, 0, 0, 0, 
+	//		&administratorsGroup
+	//	);
+	//
+	//	if (!error) { CloseHandle (currentProcessToken); return false;}
+	//
+	//	LOGINFO ("BBBB!\n");
+	//
+	//	error = CheckTokenMembership (currentProcessToken, administratorsGroup, &isAdmin);
+	//		
+	//	if (error) {
+	//		FreeSid (administratorsGroup);
+	//		CloseHandle (currentProcessToken); 
+	//		return false;
+	//	}
+	//
+	//	LOGINFO ("HERE!\n");
+	//
+	//	FreeSid (administratorsGroup);
+	//	CloseHandle (currentProcessToken);
+	//
+	//	LOGINFO ("HERE %d!\n", (u8)isAdmin);
+	//
+	//	return isAdmin;
+	//}
+	
+
 	#define CHECK_PROPERTY(error, propertyName) { if (error != ERROR_SUCCESS) ERROR ("Setting up property '%ls' failed.\n\n", propertyName); }
 
 	void CreateKeyMachine (
