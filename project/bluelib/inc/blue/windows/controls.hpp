@@ -20,6 +20,7 @@ namespace WINDOWS::CONTROLS {
 	void CreateProgressBarRange (
 		HWND& progressBar, 
 		const HWND& parentWindow, 
+		const u16& id,
 		const HINSTANCE& instance,
 		const DWORD& style,
 		const pair<u16>& position,
@@ -32,7 +33,7 @@ namespace WINDOWS::CONTROLS {
 			style, // PBS_MARQUEE, PBS_SMOOTH, PBS_SMOOTHREVERSE, PBS_VERTICAL
 			position.x, position.y, size.x, size.y, 
 			parentWindow, 
-			(HMENU) 200, 
+			(HMENU) id, 
 			instance, 
 			nullptr
 		);
@@ -43,7 +44,8 @@ namespace WINDOWS::CONTROLS {
 
 	void CreateProgressBarRangeStep (
 		HWND& progressBar, 
-		const HWND& parentWindow, 
+		const HWND& parentWindow,
+		const u16& id,
 		const HINSTANCE& instance,
 		const DWORD& style,
 		const pair<u16>& position,
@@ -57,7 +59,7 @@ namespace WINDOWS::CONTROLS {
 			WS_CHILD | WS_VISIBLE, // PBS_MARQUEE, PBS_SMOOTH, PBS_SMOOTHREVERSE, PBS_VERTICAL
 			position.x, position.y, size.x, size.y, 
 			parentWindow, 
-			(HMENU) 200, 
+			(HMENU) id, 
 			instance, 
 			nullptr
 		);
@@ -70,7 +72,8 @@ namespace WINDOWS::CONTROLS {
 
 	void CreateButton (
 		HWND& button, 
-		const HWND& parentWindow, 
+		const HWND& parentWindow,
+		const u16& id,
 		const HINSTANCE& instance, 
 		const pair<s16>& position,
 		const pair<s16>& size,
@@ -84,7 +87,7 @@ namespace WINDOWS::CONTROLS {
 			position.x, position.y,
 			size.x, size.y,
 			parentWindow,
-			nullptr,
+			(HMENU) id,
 			instance,
 			nullptr
 		);

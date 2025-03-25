@@ -18,15 +18,15 @@
 11. Move license.h" & "data.h" to GLOBAL project.
 12. ? Maybe create a roadmap using that github tool (tables).
 13. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
-
 14. diffrentiate between topConfigsFolder and installedBinFolder
+
+
 
 --- INSTALLER
 
 15. Move created window objects outside WM_PAINT.
 16. Make sure everything is being destroyed properly.
-17. Next button HIGHLIGHT and connection to enter key.
-18. Arrows and Highlight with them.
+18. Last, Browse, Path windows use loses focus of main window. making use of arrows imposible. Fix it.
 19. Proper "Cancel" handling.
 20. Make script for automatic releases.
 21. Make it run on a separate Threat if necessary.

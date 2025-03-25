@@ -18,9 +18,34 @@ namespace WINDOWS::WINDOW {
 	///////////////////////////////////////////////////////////////////////////
 
 	// IDS
-	const u64 ID_RICHEDIT 				= 0b1001;
-	const u64 ID_STATIC	 				= 0b1010;
-	const u64 ID_LISTVIEW 				= 0b1011;
+	//const u64 ID_RICHEDIT 				= 0b00001001;
+	//const u64 ID_STATIC	 				= 0b00001010;
+	//const u64 ID_LISTVIEW 				= 0b00001011;
+	//
+	//const u16 ID_LAST					= 1;
+	//const u16 ID_NEXT					= 2;
+	//const u16 ID_CANCEL					= 3;
+	//const u16 ID_BROWSE					= 4;
+
+	// IDS
+	enum WINDOW_IDS : u16 {
+		WINDOW_IDS_LAST					= 1,
+		WINDOW_IDS_NEXT					= 2,
+		WINDOW_IDS_CANCEL				= 3,
+		WINDOW_IDS_BROWSE				= 4,
+		WINDOW_IDS_PATH					= 5,
+		WINDOW_IDS_COMPONENTS			= 6,
+		WINDOW_IDS_LICENSE				= 7,
+		WINDOW_IDS_DOWNLOAD				= 8,
+	};
+
+	// BUTTON STYLES
+	const DWORD BUTTON_STYLE_ACTIVE 	= WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON;
+	const DWORD BUTTON_STYLE_VISIBLE 	= WS_CHILD | WS_VISIBLE;
+	const DWORD BUTTON_STYLE_OFF 		= WS_CHILD;
+
+	// CUSTOM ACTIVES
+	bool isLicenseActive				= false;
 
 	// COLORS
 	const COLORREF ACCENT_COLOR			= 0xd77800; // 0xe597b5; -> my system accent color "purple".
@@ -67,10 +92,10 @@ namespace WINDOWS::WINDOW {
 	///////////////////////////////////////////////////////////////////////////
 	
 	// HANDLERS
-	HBITMAP image = nullptr;
 	HWND wpbDownload, wbLast, wbNext, wbCancel, rePath, wbBrowse, wsLicense, wlbComponents;
-	WNDPROC topLicenseControlLoop;
 	HFONT font, fontBold, fontMono;
+	WNDPROC topLicenseControlLoop;
+	HBITMAP image = nullptr;
 
 	// PAGES
 	enum PAGE_TYPE: u8 {
@@ -83,6 +108,140 @@ namespace WINDOWS::WINDOW {
 		PAGE_TYPE_EXIT			= 6,
 	}; u8 currentPage = 0;
 
+}
+
+
+namespace WINDOWS::WINDOW::KEYBOARD {
+
+	//  ABOUT
+	// Each page has it's own button selection array.
+	//
+
+	const u16 pageActivablesStarts [] {
+		 0, // PAGE_TYPE_ENTRY
+		 2, // PAGE_TYPE_LICENSE
+		 6, // PAGE_TYPE_DIRECTORY
+		11, // PAGE_TYPE_REGISTRY
+		14, // PAGE_TYPE_CONFIRMATION
+		17, // PAGE_TYPE_DOWNLOAD
+		18, // PAGE_TYPE_EXIT
+	};
+
+	const u16 pageActivablesEnds [] {
+		 2, // PAGE_TYPE_ENTRY
+		 6, // PAGE_TYPE_LICENSE
+		11, // PAGE_TYPE_DIRECTORY
+		14, // PAGE_TYPE_REGISTRY
+		17, // PAGE_TYPE_CONFIRMATION
+		18, // PAGE_TYPE_DOWNLOAD
+		19, // PAGE_TYPE_EXIT
+	};
+
+	const u16 pageActivablesList [] { 
+		WINDOW_IDS_NEXT, WINDOW_IDS_CANCEL,	
+		WINDOW_IDS_LICENSE, WINDOW_IDS_LAST, WINDOW_IDS_NEXT, WINDOW_IDS_CANCEL,
+		WINDOW_IDS_NEXT, WINDOW_IDS_CANCEL, WINDOW_IDS_PATH, WINDOW_IDS_BROWSE, WINDOW_IDS_LAST,
+		WINDOW_IDS_NEXT, WINDOW_IDS_CANCEL, WINDOW_IDS_LAST,
+		WINDOW_IDS_NEXT, WINDOW_IDS_CANCEL, WINDOW_IDS_LAST,
+		WINDOW_IDS_LAST,
+		WINDOW_IDS_CANCEL,
+	};
+
+	u16 active = 0;
+
+	void HandleFocusChange (const u16& current, const u16& last) {
+		switch (last) {
+			case WINDOW_IDS_LAST: {
+				//LOGINFO ("1\n");
+				SetWindowLongPtr (wbLast, GWL_STYLE, BUTTON_STYLE_VISIBLE);
+				InvalidateRect (wbLast, NULL, true);
+			} break;
+
+			case WINDOW_IDS_NEXT: {
+				//LOGINFO ("2\n");
+				if (IsWindowEnabled(wbNext))  {
+					SetWindowLongPtr (wbNext, GWL_STYLE, BUTTON_STYLE_VISIBLE);
+					InvalidateRect (wbNext, NULL, true);
+				}
+			} break;
+
+			case WINDOW_IDS_CANCEL: {
+				//LOGINFO ("3\n");
+				SetWindowLongPtr (wbCancel, GWL_STYLE, BUTTON_STYLE_VISIBLE);
+				InvalidateRect (wbCancel, NULL, true);
+			} break;
+
+			case WINDOW_IDS_LICENSE: {
+				//LOGINFO ("5\n");
+				isLicenseActive = false;
+				InvalidateRect (GetParent(wsLicense), &wsLicensePadding, true);
+			} break;
+
+			case WINDOW_IDS_BROWSE: {
+				//LOGINFO ("6\n");
+				SetWindowLongPtr (wbBrowse, GWL_STYLE, BUTTON_STYLE_VISIBLE);
+				InvalidateRect (wbBrowse, NULL, true);
+			} break;
+
+			case WINDOW_IDS_PATH: {
+				//LOGINFO ("7\n");
+				SetFocus (GetParent(rePath));
+				InvalidateRect (GetParent(rePath), &reRectPadding, true);
+			} break;
+
+			default: {
+				LOGINFO ("n. %d\n", last);
+			}
+		}
+
+		switch (current) {
+			case WINDOW_IDS_LAST: {
+				//LOGINFO ("1\n");
+				SetWindowLongPtr (wbLast, GWL_STYLE, BUTTON_STYLE_ACTIVE);
+				InvalidateRect (wbLast, NULL, true);
+			} break;
+
+			case WINDOW_IDS_NEXT: {
+				//LOGINFO ("2\n");
+				if (IsWindowEnabled(wbNext))  {
+					SetWindowLongPtr (wbNext, GWL_STYLE, BUTTON_STYLE_ACTIVE);
+					InvalidateRect (wbNext, NULL, true);
+				}
+			} break;
+
+			case WINDOW_IDS_CANCEL: {
+				//LOGINFO ("3\n");
+				SetWindowLongPtr (wbCancel, GWL_STYLE, BUTTON_STYLE_ACTIVE);
+				InvalidateRect (wbCancel, NULL, true);
+			} break;
+
+			case WINDOW_IDS_LICENSE: {
+				//LOGINFO ("5\n");
+				isLicenseActive = true;
+				InvalidateRect (GetParent(wbCancel), &wsLicensePadding, true);
+			} break;
+
+			case WINDOW_IDS_BROWSE: {
+				//LOGINFO ("6\n");
+				SetWindowLongPtr (wbBrowse, GWL_STYLE, BUTTON_STYLE_ACTIVE);
+				InvalidateRect (wbBrowse, NULL, true);
+			} break;
+
+			case WINDOW_IDS_PATH: {
+				//LOGINFO ("7\n");
+				SetFocus (rePath);
+				InvalidateRect (GetParent(rePath), &reRectPadding, true);
+			} break;
+
+			default: {
+				LOGINFO ("n. %d\n", current);
+			}
+		}
+	}
+
+}
+
+namespace WINDOWS::WINDOW {
 
 	void DrawPage (const HDC& windowContext) {
 
@@ -239,7 +398,7 @@ namespace WINDOWS::WINDOW {
 		
 			brushFill = CreateSolidBrush (BACKGROUND_FIRST);
 
-			if (INSTALLATION::isLicense) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
+			if (isLicenseActive) penBorder = CreatePen (PS_SOLID, 1, ACCENT_COLOR);
 			else penBorder = CreatePen (PS_SOLID, 1, BORDER_INACTIVE);
 		
 			previousFill = (HBRUSH) SelectObject (windowContext, brushFill);
@@ -598,6 +757,251 @@ namespace WINDOWS::WINDOW {
 	}
 
 
+	void HandlePageSwitch (const HWND& window) {
+
+		LOGINFO ("...page switch\n");
+
+		switch (currentPage) { 
+
+			case PAGE_TYPE_ENTRY: {
+
+				{ // THIS
+					//KEYBOARD::HandleFocusChange (WINDOW_IDS_NEXT, WINDOW_IDS_LAST);
+					ShowWindow (wbLast, HIDE_WINDOW);
+				}
+				
+				{ // Next
+					EnableWindow (wbNext, true);
+					SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
+					ShowWindow (wsLicense, HIDE_WINDOW);
+				}
+
+			} break;
+
+			case PAGE_TYPE_LICENSE: {
+
+				{ // PREV
+					ShowWindow (wbLast, SHOW_OPENWINDOW);
+				}
+
+				{ // THIS
+					//KEYBOARD::HandleFocusChange (WINDOW_IDS_NEXT, WINDOW_IDS_LAST);
+					isLicenseActive = true;
+					//
+					EnableWindow (wbNext, INSTALLATION::isLicense);
+					SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_AGREE);
+					ShowWindow (wsLicense, SHOW_OPENWINDOW);
+				}
+
+				{ // NEXT
+					ShowWindow (wbBrowse, HIDE_WINDOW);
+					ShowWindow (rePath, HIDE_WINDOW);
+				}
+
+			} break;
+
+			case PAGE_TYPE_DIRECTORY: {
+
+				{ // PREV
+					SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
+					ShowWindow (wsLicense, HIDE_WINDOW);
+				}
+
+				{ // THIS
+					LOGINFO ("directory\n");
+					//KEYBOARD::HandleFocusChange (WINDOW_IDS_PATH, WINDOW_IDS_LAST);
+					ShowWindow (wlbComponents, HIDE_WINDOW);
+					ShowWindow (wbBrowse, SHOW_OPENWINDOW);
+					ShowWindow (rePath, SHOW_OPENWINDOW);
+				}
+				
+			} break;
+
+			case PAGE_TYPE_REGISTRY: {
+
+				{ // PREV
+					ShowWindow (wbBrowse, HIDE_WINDOW);
+					ShowWindow (rePath, HIDE_WINDOW);
+				}
+
+				{ // THIS
+					//KEYBOARD::HandleFocusChange (WINDOW_IDS_NEXT, WINDOW_IDS_LAST);
+					ShowWindow (wlbComponents, SHOW_OPENWINDOW);
+				}
+
+				{ // NEXT
+					SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
+				}
+				
+			} break;
+
+			case PAGE_TYPE_CONFIRMATION: {
+
+				{ // PREV
+					ShowWindow (wlbComponents, HIDE_WINDOW);
+				}
+
+				{ // THIS
+					if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
+						SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_START);
+					} else {
+						KEYBOARD::active = KEYBOARD::pageActivablesStarts[PAGE_TYPE_CONFIRMATION];
+						//KEYBOARD::HandleFocusChange (WINDOW_IDS_NEXT, WINDOW_IDS_LAST);
+						EnableWindow (wbLast, false);
+					}
+				}
+
+				{ // NEXT
+					ShowWindow (wpbDownload, HIDE_WINDOW);
+					EnableWindow (wbNext, true);
+				}
+				
+			} break;
+
+			case PAGE_TYPE_DOWNLOAD: {
+
+				{ // PREV
+					SendMessageW (wbNext, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_NEXT);
+					EnableWindow (wbLast, true);
+				}
+
+				{ // THIS
+					//KEYBOARD::HandleFocusChange (WINDOW_IDS_LAST, WINDOW_IDS_NEXT);
+					ShowWindow (wpbDownload, SHOW_OPENWINDOW);
+					EnableWindow (wbCancel, false);
+					EnableWindow (wbNext, false);
+
+					if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
+						INSTALLATION::BeginPhaseOne (wpbDownload);
+					}
+
+					if (INSTALLATION::currentPhase == INSTALLATION::PHASE_END) {
+						SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext); // We're simply simulating a wbNext Click Msg.
+					}
+				}
+				
+			} break;
+
+			case PAGE_TYPE_EXIT: {
+
+				{ // PREV
+					EnableWindow (wbCancel, true);
+					
+					ShowWindow (wpbDownload, HIDE_WINDOW);
+					ShowWindow (wbLast, HIDE_WINDOW);
+					ShowWindow (wbNext, HIDE_WINDOW);
+				}
+
+				{ // THIS
+					SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_FINISH); // Change "Close" msg to "Finish".
+					
+					{ // Make Finish Button now the default button.
+						DWORD style = GetWindowLongPtr (wbCancel, GWL_STYLE);
+						style |= BS_DEFPUSHBUTTON;
+						SetWindowLongPtr (wbCancel, GWL_STYLE, style);
+						
+						InvalidateRect (wbCancel, nullptr, FALSE);
+					}
+				}
+
+			} break;
+
+		}
+	}
+
+
+	void PageAdd () {
+		const auto last = KEYBOARD::pageActivablesList[KEYBOARD::active];
+		currentPage++;
+		KEYBOARD::active = KEYBOARD::pageActivablesStarts[currentPage];
+		const auto current = KEYBOARD::pageActivablesList[KEYBOARD::active];
+		KEYBOARD::HandleFocusChange (current, last);
+	}
+
+
+	void PageSub () {
+		const auto& last = KEYBOARD::pageActivablesList[KEYBOARD::active];
+		currentPage--;
+		KEYBOARD::active = KEYBOARD::pageActivablesStarts[currentPage];
+		const auto& current = KEYBOARD::pageActivablesList[KEYBOARD::active];
+		KEYBOARD::HandleFocusChange (current, last);
+	}
+
+
+	void OnButtonLast (const HWND& window) {
+		if (currentPage == PAGE_TYPE_DIRECTORY) {
+			
+			if (SyncValidateRichEditPath ()) {
+				LOGINFO ("Selected a valid directory for installation.\n");
+				PageSub ();
+				InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
+			} else {
+				MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
+			}
+
+		} else {
+			PageSub ();
+			InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
+		}
+
+		SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+	}
+
+
+	void OnButtonNext (const HWND& window) {
+		if (currentPage == PAGE_TYPE_DIRECTORY) {
+
+			if (SyncValidateRichEditPath ()) {
+				LOGINFO ("Selected a valid directory for installation.\n");
+				PageAdd ();
+				SetFocus (window); // Issue. Something else breaks and its a quick fix.
+				//REGISTRY::ReplaceFolderPathWithFilePath (REGISTRY::mainConfigFilePath, REGISTRY::topConfigsFolderPathLength); // Update pointer value
+				InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
+			} else {
+				MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
+			}
+
+		} else {
+			PageAdd ();
+			SetFocus (window); // Issue. Something else breaks and its a quick fix.
+
+			InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
+		}
+
+		SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+	}
+
+
+	void OnButtonCancel (const HWND& window) {
+		SendMessageW (window, WM_CLOSE, 0, 0);
+		SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+	}
+
+
+	void OnButtonBrowse (const HWND& window) {
+		c16* tempBuffer = nullptr;
+
+		if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffer, MAX_PATH))) {
+
+			// SET.
+			CONFIG::topConfigsFolderLength = (wcslen (tempBuffer) + 1) * 2;					// Calculate the actual length in byes.
+			memcpy (CONFIG::topConfigsFolder, tempBuffer, CONFIG::topConfigsFolderLength);	// Copy to my own memory.
+			SetWindowTextW (rePath, CONFIG::topConfigsFolder); 								// Update RichEdit Control
+			CoTaskMemFree (tempBuffer);														// Release String created via BrowseFolder Control.
+		}
+	}
+
+
+	void HandleButtonPresses (const HWND& window, const u16& buttonId) {
+		switch (buttonId) {
+			case WINDOW_IDS_LAST: 	OnButtonLast 	(window); break;
+			case WINDOW_IDS_NEXT: 	OnButtonNext 	(window); break;
+			case WINDOW_IDS_CANCEL: OnButtonCancel 	(window); break;
+			case WINDOW_IDS_BROWSE: OnButtonBrowse 	(window); break;
+		}
+	}
+
+
 	s64 WindowLoop (
 		HWND window, 
 		UINT message, 
@@ -619,7 +1023,7 @@ namespace WINDOWS::WINDOW {
 				}
 
 				WINDOWS::CONTROLS::CreateProgressBarRange (
-					wpbDownload, window, instance, 
+					wpbDownload, window, WINDOW_IDS_DOWNLOAD, instance, 
 					WS_CHILD, 
 					{ 28, 60 + 55 }, { 440, 21 }, PROGRESSBAR_RANGE
 				);
@@ -629,7 +1033,7 @@ namespace WINDOWS::WINDOW {
             		    0, WC_LISTVIEWW, nullptr,
             		    WS_CHILD | LVS_LIST | WS_VISIBLE, //  | LVS_SINGLESEL
             		    wlbPosition.x, wlbPosition.y, wlbSize.x, wlbSize.y,
-            		    window, (HMENU) ID_LISTVIEW,
+            		    window, (HMENU) WINDOW_IDS_COMPONENTS,
             		    instance, nullptr
 					);
 
@@ -660,14 +1064,14 @@ namespace WINDOWS::WINDOW {
 					rePath, window, instance, 
 					rePosition, reSize, 
 					WS_CHILD | WS_TABSTOP, 
-					ID_RICHEDIT, REGISTRY::VALUE_DEFAULT_QUAIL_FOLDER_W
+					WINDOW_IDS_PATH, REGISTRY::VALUE_DEFAULT_QUAIL_FOLDER_W
 				);
 
 				WINDOWS::CONTROLS::CreateRichEdit (
 					wsLicense, window, instance, 
 					wsPosition, wsSize,
 					WS_CHILD | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_READONLY,
-					ID_STATIC, LICENSE
+					WINDOW_IDS_LICENSE, LICENSE
 				);
 
 				// Subclass the RichEdit control to catch the WM_VSCROLL messages
@@ -675,19 +1079,19 @@ namespace WINDOWS::WINDOW {
     			SetWindowLongPtr (wsLicense, GWLP_WNDPROC, (LONG_PTR)LicenseControlLoop);
 				
 				WINDOWS::CONTROLS::CreateButton (
-					wbLast, window, instance, 
+					wbLast, window, WINDOW_IDS_LAST, instance, 
 					{ 244, 314 + 11 }, { 75, 23 }, 
 					WS_CHILD, LOCAL::BUTTON_LAST
 				);
 				
 				WINDOWS::CONTROLS::CreateButton (
-					wbNext, window, instance, 
+					wbNext, window, WINDOW_IDS_NEXT, instance, 
 					{ 323, 314 + 11 }, { 75, 23 }, 
 					WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, LOCAL::BUTTON_NEXT
 				);
 				
 				WINDOWS::CONTROLS::CreateButton (
-					wbCancel, window, instance, 
+					wbCancel, window, WINDOW_IDS_CANCEL, instance, 
 					{ 323 + 75 + 11, 314 + 11 }, { 75, 23 }, 
 					WS_CHILD | WS_VISIBLE, LOCAL::BUTTON_CANCEL
 				);
@@ -697,9 +1101,9 @@ namespace WINDOWS::WINDOW {
 					const pair<s16> size = { 75, 23 };
 
 					WINDOWS::CONTROLS::CreateButton (
-						wbBrowse, window, instance, 
+						wbBrowse, window, WINDOW_IDS_BROWSE, instance, 
 						position, size,
-						WS_CHILD , LOCAL::BUTTON_BROWSE
+						WS_CHILD | BS_PUSHBUTTON, LOCAL::BUTTON_BROWSE
 					);
 				}
 				
@@ -738,9 +1142,60 @@ namespace WINDOWS::WINDOW {
         		
 			} return TRUE;
 
+			case WM_KEYDOWN: {
+				switch (wParam) {
+
+					case VK_RETURN: {
+						LOGINFO ("Enter key pressed!\n");
+						const auto& current = KEYBOARD::pageActivablesList[KEYBOARD::active];
+
+						//if (IsWindowEnabled())
+						if (current == WINDOW_IDS_NEXT) {
+							if (!IsWindowEnabled (wbNext)) break;
+						}
+
+						HandleButtonPresses (window, current);
+						HandlePageSwitch (window);
+					} break;
+
+					//case VK_UP: {
+					//} break;
+					//case VK_DOWN: {
+					//} break;
+
+					case VK_LEFT: {
+						const auto& pageActivablesStart = KEYBOARD::pageActivablesStarts[currentPage];
+						const auto& pageActivablesEnd = KEYBOARD::pageActivablesEnds[currentPage];
+						const auto last = KEYBOARD::pageActivablesList[KEYBOARD::active];
+
+						if (KEYBOARD::active == pageActivablesStart) KEYBOARD::active = pageActivablesEnd;
+						KEYBOARD::active--;
+
+						const auto& current = KEYBOARD::pageActivablesList[KEYBOARD::active];
+						KEYBOARD::HandleFocusChange (current, last);
+					} break;
+
+					case VK_TAB:
+					case VK_RIGHT: {
+						const auto& pageActivablesStart = KEYBOARD::pageActivablesStarts[currentPage];
+						const auto& pageActivablesEnd = KEYBOARD::pageActivablesEnds[currentPage];
+						const auto last = KEYBOARD::pageActivablesList[KEYBOARD::active];
+
+						KEYBOARD::active++;
+						if (KEYBOARD::active == pageActivablesEnd) KEYBOARD::active = pageActivablesStart;
+
+						const auto& current = KEYBOARD::pageActivablesList[KEYBOARD::active];
+						KEYBOARD::HandleFocusChange (current, last);
+					} break;
+
+				}
+
+				//return FALSE;
+			} break;
+
 			case WM_NOTIFY: {
         	    LPNMHDR pnmhdr = (LPNMHDR) lParam;
-        	    if (pnmhdr->idFrom == ID_LISTVIEW) { //IDC_LISTVIEW
+        	    if (pnmhdr->idFrom == WINDOW_IDS_COMPONENTS) { //IDC_LISTVIEW
         	        if (pnmhdr->code == LVN_ITEMCHANGED) {
 			
         	            LPNMLISTVIEW pnmv = (LPNMLISTVIEW) lParam;
@@ -767,7 +1222,7 @@ namespace WINDOWS::WINDOW {
 					
 						case EN_SETFOCUS: {
 					
-							if (LOWORD (wParam) == ID_RICHEDIT) {
+							if (LOWORD (wParam) == WINDOW_IDS_PATH) {
 								InvalidateRect (window, &reRectPadding, true);
 							}
 					
@@ -775,217 +1230,20 @@ namespace WINDOWS::WINDOW {
 					
 						case EN_KILLFOCUS: {
 					
-							if (LOWORD (wParam) == ID_RICHEDIT) {
+							if (LOWORD (wParam) == WINDOW_IDS_PATH) {
 								InvalidateRect (window, &reRectPadding, true);
 							}
 					
 						} break;
+
+						case 0: {
+							LOGINFO("a: %d, %lld\n", HIWORD (wParam), lParam);
+
+							const u16& buttonId = LOWORD (wParam);
+							HandleButtonPresses (window, buttonId);
+							HandlePageSwitch (window);
+						}
 					
-					}
-				}
-
-				{ // Buttons
-					auto selectedWindow = (HWND) lParam;
-
-					if (selectedWindow == wpbDownload) {
-
-						MessageBoxW (window, L"a", L"title", MB_OK); // Remove it. Later
-
-					} else if (selectedWindow == wbLast) {
-
-						if (currentPage == PAGE_TYPE_DIRECTORY) {
-						
-							if (SyncValidateRichEditPath ()) {
-								LOGINFO ("Selected a valid directory for installation.\n");
-
-								currentPage--;
-								InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
-							} else {
-								MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
-							}
-
-						} else {
-							currentPage--;
-							InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
-						}
-
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
-
-					} else if (selectedWindow == wbNext) {
-
-						if (currentPage == PAGE_TYPE_DIRECTORY) {
-
-							if (SyncValidateRichEditPath ()) {
-								LOGINFO ("Selected a valid directory for installation.\n");
-								currentPage++;
-
-								//REGISTRY::ReplaceFolderPathWithFilePath (REGISTRY::mainConfigFilePath, REGISTRY::topConfigsFolderPathLength); // Update pointer value
-								InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
-							} else {
-								MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
-							}
-
-						} else {
-							currentPage++;
-							InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
-						}
-
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
-
-					} else if (selectedWindow == wbCancel) {
-
-						SendMessageW (window, WM_CLOSE, 0, 0);
-						SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
-
-					} else if (selectedWindow == wbBrowse) {
-
-						c16* tempBuffer = nullptr;
-
-            			if (SUCCEEDED (WINDOWS::CONTROLS::BrowseFolder (window, nullptr, tempBuffer, MAX_PATH))) {
-
-							// SET.
-							CONFIG::topConfigsFolderLength = (wcslen (tempBuffer) + 1) * 2;						// Calculate the actual length in byes.
-							memcpy (CONFIG::topConfigsFolder, tempBuffer, CONFIG::topConfigsFolderLength);	// Copy to my own memory.
-							SetWindowTextW (rePath, CONFIG::topConfigsFolder); 									// Update RichEdit Control
-							CoTaskMemFree (tempBuffer);																	// Release String created via BrowseFolder Control.
-            			}
-						
-					}
-
-					switch (currentPage) {
-						case PAGE_TYPE_ENTRY: {
-
-							{ // THIS
-								ShowWindow (wbLast, HIDE_WINDOW);
-							}
-							
-							{ // Next
-								EnableWindow (wbNext, true);
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
-								ShowWindow (wsLicense, HIDE_WINDOW);
-							}
-
-						} break;
-
-						case PAGE_TYPE_LICENSE: {
-
-							{ // PREV
-								ShowWindow (wbLast, SHOW_OPENWINDOW);
-							}
-
-							{ // THIS
-								EnableWindow (wbNext, INSTALLATION::isLicense);
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_AGREE);
-								ShowWindow (wsLicense, SHOW_OPENWINDOW);
-							}
-
-							{ // NEXT
-								ShowWindow (wbBrowse, HIDE_WINDOW);
-								ShowWindow (rePath, HIDE_WINDOW);
-							}
-
-						} break;
-
-						case PAGE_TYPE_DIRECTORY: {
-
-							{ // PREV
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
-								ShowWindow (wsLicense, HIDE_WINDOW);
-							}
-
-							{ // THIS
-								ShowWindow (wlbComponents, HIDE_WINDOW);
-								ShowWindow (wbBrowse, SHOW_OPENWINDOW);
-								ShowWindow (rePath, SHOW_OPENWINDOW);
-							}
-							
-						} break;
-
-						case PAGE_TYPE_REGISTRY: {
-
-							{ // PREV
-								ShowWindow (wbBrowse, HIDE_WINDOW);
-								ShowWindow (rePath, HIDE_WINDOW);
-							}
-
-							{ // THIS
-								ShowWindow (wlbComponents, SHOW_OPENWINDOW);
-							}
-
-							{ // NEXT
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_NEXT);
-							}
-							
-						} break;
-
-						case PAGE_TYPE_CONFIRMATION: {
-
-							{ // PREV
-								ShowWindow (wlbComponents, HIDE_WINDOW);
-							}
-
-							{ // THIS
-								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
-									SendMessageW (wbNext, WM_SETTEXT, 0, (u64)LOCAL::BUTTON_START);
-								} else {
-									EnableWindow (wbLast, false);
-								}
-							}
-
-							{ // NEXT
-								ShowWindow (wpbDownload, HIDE_WINDOW);
-								EnableWindow (wbNext, true);
-							}
-							
-						} break;
-
-						case PAGE_TYPE_DOWNLOAD: {
-
-							{ // PREV
-								SendMessageW (wbNext, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_NEXT);
-								EnableWindow (wbLast, true);
-							}
-
-							{ // THIS
-								ShowWindow (wpbDownload, SHOW_OPENWINDOW);
-								EnableWindow (wbCancel, false);
-								EnableWindow (wbNext, false);
-
-								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) {
-									INSTALLATION::BeginPhaseOne (wpbDownload);
-								}
-
-								if (INSTALLATION::currentPhase == INSTALLATION::PHASE_END) {
-									SendMessageW (window, WM_COMMAND, MAKEWPARAM (GetDlgCtrlID (wbNext), BN_CLICKED), (LPARAM) wbNext); // We're simply simulating a wbNext Click Msg.
-								}
-							}
-							
-						} break;
-
-						case PAGE_TYPE_EXIT: {
-
-							{ // PREV
-								EnableWindow (wbCancel, true);
-								
-								ShowWindow (wpbDownload, HIDE_WINDOW);
-								ShowWindow (wbLast, HIDE_WINDOW);
-								ShowWindow (wbNext, HIDE_WINDOW);
-							}
-
-							{ // THIS
-								SendMessageW (wbCancel, WM_SETTEXT, 0, (u64) LOCAL::BUTTON_FINISH); // Change "Close" msg to "Finish".
-								
-								{ // Make Finish Button now the default button.
-                					DWORD style = GetWindowLongPtr (wbCancel, GWL_STYLE);
-                					style |= BS_DEFPUSHBUTTON;
-                					SetWindowLongPtr (wbCancel, GWL_STYLE, style);
-									
-									InvalidateRect (wbCancel, nullptr, FALSE);
-								}
-							}
-
-						} break;
-
 					}
 				}
 
@@ -1109,6 +1367,8 @@ namespace WINDOWS::WINDOW {
 
 		ShowWindow (window, SHOW_OPENNOACTIVATE);
 		UpdateWindow (window);
+
+		SetFocus (window);
 	}
 
 }
