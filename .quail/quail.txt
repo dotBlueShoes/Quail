@@ -14,8 +14,8 @@
 # ?shell		= Prefered shell for e.g. "pwsh - c".
 
 
-%new_ins_path	= project\myinstall\installer.exe
-%new_uni_path	= project\myuninstall\uninstaller.exe
+%new_ins_path	= project\myinstall\Installer.exe
+%new_uni_path	= project\myuninstall\uninstall.exe
 
 %project_color 	= #d11f48
 %pr 			= x64-win-release
@@ -61,6 +61,14 @@
 !ucompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pd%\project\myuninstall\myuninstall.exe" "%_path%\build\%pd%\%new_uni_path%"
 !uccompress		= %shell% "%_path%\.quail\compress" %upx_path% "%_path%\build\%pr%\project\myuninstall\myuninstall.exe" "%_path%\build\%pr%\%new_uni_path%"
 
+# ---
+
+!idirectory 	= explorer.exe "%_path%\build\%pd%\project\myinstall\"
+!iddirectory 	= explorer.exe "%_path%\build\%pr%\project\myinstall\"
+
+!udirectory 	= explorer.exe "%_path%\build\%pd%\project\myuninstall\"
+!uddirectory 	= explorer.exe "%_path%\build\%pr%\project\myuninstall\"
+
 # Issue `datains` requires a compiled executable to make a change inside an executable. (Double compiling)
 #  Instead of changing a header file I should reserve space and apply a post-compile change 
 #  similary to the way manifest files work.
@@ -84,5 +92,8 @@
 # We don't want to run _uni or _uuni from here. Config files would not be removed properly!
 #
 
-|uni			= umanifest,ucompress,
-|uuni			= ummanifest,uccompress,
+# !!! Quail-BUG ',' alone forwards to first defined command which is !directory in this setup.
+# !!! |uni			= umanifest,ucompress,
+
+|uni			= umanifest,ucompress,udirectory
+|uuni			= ummanifest,uccompress,uddirectory

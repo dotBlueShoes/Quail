@@ -1,36 +1,36 @@
 // Created 2024.01.14 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+#include <global/logger.hpp>
+//
 #include <blue/windows/console.hpp>
-#include <blue/types.hpp>
-#include <blue/log.hpp>
-
+//
 #include <global/windows/registry.hpp>
-
-//#include <windows.h>
-
-//#include <shlwapi.h>
-//#include <iostream>
-
+//
 #include <shobjidl.h>
 #include <shlwapi.h>
 #include <atlbase.h>
 
 
+#define DIRECTORY_REMOVAL_DELAY L"3"
+
 const c16 MSG_TITLE		[] = L"Quail Uninstaller";
-const c16 MSG_START		[] = L"Are you sure u want to proceed the uninstallation of all Quail components";
+const c16 MSG_START		[] = L"Are you sure u want to proceed the uninstallation Quail?";
 const c16 MSG_SUCCESS	[] = L"Uninstallation was Successful";
 const c16 MSG_FAILURE	[] = L"Uninstallation was Interrupted";
-
-bool isRemoveDirectory = true; //false;
-bool isRemoveRegistry = true; //false;
-bool isRemovePath = true;
+const c16 MSG_NOTHING	[] = L"Quail components were NOT removed due to the intentional user selection";
+//
+const c16 MSG_R_REG		[] = L"Remove registries?";
+const c16 MSG_R_VPE		[] = L"Remove entry in path enviroment variable?";
+const c16 MSG_R_DIR		[] = L"Remove directories?";
 
 
 void RemoveRegistryUninstaller () {
 
+	//  ABOUT
 	// To delete a non-empty registry key directly, we'll have to 
 	//  delete all of its subkeys and values first.
+	//
 
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_UNINSTALL_DISPLAY_ICON);
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_UNINSTALL_DISPLAY_NAME);
@@ -51,8 +51,10 @@ void RemoveRegistryUninstaller () {
 
 void RemoveRegistryQuail () {
 
+	//  ABOUT
 	// To delete a non-empty registry key directly, we'll have to 
 	//  delete all of its subkeys and values first.
+	//
 
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_QUAIL_FILEPATH_W);
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_PATH_W);
@@ -66,6 +68,8 @@ void RemoveQuailFromPath () {
 
 	c16* pathEnvVar; ALLOCATE (c16, pathEnvVar, 2048);
 	DWORD pathEnvVarSize = -1;
+
+	MEMORY::EXIT::PUSH (pathEnvVar, FREE);
 
 	{ // Get 
 		errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
@@ -105,117 +109,206 @@ void RemoveQuailFromPath () {
 		SendMessageTimeoutW (HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_BLOCK, 100, NULL);
 	}
 
-	FREE (pathEnvVar);
+	FREE (pathEnvVar); MEMORY::EXIT::POP ();
 
 }
 
 
-void RemoveItself () {
-	c16* buffer; ALLOCATE (c16, buffer, CONFIG::topConfigsFolderLength + CONFIG::UNINSTALLER_NAME_LENGTH);
+//old-code	void RemoveItself () {
+//old-code		c16* buffer; ALLOCATE (c16, buffer, CONFIG::topConfigsFolderLength + CONFIG::UNINSTALLER_NAME_LENGTH);
+//old-code		MEMORY::EXIT::PUSH (buffer, FREE);
+//old-code	
+//old-code		{ // CONSTRUCT
+//old-code			memcpy (buffer, CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
+//old-code			wmemset (buffer + (CONFIG::topConfigsFolderLength / 2) - 1, L'\\', 1);
+//old-code			memcpy (buffer + (CONFIG::topConfigsFolderLength / 2), CONFIG::UNINSTALLER_NAME, CONFIG::UNINSTALLER_NAME_LENGTH);
+//old-code			LOGINFO ("uninstall: %ls\n", buffer);
+//old-code		}
+//old-code	
+//old-code		BOOL errorCode;
+//old-code	
+//old-code		//errorCode = DeleteFileW (buffer);
+//old-code		//if (errorCode != TRUE) LOGWARN ("Could not remove uninstaller file!\n");
+//old-code	
+//old-code		FREE (buffer); MEMORY::EXIT::POP ();
+//old-code	}
 
-	{ // CONSTRUCT
-		memcpy (buffer, CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
-		wmemset (buffer + (CONFIG::topConfigsFolderLength / 2) - 1, L'\\', 1);
-		memcpy (buffer + (CONFIG::topConfigsFolderLength / 2), CONFIG::UNINSTALLER_NAME, CONFIG::UNINSTALLER_NAME_LENGTH);
-		//LOGINFO ("uninstaller: %ls\n", buffer);
-	}
 
-	BOOL errorCode;
-
-	errorCode = DeleteFileW (buffer);
-	if (errorCode != TRUE) LOGWARN ("Could not remove uninstaller file!\n");
-
-	FREE (buffer);
-}
+//old-code	void RemoveDirectory () {
+//old-code	
+//old-code		IFileOperation* fileOperation;
+//old-code		HRESULT errorCode; 
+//old-code	
+//old-code		IShellItem* fileOrFolderItem = nullptr;
+//old-code		BOOL isAborted = FALSE; // not needed?
+//old-code	
+//old-code		errorCode = CoInitializeEx (NULL, COINIT_MULTITHREADED);
+//old-code	    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't initialize COM library."); }
+//old-code	
+//old-code	    errorCode = CoCreateInstance (CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS (&fileOperation));
+//old-code	    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't CoCreateInstance."); }
+//old-code	
+//old-code	    errorCode = fileOperation->SetOperationFlags (FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI);
+//old-code	    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't add flags."); }
+//old-code	
+//old-code	    errorCode = SHCreateItemFromParsingName (CONFIG::topConfigsFolder, NULL, IID_PPV_ARGS (&fileOrFolderItem));
+//old-code	    if (FAILED (errorCode)) { fileOrFolderItem->Release (); fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't get file into an item."); }
+//old-code	    	
+//old-code		errorCode = fileOperation->DeleteItem (fileOrFolderItem, NULL); // 2 param is track of progress.
+//old-code	    fileOrFolderItem->Release ();
+//old-code	    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to mark file/folder item for deletion."); }
+//old-code	
+//old-code	    errorCode = fileOperation->PerformOperations ();
+//old-code		if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to carry out delete."); }
+//old-code	
+//old-code		errorCode = fileOperation->GetAnyOperationsAborted (&isAborted);
+//old-code	
+//old-code		fileOperation->Release ();
+//old-code		CoUninitialize ();
+//old-code	
+//old-code		if (FAILED (errorCode)) { ERROR ("Could not GetAnyOperationsAborted()."); }
+//old-code	    if (isAborted) { LOGWARN ("Some operations were aborted.\n"); }
+//old-code	}
 
 
 void RemoveDirectory () {
+	//const c16 path [] = L"C:\\Program Files\\dotBlueShoes\\Quail\\";
 
-	IFileOperation* fileOperation;
-	HRESULT errorCode; 
+	LOGINFO ("%ls\n", CONFIG::topConfigsFolder);
 
-	IShellItem* fileOrFolderItem = nullptr;
-	BOOL isAborted = FALSE; // not needed?
+	STARTUPINFOW startup { sizeof (startup) };
+    PROCESS_INFORMATION process;
 
-	errorCode = CoInitializeEx (NULL, COINIT_MULTITHREADED);
-    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't initialize COM library."); }
+	// Create a command to delete the uninstaller after it finishes
+    // We will use cmd.exe to run the delete command after the uninstaller finishes.
+	const c16 commandFormat [] = L"cmd.exe /C timeout /T " DIRECTORY_REMOVAL_DELAY L" /NOBREAK && rd /S /Q \"%s\"";
+    c16 command[MAX_PATH + sizeof (commandFormat)];
 
-    errorCode = CoCreateInstance (CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS (&fileOperation));
-    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't CoCreateInstance."); }
-
-    errorCode = fileOperation->SetOperationFlags (FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI);
-    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't add flags."); }
-
-    errorCode = SHCreateItemFromParsingName (CONFIG::topConfigsFolder, NULL, IID_PPV_ARGS (&fileOrFolderItem));
-    if (FAILED (errorCode)) { fileOrFolderItem->Release (); fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't get file into an item."); }
+    swprintf_s (
+		command, 
+		sizeof (command) / sizeof (c16),
+        commandFormat, 
+		CONFIG::topConfigsFolder
+	);
     	
-	errorCode = fileOperation->DeleteItem (fileOrFolderItem, NULL); // 2 param is track of progress.
-    fileOrFolderItem->Release ();
-    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to mark file/folder item for deletion."); }
+	//  ABOUT
+	// We're staring a new process to delete the uninstaller. However
+	//  mind that it is going to execute immediately - therefore the delay.
+	//
 
-    errorCode = fileOperation->PerformOperations ();
-	if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to carry out delete."); }
+    if (CreateProcessW (NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &startup, &process)) {
+        CloseHandle (process.hProcess);
+        CloseHandle (process.hThread);
+    } else {
+		ERROR ("Failed to create process for deleting uninstaller. Error code: %lu\n", GetLastError());
+    }
 
-	errorCode = fileOperation->GetAnyOperationsAborted (&isAborted);
+    LOGINFO ("Uninstallation complete. Uninstaller will be deleted shortly.\n");
 
-	fileOperation->Release ();
-	CoUninitialize ();
+}
 
-	if (FAILED (errorCode)) { ERROR ("Could not GetAnyOperationsAborted()."); }
-    if (isAborted) { LOGWARN ("Some operations were aborted.\n"); }
+
+void Setup () {
+
+	HKEY key = nullptr;
+
+	LSTATUS error = RegOpenKeyExW (
+		HKEY_LOCAL_MACHINE,
+		WINDOWS::REGISTRY::KEY_PATH_W,
+		0,
+		KEY_ALL_ACCESS,
+		&key
+	);
+
+	// Check if valid unistallation.
+	if (error != ERROR_SUCCESS || key == nullptr) {
+		ERRORWIN ("Could not get quail filepath from registry. Quail might be arleady uninstalled.");
+	} else {
+		RegCloseKey (key);
+	}
+
+	// Then get quail filepath.
+	WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
 }
 
 
 void UninstallALL() {
 
-	{ // Check if valid unistallation.
+	s32 collectiveResponse = 0;
+	s32 response;
 
-		HKEY key = nullptr;
+	Setup ();
 
-		LSTATUS error = RegOpenKeyExW (
-			HKEY_LOCAL_MACHINE,
-			WINDOWS::REGISTRY::KEY_PATH_W,
-			0,
-			KEY_ALL_ACCESS,
-			&key
-		);
-
-		if (error != ERROR_SUCCESS || key == nullptr) {
-			ERRORWIN ("Could not get quail filepath from registry. Quail might be arleady uninstalled.");
-		} else {
-			RegCloseKey (key);
-		}
+	{ // Properly deallocate data if we hit ERROR.
+		MEMORY::EXIT::PUSH (CONFIG::topConfigsFolder, FREE);
 	}
 
-	// Get quail filepath.
-	WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
-	
-	{ // Remove UNINSTALLER Registry Keys
-		LOGINFO ("1. Removing Uninstaller Registry\n");
+	response = MessageBoxW (
+		nullptr, MSG_R_REG, MSG_TITLE, MB_YESNOCANCEL | MB_ICONQUESTION
+	);
+
+	if (response == IDYES) { 
+		++collectiveResponse;
+		// Remove UNINSTALLER Registry Keys
+		LOGINFO ("1. Removing uninstaller registries\n");
 		RemoveRegistryUninstaller ();
-	}
-
-	if (isRemoveRegistry) { // Remove Quail Registry Keys
-		LOGINFO ("2. Removing Quail Registry\n");
+		// Remove Quail Registry Keys
+		LOGINFO ("2. Removing quail registries\n");
 		RemoveRegistryQuail ();
-	}
+	} else if (response == IDCANCEL) goto uni_error;
 
-	if (isRemovePath) { // Remove Quail From Path
-		LOGINFO ("3. Removing Path Entry\n");
+	response = MessageBoxW (
+		nullptr, MSG_R_VPE, MSG_TITLE, MB_YESNOCANCEL | MB_ICONQUESTION
+	);
+
+	if (response == IDYES) { 
+		++collectiveResponse;
+		// Remove Quail From Path
+		LOGINFO ("3. Removing path entry\n");
 		RemoveQuailFromPath ();
-	}
+	} else if (response == IDCANCEL) goto uni_error;
 
-	if (isRemoveDirectory) { // Remove itself.
-		LOGINFO ("4. Removing Itself\n");
-		RemoveItself ();
-    }
+	response = MessageBoxW (
+		nullptr, MSG_R_DIR, MSG_TITLE, MB_YESNOCANCEL | MB_ICONQUESTION
+	);
 
-	if (isRemoveDirectory) { // Remove Quail directory.
-		LOGINFO ("5. Removing Directories\n");
+	if (response == IDYES) { 
+		++collectiveResponse;
+		LOGINFO ("4. Removing itself+directory\n");
 		RemoveDirectory ();
+		//old-code	// Remove itself.
+		//old-code	LOGINFO ("4. Removing itself\n");
+		//old-code	RemoveItself ();
+		//old-code	// Remove catalog.
+		//old-code	LOGINFO ("5. Removing directories\n");
+		//old-code	RemoveDirectory ();
+	} else if (response == IDCANCEL) goto uni_error;
+
+	FREE (CONFIG::topConfigsFolder); MEMORY::EXIT::POP ();
+	
+	switch (collectiveResponse) {
+		case 0: {
+			MessageBoxW (nullptr, MSG_NOTHING, MSG_TITLE, MB_OK);
+			return;
+		} 
+
+		default: {
+
+			//  ABOUT
+			// Due to the delay on the execution of the directory removal
+			//  it is not possible to wait for user input at that state.
+			// Application must end execution quicly...
+			//
+			//MessageBoxW (nullptr, MSG_SUCCESS, MSG_TITLE, MB_OK);
+			
+			return;
+		} 
 	}
 
-	FREE (CONFIG::topConfigsFolder);
+	uni_error:	
+		FREE (CONFIG::topConfigsFolder); MEMORY::EXIT::POP ();
+	 	MessageBoxW (nullptr, MSG_FAILURE, MSG_TITLE, MB_OK);
+		return;
 
 }
 
@@ -231,11 +324,18 @@ int WinMain (
 	UNREFERENCED_PARAMETER (commandline);
 	UNREFERENCED_PARAMETER (isConsole);
 
-	DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
-	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
-	LOGINFO ("Application Statred!\n");
+	{ // Init Logging
+		TIMESTAMP_BEGIN = TIMESTAMP::GetCurrent ();
+		DEBUG (DEBUG_FLAG_LOGGING) {
+			WINDOWS::AttachConsole ();
+			putc ('\n', stdout); // Align fututre debug-logs
+		}
+		LOGINFO ("Application Statred!\n");
+	}
 
-	s32 response = MessageBoxW (
+	s32 response;
+
+	response = MessageBoxW (
 		nullptr, MSG_START, MSG_TITLE, MB_YESNO | MB_ICONQUESTION
 	);
 
@@ -243,7 +343,6 @@ int WinMain (
 
 		case IDYES: {
 			UninstallALL ();
-			MessageBoxW (nullptr, MSG_SUCCESS, MSG_TITLE, MB_OK);
 		} break;
 
 		case IDNO: {
@@ -253,12 +352,13 @@ int WinMain (
 		default: break;
 	}
 
-	LOGINFO ("Finalized Execution\n");
-	
-	DEBUG (DEBUG_FLAG_LOGGING) {
+	{ // Deinit Logging
 		LOGMEMORY ();
-		Sleep (2000);
-		putc ('\n', stdout); // Align debug-logs
+		LOGINFO ("Finalized Execution\n");
+		DEBUG (DEBUG_FLAG_LOGGING) {
+			putc ('\n', stdout); // Align debug-logs
+			Sleep (2000);
+		}
 	}
 
 	return 0;
