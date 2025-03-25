@@ -29,6 +29,7 @@ namespace INSTALLATION {
 	bool isLicense = false;
 	bool isRegistry = true;
 	bool isPath = true;
+	bool isBatch = false;
 
 
 	void BeginPhaseOne (HWND& progressBar) {
@@ -184,7 +185,8 @@ namespace INSTALLATION {
 
 		WINDOWS::REGISTRY::CreateFiles (
 			CONFIG::topConfigsFolderLength, 
-			CONFIG::topConfigsFolder
+			CONFIG::topConfigsFolder,
+			isBatch
 		);
 
 		++currentPhase;

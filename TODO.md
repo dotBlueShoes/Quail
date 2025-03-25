@@ -26,7 +26,7 @@
 
 15. Move created window objects outside WM_PAINT.
 16. Make sure everything is being destroyed properly.
-18. Last, Browse, Path windows use loses focus of main window. making use of arrows imposible. Fix it.
+18. Last, Browse, Path, Components windows use loses focus of main window. making use of arrows imposible. Fix it.
 19. Proper "Cancel" handling.
 20. Make script for automatic releases.
 21. Make it run on a separate Threat if necessary.

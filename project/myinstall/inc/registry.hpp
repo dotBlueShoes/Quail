@@ -24,7 +24,11 @@ namespace WINDOWS::REGISTRY {
 	const c16 VALUE_UNINSTALL_URL_UPDATE_INFO		[] = L"0";
 	
 
-	void CreateFiles (const u32& directoryPathLength, const c16* const& directoryPath) {
+	void CreateFiles (
+		const u32& directoryPathLength, 
+		const c16* const& directoryPath,
+		const bool& isBatch
+	) {
 		c16* buffer;
 
 		{ // Main Config
@@ -84,7 +88,7 @@ namespace WINDOWS::REGISTRY {
 
 		}
 
-		{ // Executable Shortcut
+		if (isBatch) { // Executable Shortcut
 
 			{ // CONSTRUCT (Global Config Path)
 				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);

@@ -79,7 +79,7 @@ namespace WINDOWS::WINDOW {
 
 	const pair<s16> wlbMargin 			{ 2, 2 };
 	const pair<s16> wlbPosition 		{ 29 + wlbMargin.x, 118 + wlbMargin.y };
-	const pair<s16> wlbSize 			{ 438 - wlbMargin.x, 64 - wlbMargin.y };
+	const pair<s16> wlbSize 			{ 438 - wlbMargin.x, 68 - wlbMargin.y };
 	const RECT wlbLicensePadding { 
 		wlbPosition.x - 1 - wlbMargin.x, 
 		wlbPosition.y - 1 - wlbMargin.y, 
@@ -543,13 +543,17 @@ namespace WINDOWS::WINDOW {
 
 		if (INSTALLATION::isRegistry) {
 			const RECT textRegion = { 29, 75 + 56, textRegion.left + 500, textRegion.top + 14 };
-			
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_REGISTRY, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		if (INSTALLATION::isPath) {
 			const RECT textRegion = { 29, 75 + 56 + 28, textRegion.left + 500, textRegion.top + 14 };
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_PATH, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
+		if (INSTALLATION::isBatch) {
+			const RECT textRegion = { 29, 75 + 56 + 28 + 28, textRegion.left + 500, textRegion.top + 14 };
+			DrawTextW (windowContext, LOCAL::CONFIRMATION_BATCH, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
 		if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) { // BOT MSG
@@ -1045,18 +1049,22 @@ namespace WINDOWS::WINDOW {
             		lvItem.mask = LVIF_TEXT;
             		lvItem.iSubItem = 0;
 
-            		lvItem.pszText = (LPWSTR) LOCAL::LVPath;
-            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 0, (LPARAM) &lvItem);
+					lvItem.pszText = (LPWSTR) LOCAL::LVBatch;
+            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 2, (LPARAM) &lvItem);
             		lvItem.pszText = (LPWSTR) LOCAL::LVRegistry;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 1, (LPARAM) &lvItem);
+					lvItem.pszText = (LPWSTR) LOCAL::LVPath;
+            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 0, (LPARAM) &lvItem);
+					
 
 					// Issue. Removing 'WS_VISIBLE' from Creation makes text cropped for some reason.
 					// Keeping it and hiding the window later fixes the problem.
 					ShowWindow (wlbComponents, HIDE_WINDOW);
 
 					// Make following items checked by default.
-					ListView_SetCheckState (wlbComponents, 0, true);
-					ListView_SetCheckState (wlbComponents, 1, true);
+					ListView_SetCheckState (wlbComponents, 0, INSTALLATION::isPath);
+					ListView_SetCheckState (wlbComponents, 1, INSTALLATION::isRegistry);
+					ListView_SetCheckState (wlbComponents, 2, INSTALLATION::isBatch);
 				}
 				
 
@@ -1208,6 +1216,7 @@ namespace WINDOWS::WINDOW {
 							switch (item) {
 								case 0: INSTALLATION::isRegistry = state; break;
 								case 1: INSTALLATION::isPath = state; break;
+								case 2: INSTALLATION::isBatch = state; break;
 							}
 
         	            }
