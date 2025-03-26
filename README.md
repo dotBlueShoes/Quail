@@ -11,7 +11,7 @@
 - Define constants
   > Variable-like utility to store strings and use them with different Constants or Commands.
 - Use command queues
-  > Run multiple defined commands as if it was a singular quail command.
+  > Run multiple defined commands & queues as if they were a singular quail command.
 - Easily display all commands & queues
   > Simply run `Quail` with a selected project or a subproject to display it's contents.
 
@@ -38,4 +38,4 @@ For simplicity sake I'll refer to commands, queues, projects and subprojects her
 Why writing my own `Wizard` when WinApi provides a ready to use control with localization support?
 
 [Official Windows Wizard Sample](https://github.com/microsoft/Windows-classic-samples/tree/263dd514ad215d0a40d1ec44b4df84b30ec11dcf/Samples/Win7Samples/winui/shell/appplatform/aerowizards/migratingtoaerowizardssdksample/wizard97)
-  > My reasoning: It's a good learning example and it provides more flexibility like future custom optimalizations, darkmode support or making the window dpi-aware. Additionally the Wizard executable created is compressed which then competes well with `.msi` files, that usually weigh less.
+  > My reasoning: It's a good learning example and it provides more flexibility for future custom optimalizations like darkmode support or making the window dpi-aware. Additionally the Wizard executable created is compressed which then competes well with `.msi` files, that usually weigh less.
