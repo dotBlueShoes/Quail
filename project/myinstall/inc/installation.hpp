@@ -4,7 +4,7 @@
 #pragma once
 #include <global/config.hpp>
 
-#include "registry.hpp"
+#include "windows/registry.hpp"
 #include "download.hpp"
 
 namespace INSTALLATION {
@@ -30,7 +30,6 @@ namespace INSTALLATION {
 	bool isRegistry = true;
 	bool isPath = true;
 	bool isBatch = false;
-
 
 	void BeginPhaseOne (HWND& progressBar) {
 
@@ -146,7 +145,8 @@ namespace INSTALLATION {
 
 		if (isRegistry) WINDOWS::REGISTRY::CreateKeys (
 			CONFIG::topConfigsFolderLength, 
-			CONFIG::topConfigsFolder
+			CONFIG::topConfigsFolder,
+			(u32)CONFIG::isForceC8Display
 		);
 
 		++currentPhase;

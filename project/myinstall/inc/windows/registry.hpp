@@ -110,10 +110,7 @@ namespace WINDOWS::REGISTRY {
 
 		}
 	}
-
-
-	//[72], C:\Program Files\dotBlueShoes\Quail
-
+	
 
 	void AddQuailToPath (
 		const u16& quailLength,
@@ -126,23 +123,14 @@ namespace WINDOWS::REGISTRY {
 		LSTATUS errorCode;
 		HKEY key;
 
-		//LOGINFO ("1\n");
-		//getchar ();
-
 		// OPEN
     	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
     	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIRONMENT_VARIABLES_W); }
 
 		if (key == nullptr) LOGINFO ("WUT!\n");
 
-		//LOGINFO ("Pre-Path\n");
-		//getchar ();
-
 		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_REG_SZ, NULL, env, &envSize); // GET
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
-
-		//LOGINFO ("Post-Path: %ls\n", quail);
-		//getchar ();
 
 		if (wcsstr (env, quail) != nullptr) {
 			LOGWWARN ("Environment Variable `PATH` entry for Quail already exists.\n");
@@ -150,7 +138,6 @@ namespace WINDOWS::REGISTRY {
 			LOGWINFO ("Creating new entry in Environment Variable `PATH` for Quail.\n");
 
 			LOGINFO ("%d\n", envSize);
-			//getchar ();
 
 			{ // Creating proper entry string representing Quail.
 				auto&& begin = env + ((envSize / 2) - 2); // - '\0' sign.
@@ -160,13 +147,7 @@ namespace WINDOWS::REGISTRY {
 				wmemset (begin + 1 + (quailLength / 2), L'\0', 1);	// Add EOL !
 
 				envSize = envSize + quailLength;
-			
-				//LOGWINFO ("`Path:` [%d]: %s\n", envSize, env);
 			}
-
-			//LOGINFO ("4\n");
-			//getchar ();
-			
 			
 			{ // Adding the entry to the path variable.
 				errorCode = RegSetValueExW (key, PROPERTY_PATH_W, 0, REG_SZ, (LPBYTE)env, envSize);
@@ -179,9 +160,6 @@ namespace WINDOWS::REGISTRY {
 			LOGWINFO ("Successfully added Quail to `Path` environment variable.\n");
 		}
 
-		//LOGINFO ("5\n");
-		//getchar ();
-
 		// FREE
     	RegCloseKey (key);
 		FREE (env);
@@ -189,7 +167,11 @@ namespace WINDOWS::REGISTRY {
 	}
 
 
-	void CreateKeys (const u32& filepathLength, const c16* const& filepath) {
+	void CreateKeys (
+		const u32& filepathLength, 
+		const c16* const& filepath,
+		const u32& isForceC8Display
+	) {
 
 		HKEY key; LSTATUS error; DWORD status;
 
@@ -213,13 +195,8 @@ namespace WINDOWS::REGISTRY {
 			LOGINFO ("quail filepath: %ls\n", quailFilepath);
 		}
 
-		//LOGINFO ("1");
-		//getchar ();
-
 		{ // Quail Key
 			CreateKeyMachine (key, error, status, KEY_PATH_W);
-
-			//LOGINFO ("2");
 
 			{ // STATUS
 				if (error != ERROR_SUCCESS) 		ERROR 		("Quail - Creating key failed.\n\n");
@@ -230,18 +207,14 @@ namespace WINDOWS::REGISTRY {
 				}
 			}
 
-			//LOGINFO ("3");
+			CreatePropertyC16 (key, error, PROPERTY_QUAIL_CONFIGS_FILEPATH_W, filepath, filepathLength);
+			CHECK_PROPERTY (error, PROPERTY_QUAIL_CONFIGS_FILEPATH_W);
 
-			CreatePropertyC16 (key, error, PROPERTY_QUAIL_FILEPATH_W, filepath, filepathLength);
-			CHECK_PROPERTY (error, PROPERTY_QUAIL_FILEPATH_W);
-
-			//LOGINFO ("4");
+			CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, isForceC8Display);
+			CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
 
 			RegCloseKey (key);
 		}
-
-		//LOGINFO ("2");
-		//getchar ();
 
 		{ // Uninstaller Key
 			CreateKeyMachine (key, error, status, KEY_PATH_UNINSTALL_W);
@@ -254,9 +227,6 @@ namespace WINDOWS::REGISTRY {
 					default: 						ERROR 		("Unins - Unknown key-status\n\n");
 				}
 			}
-
-			//LOGINFO ("3");
-			//getchar ();
 
 			CreatePropertyC16 (key, error, PROPERTY_UNINSTALL_DISPLAY_ICON, quailFilepath, quailFilepathLength);
 			CHECK_PROPERTY (error, PROPERTY_UNINSTALL_DISPLAY_ICON);
@@ -294,16 +264,10 @@ namespace WINDOWS::REGISTRY {
 			CreatePropertyC16 (key, error, PROPERTY_UNINSTALL_URL_UPDATE_INFO, VALUE_UNINSTALL_URL_UPDATE_INFO, sizeof (VALUE_UNINSTALL_URL_UPDATE_INFO));
 			CHECK_PROPERTY (error, PROPERTY_UNINSTALL_URL_UPDATE_INFO);
 
-			//LOGINFO ("4");
-			//getchar ();
-
 			RegCloseKey (key);
 
 			FREE (uninstallerFilepath);
 			FREE (quailFilepath);
-
-			//LOGINFO ("5");
-			//getchar ();
 		}
 
 	}

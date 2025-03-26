@@ -1,3 +1,29 @@
+# 0.5
+
+
+--- QUAIL
+
+01. Make it so queues can reference previous queues too.
+02. Fix bug with files (main, global, include) being still in use.
+
+--- INSTALLER
+
+01. Make sure everything is being destroyed properly.
+02. Proper "Cancel" handling.
+
+--- OTHER 
+
+01. Make script for automatic releases.
+02. Examples:
+- unity
+- gimp
+- windows terminal
+- directory
+03. yt-video
+
+
+# LATER
+
 
 --- QUAIL
 
@@ -12,40 +38,21 @@
 05. Adding Quail configuration data using --add command: like `quail -a module "Name" "ProjectPath"`.
 06. Edit Quail configuration data using --edit command: like `quail -e module "Name" "ProjectPath"`.
 07. Secrets vs Defines
-08. Add registry option to display values in c8*. We don't want to break c16* saving just display them in c8*.
-09. Make it so global.txt values can be overridden
-10. Make "_quail" variable to pass Quail directory - not sure if it's needed
-11. Move license.h" & "data.h" to GLOBAL project.
-12. ? Maybe create a roadmap using that github tool (tables).
-13. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
-14. diffrentiate between topConfigsFolder and installedBinFolder
-
+08. Make it so global.txt values can be overridden
+09. Make "_quail" variable to pass Quail directory - not sure if it's needed
+10. Move license.h" & "data.h" to GLOBAL project.
+11. ? Maybe create a roadmap using that github tool (tables).
+12. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
+13. diffrentiate between topConfigsFolder and installedBinFolder
+14. Make it so queues can reference prefious queues too.
+15. Disable making projects in global.txt -> see how it works. Maybe if it works fine leave it.
 
 
 --- INSTALLER
 
-15. Move created window objects outside WM_PAINT.
-16. Make sure everything is being destroyed properly.
-18. Last, Browse, Path, Components windows use loses focus of main window. making use of arrows imposible. Fix it.
-19. Proper "Cancel" handling.
-20. Make script for automatic releases.
-21. Make it run on a separate Threat if necessary.
-22. Make installer display centered.
-23. Give an option in installer to create a batch file and name it by default 'o'.
-> So that instead of writing 'quail -o [...]' people can simply write 'o [...]'.
-
--- 0.5
-
-24. Disable making projects in global.txt -> see how it works. Maybe if it works fine leave it.
-
-25. Examples:
-- unity
-- gimp
-- windows terminal
-- directory
-- opening config
-
--- 0.6
--> Roadmap
--> yt-video
--> ... things from todolist.
+01. Move created window objects outside WM_PAINT.
+02. Last, Browse, Path, Components windows use loses focus of main window. making use of arrows imposible. Fix it.
+03. Make it run on a separate Threat if necessary.
+04. Make installer display centered.
+05. Give an option in installer to rename the batch file.
+06. Distinguish data and view layer.

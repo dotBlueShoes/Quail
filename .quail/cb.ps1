@@ -7,6 +7,10 @@ param (
 $ori = "'$project_dir\build\$profile\project\quail\Quail.exe'";
 $dst = "'$quail_dir\Quail.exe'";
 
+$fm_uni = "$project_dir\build\$profile\project\myuninstall\uninstall.exe";
+$to_uni = "$quail_dir\uninstall.exe";
+Copy-Item -Path "$fm_uni" -Destination "$to_uni";
+
 $block = { 
 	param([string]$ori, [string]$dst); 
 	
@@ -38,5 +42,4 @@ $block = {
 
 # Keep console open varaint
 # Start-Process powershell -ArgumentList "-NoExit -command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)" 
-
 Start-Process powershell -ArgumentList "-command (Invoke-Command -ScriptBlock {$block} -ArgumentList $ori, $dst)"

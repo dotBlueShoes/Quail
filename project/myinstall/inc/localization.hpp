@@ -27,6 +27,7 @@ namespace LOCAL {
 	const c16 LVRegistry				[] = L"Create necessary " QUAIL_NAME_W L" Registry Keys (Personal configuration settings)";
 	const c16 LVPath					[] = L"Add " QUAIL_NAME_W L" to 'Path' variable (Will make " QUAIL_NAME_W L" accessible from anywhere)";
 	const c16 LVBatch					[] = L"Create an additional 'o.bat' file which is a short for 'Quail -o ...'";
+	const c16 LVForceC8Display			[] = L"Force Quail to output text in ASCI range (E.g. CMD.exe use)";
 
 	// TEXTS TAGS
 	const c16 TagLicense				[] = L"License Agreement";
@@ -60,6 +61,7 @@ namespace LOCAL {
 	const c16 CONFIRMATION_REGISTRY		[] = L"- Registry keys will be added.";
 	const c16 CONFIRMATION_PATH			[] = L"- New entry in Environment Variable 'Path' will be added.";
 	const c16 CONFIRMATION_BATCH		[] = L"- Batch short will be created.";
+	const c16 CONFIRMATION_FORCE_C8		[] = L"- Quial will output data in byte/char string format.";
 
 	const c8 INSTALL_TASK_REGISTRY		[] = "Adding registry keys";
 	const c8 INSTALL_TASK_PATH			[] = "Adding " QUAIL_NAME_VERSION " to path environment variable";

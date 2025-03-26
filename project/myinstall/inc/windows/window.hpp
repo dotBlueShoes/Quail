@@ -79,7 +79,7 @@ namespace WINDOWS::WINDOW {
 
 	const pair<s16> wlbMargin 			{ 2, 2 };
 	const pair<s16> wlbPosition 		{ 29 + wlbMargin.x, 118 + wlbMargin.y };
-	const pair<s16> wlbSize 			{ 438 - wlbMargin.x, 68 - wlbMargin.y };
+	const pair<s16> wlbSize 			{ 438 - wlbMargin.x, 88 - wlbMargin.y };
 	const RECT wlbLicensePadding { 
 		wlbPosition.x - 1 - wlbMargin.x, 
 		wlbPosition.y - 1 - wlbMargin.y, 
@@ -541,6 +541,7 @@ namespace WINDOWS::WINDOW {
     	 	DrawTextW (windowContext, LOCAL::confirmationTop, -1, (RECT*) &textRegion, DT_WORDBREAK);
 		}
 
+
 		if (INSTALLATION::isRegistry) {
 			const RECT textRegion = { 29, 75 + 56, textRegion.left + 500, textRegion.top + 14 };
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_REGISTRY, -1, (RECT*) &textRegion, DT_NOCLIP);
@@ -555,6 +556,12 @@ namespace WINDOWS::WINDOW {
 			const RECT textRegion = { 29, 75 + 56 + 28 + 28, textRegion.left + 500, textRegion.top + 14 };
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_BATCH, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
+
+		if (CONFIG::isForceC8Display) {
+			const RECT textRegion = { 29, 75 + 56 + 28 + 28 + 28, textRegion.left + 500, textRegion.top + 14 };
+			DrawTextW (windowContext, LOCAL::CONFIRMATION_FORCE_C8, -1, (RECT*) &textRegion, DT_NOCLIP);
+		}
+
 
 		if (INSTALLATION::currentPhase == INSTALLATION::PHASE_NONE) { // BOT MSG
 			const RECT textRegion = { 29, 280, textRegion.left + 40, textRegion.top + 14 };
@@ -1049,6 +1056,8 @@ namespace WINDOWS::WINDOW {
             		lvItem.mask = LVIF_TEXT;
             		lvItem.iSubItem = 0;
 
+					lvItem.pszText = (LPWSTR) LOCAL::LVForceC8Display;
+            		SendMessageW (wlbComponents, LVM_INSERTITEMW, 3, (LPARAM) &lvItem);
 					lvItem.pszText = (LPWSTR) LOCAL::LVBatch;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 2, (LPARAM) &lvItem);
             		lvItem.pszText = (LPWSTR) LOCAL::LVRegistry;
@@ -1065,6 +1074,7 @@ namespace WINDOWS::WINDOW {
 					ListView_SetCheckState (wlbComponents, 0, INSTALLATION::isPath);
 					ListView_SetCheckState (wlbComponents, 1, INSTALLATION::isRegistry);
 					ListView_SetCheckState (wlbComponents, 2, INSTALLATION::isBatch);
+					ListView_SetCheckState (wlbComponents, 3, CONFIG::isForceC8Display);
 				}
 				
 
@@ -1217,6 +1227,7 @@ namespace WINDOWS::WINDOW {
 								case 0: INSTALLATION::isRegistry = state; break;
 								case 1: INSTALLATION::isPath = state; break;
 								case 2: INSTALLATION::isBatch = state; break;
+								case 3: CONFIG::isForceC8Display = state; break;
 							}
 
         	            }

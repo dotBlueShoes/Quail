@@ -94,6 +94,22 @@ namespace WINDOWS::REGISTRY {
 		);
 	}
 
+	void CreatePropertyS64 (
+		OUT		HKEY 				key, 
+		OUT		LSTATUS 			error,
+		IN		const c16* const& 	property,
+		IN		const u64& 			data
+	) {
+		error = RegSetValueExW (
+			key, 							// catalog (key)
+			property, 						// name
+			0, 								//  RESERVED
+			REG_QWORD, 						// data type - https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types
+			(LPCBYTE) &data, 				// data
+			sizeof (data)					// data length
+		);
+	}
+
 
 	void CreatePropertyS32 (
 		OUT		HKEY 				key, 

@@ -49,6 +49,8 @@ namespace CONFIG {
 
 	const c16 UNINSTALLER_NAME			[] = L"uninstall.exe";
 	const u32 UNINSTALLER_NAME_LENGTH 	= sizeof (UNINSTALLER_NAME);
+
+	bool isForceC8Display = false;
 	
 	u32 topConfigsFolderLength; 
 	c16* topConfigsFolder;

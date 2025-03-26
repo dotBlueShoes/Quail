@@ -21,6 +21,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		LOGWINFO ("[ REGISTRY ]\n");
 		
 		WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
+		WINDOWS::REGISTRY::ReadPropertyIsForceC8Display();
 
 		WINDOWS::REGISTRY::CreateQuailConfigsFilePaths (
 			CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder,

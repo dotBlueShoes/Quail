@@ -10,7 +10,9 @@
 namespace WINDOWS::REGISTRY {
 
 	const c16 KEY_PATH_W							[] = L"SOFTWARE\\dotBlueShoes\\Quail";
-	const c16 PROPERTY_QUAIL_FILEPATH_W				[] = L"filepath";
+	const c16 PROPERTY_QUAIL_CONFIGS_FILEPATH_W		[] = L"ConfigsFilepath";
+	const c16 PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY	[] = L"IsForceC8Display";
+
 	const c16 VALUE_DEFAULT_QUAIL_FOLDER_W			[] = L"C:\\Program Files\\dotBlueShoes\\Quail";
 
 	const c16 KEY_PATH_UNINSTALL_W					[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Quail";
@@ -32,6 +34,34 @@ namespace WINDOWS::REGISTRY {
 	const c16 PROPERTY_PATH_W 						[] = L"Path";
 
 
+	void ReadPropertyIsForceC8Display () {
+
+		unsigned long status;
+
+		u32 data;
+		unsigned long dataSize = sizeof (data);
+
+		status = RegGetValueW (
+			HKEY_LOCAL_MACHINE, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, 
+			RRF_RT_REG_DWORD, 
+			NULL, 
+			&data,
+			&dataSize
+		);
+
+		if ((status != ERROR_SUCCESS)) {
+			ERROR ("Could not get 'IsForceC8Display' from registry.\n");
+		}
+
+		LOGWINFO (" > Successfully read property '%s' as: '%d'\n", PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, data);
+
+		CONFIG::isForceC8Display = data & (1 << 0);
+		
+	}
+
+
 	void ReadPropertyTopConfigsFolder () {
 
 		LSTATUS error;
@@ -44,7 +74,7 @@ namespace WINDOWS::REGISTRY {
     	status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			KEY_PATH_W, 
-			PROPERTY_QUAIL_FILEPATH_W, 
+			PROPERTY_QUAIL_CONFIGS_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			NULL, 
@@ -52,9 +82,7 @@ namespace WINDOWS::REGISTRY {
 		);
 		
     	if ((status != ERROR_SUCCESS) || (size < 1)) {
-
-			ERROR ("Could not get quail filepath from registry. #1\n");
-
+			ERROR ("Could not get 'ConfigsFilepath' from registry. #1\n");
 		}
 
 		// ALLOCATION
@@ -64,7 +92,7 @@ namespace WINDOWS::REGISTRY {
         status = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			KEY_PATH_W, 
-			PROPERTY_QUAIL_FILEPATH_W, 
+			PROPERTY_QUAIL_CONFIGS_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			data,
@@ -72,12 +100,10 @@ namespace WINDOWS::REGISTRY {
 		);
 
 		if ((status != ERROR_SUCCESS)) {
-
-			ERROR ("Could not get quail filepath from registry. #2\n");
-
+			ERROR ("Could not get 'ConfigsFilepath' from registry. #2\n");
 		}
         	
-		LOGWINFO (" > Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_FILEPATH_W, data);
+		LOGWINFO (" > Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_CONFIGS_FILEPATH_W, data);
 
 		CONFIG::topConfigsFolderLength = size;
     	CONFIG::topConfigsFolder = data;
