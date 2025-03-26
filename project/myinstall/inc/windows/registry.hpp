@@ -117,8 +117,9 @@ namespace WINDOWS::REGISTRY {
 		const c16* const& quail
 	) {
 
-		c16* env; ALLOCATE (c16, env, 2048);
 		DWORD envSize = 2048;
+		c16* env; ALLOCATE (c16, env, envSize);
+		MEMORY::EXIT::PUSH (env, FREE);
 		
 		LSTATUS errorCode;
 		HKEY key;
@@ -162,7 +163,7 @@ namespace WINDOWS::REGISTRY {
 
 		// FREE
     	RegCloseKey (key);
-		FREE (env);
+		FREE (env); MEMORY::EXIT::POP ();
 
 	}
 
@@ -193,6 +194,11 @@ namespace WINDOWS::REGISTRY {
 			wmemset (quailFilepath + (filepathLength / 2) - 1, L'\\', 1); 			// emplace `\` sign
 			memcpy (quailFilepath + (filepathLength / 2), CONFIG::EXECUTABLE_NAME, CONFIG::EXECUTABLE_NAME_LENGTH);
 			LOGINFO ("quail filepath: %ls\n", quailFilepath);
+		}
+
+		{ // Properly deallocate data if we hit ERROR.
+			MEMORY::EXIT::PUSH (uninstallerFilepath, FREE);
+			MEMORY::EXIT::PUSH (quailFilepath, FREE);
 		}
 
 		{ // Quail Key
@@ -266,8 +272,9 @@ namespace WINDOWS::REGISTRY {
 
 			RegCloseKey (key);
 
-			FREE (uninstallerFilepath);
-			FREE (quailFilepath);
+
+			FREE (uninstallerFilepath); MEMORY::EXIT::POP ();
+			FREE (quailFilepath); MEMORY::EXIT::POP ();
 		}
 
 	}

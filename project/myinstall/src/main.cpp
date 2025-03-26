@@ -1,9 +1,11 @@
 // Created 2024.11.05 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+#include <global/logger.hpp>
+//
 #include <blue/windows/console.hpp>
 #include <blue/io.hpp>
-
+//
 #include "windows/window.hpp"
 #include "installation.hpp"
 
@@ -19,9 +21,12 @@ int WinMain (
 	UNREFERENCED_PARAMETER (commandline);
     UNREFERENCED_PARAMETER (isConsole);
 
-	{ // Initialize Logging
-		DEBUG (DEBUG_FLAG_LOGGING) WINDOWS::AttachConsole ();
-		DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align fututre debug-logs
+	{ // Init Logging
+		TIMESTAMP_BEGIN = TIMESTAMP::GetCurrent ();
+		DEBUG (DEBUG_FLAG_LOGGING) {
+			WINDOWS::AttachConsole ();
+			putc ('\n', stdout); // Align fututre debug-logs
+		}
 		LOGINFO ("Application Statred!\n");
 	}
 
@@ -38,6 +43,10 @@ int WinMain (
 
 	{ // Window Creation.
 		WINDOWS::CONTROLS::LoadRichEdit ();
+
+		{ // Properly deallocate data if we hit ERROR.
+			MEMORY::EXIT::PUSH (CONFIG::topConfigsFolder, FREE);
+		}
 
 		HWND window; WINDOWS::WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });
 		MSG msg { 0 }; 
@@ -77,14 +86,18 @@ int WinMain (
 	}
 
 	{ // Free assets.
-		FREE (CONFIG::topConfigsFolder);
+		FREE (CONFIG::topConfigsFolder); 
+		// Not needed.
+		// MEMORY::EXIT::POP ();
 	}
 
-	{ // Deinitialize Logging
-		LOGINFO ("Finalized Execution\n");
+	{ // Deinit Logging
 		LOGMEMORY ();
-		DEBUG (DEBUG_FLAG_LOGGING) Sleep (2000);
-		DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); // Align debug-logs
+		LOGINFO ("Finalized Execution\n");
+		DEBUG (DEBUG_FLAG_LOGGING) {
+			putc ('\n', stdout); // Align debug-logs
+			Sleep (3000);
+		}
 	}
 
 	return 0;

@@ -42,6 +42,7 @@ namespace INSTALLATION {
 		auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 		auto&& directoryPath = CONFIG::topConfigsFolder;
 		c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::EXECUTABLE_NAME_LENGTH + 1);
+		MEMORY::EXIT::PUSH (buffer, FREE);
 
 		{ // CONSTRUCT 
 			memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
@@ -74,7 +75,7 @@ namespace INSTALLATION {
 		}
 		
 		
-		FREE (buffer);
+		FREE (buffer); MEMORY::EXIT::POP ();
 
 		//LOGINFO ("3\n");
 		//getchar ();
@@ -108,7 +109,9 @@ namespace INSTALLATION {
 		{ // Actual State Two
 			auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 			auto&& directoryPath = CONFIG::topConfigsFolder;
+			
 			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::UNINSTALLER_NAME_LENGTH + 1);
+			MEMORY::EXIT::PUSH (buffer, FREE);
 
 			{ // CONSTRUCT
 				memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
@@ -120,7 +123,8 @@ namespace INSTALLATION {
 			// Create file for Quail Executable. Check. Free unused.
 			fileHandle = _wfopen (buffer, L"wb"); 
 			if (!fileHandle) ERROR ("File opening failed\n"); 
-			FREE (buffer);
+
+			FREE (buffer); MEMORY::EXIT::POP ();
 
 			// Create download for Quail Executable.
 			DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);

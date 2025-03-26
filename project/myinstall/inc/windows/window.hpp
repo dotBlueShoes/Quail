@@ -152,13 +152,11 @@ namespace WINDOWS::WINDOW::KEYBOARD {
 	void HandleFocusChange (const u16& current, const u16& last) {
 		switch (last) {
 			case WINDOW_IDS_LAST: {
-				//LOGINFO ("1\n");
 				SetWindowLongPtr (wbLast, GWL_STYLE, BUTTON_STYLE_VISIBLE);
 				InvalidateRect (wbLast, NULL, true);
 			} break;
 
 			case WINDOW_IDS_NEXT: {
-				//LOGINFO ("2\n");
 				if (IsWindowEnabled(wbNext))  {
 					SetWindowLongPtr (wbNext, GWL_STYLE, BUTTON_STYLE_VISIBLE);
 					InvalidateRect (wbNext, NULL, true);
@@ -166,25 +164,21 @@ namespace WINDOWS::WINDOW::KEYBOARD {
 			} break;
 
 			case WINDOW_IDS_CANCEL: {
-				//LOGINFO ("3\n");
 				SetWindowLongPtr (wbCancel, GWL_STYLE, BUTTON_STYLE_VISIBLE);
 				InvalidateRect (wbCancel, NULL, true);
 			} break;
 
 			case WINDOW_IDS_LICENSE: {
-				//LOGINFO ("5\n");
 				isLicenseActive = false;
 				InvalidateRect (GetParent(wsLicense), &wsLicensePadding, true);
 			} break;
 
 			case WINDOW_IDS_BROWSE: {
-				//LOGINFO ("6\n");
 				SetWindowLongPtr (wbBrowse, GWL_STYLE, BUTTON_STYLE_VISIBLE);
 				InvalidateRect (wbBrowse, NULL, true);
 			} break;
 
 			case WINDOW_IDS_PATH: {
-				//LOGINFO ("7\n");
 				SetFocus (GetParent(rePath));
 				InvalidateRect (GetParent(rePath), &reRectPadding, true);
 			} break;
@@ -196,13 +190,11 @@ namespace WINDOWS::WINDOW::KEYBOARD {
 
 		switch (current) {
 			case WINDOW_IDS_LAST: {
-				//LOGINFO ("1\n");
 				SetWindowLongPtr (wbLast, GWL_STYLE, BUTTON_STYLE_ACTIVE);
 				InvalidateRect (wbLast, NULL, true);
 			} break;
 
 			case WINDOW_IDS_NEXT: {
-				//LOGINFO ("2\n");
 				if (IsWindowEnabled(wbNext))  {
 					SetWindowLongPtr (wbNext, GWL_STYLE, BUTTON_STYLE_ACTIVE);
 					InvalidateRect (wbNext, NULL, true);
@@ -210,25 +202,21 @@ namespace WINDOWS::WINDOW::KEYBOARD {
 			} break;
 
 			case WINDOW_IDS_CANCEL: {
-				//LOGINFO ("3\n");
 				SetWindowLongPtr (wbCancel, GWL_STYLE, BUTTON_STYLE_ACTIVE);
 				InvalidateRect (wbCancel, NULL, true);
 			} break;
 
 			case WINDOW_IDS_LICENSE: {
-				//LOGINFO ("5\n");
 				isLicenseActive = true;
 				InvalidateRect (GetParent(wbCancel), &wsLicensePadding, true);
 			} break;
 
 			case WINDOW_IDS_BROWSE: {
-				//LOGINFO ("6\n");
 				SetWindowLongPtr (wbBrowse, GWL_STYLE, BUTTON_STYLE_ACTIVE);
 				InvalidateRect (wbBrowse, NULL, true);
 			} break;
 
 			case WINDOW_IDS_PATH: {
-				//LOGINFO ("7\n");
 				SetFocus (rePath);
 				InvalidateRect (GetParent(rePath), &reRectPadding, true);
 			} break;
@@ -1164,10 +1152,8 @@ namespace WINDOWS::WINDOW {
 				switch (wParam) {
 
 					case VK_RETURN: {
-						LOGINFO ("Enter key pressed!\n");
 						const auto& current = KEYBOARD::pageActivablesList[KEYBOARD::active];
 
-						//if (IsWindowEnabled())
 						if (current == WINDOW_IDS_NEXT) {
 							if (!IsWindowEnabled (wbNext)) break;
 						}
@@ -1257,7 +1243,8 @@ namespace WINDOWS::WINDOW {
 						} break;
 
 						case 0: {
-							LOGINFO("a: %d, %lld\n", HIWORD (wParam), lParam);
+							// Just in case if I misunderstood API. ...
+							LOGINFO("Is 0?: %d, %lld\n", HIWORD (wParam), lParam);
 
 							const u16& buttonId = LOWORD (wParam);
 							HandleButtonPresses (window, buttonId);

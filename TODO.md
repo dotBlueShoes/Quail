@@ -1,10 +1,5 @@
 # 0.5
 
---- INSTALLER
-
-01. Make sure everything is being destroyed properly.
-02. Proper "Cancel" handling.
-
 --- OTHER 
 
 01. Examples:
@@ -45,7 +40,7 @@
 
 01. Move created window objects outside WM_PAINT.
 02. Last, Browse, Path, Components windows use loses focus of main window. making use of arrows imposible. Fix it.
-03. Make it run on a separate Threat if necessary.
+03. Make the download and installing run on a separate Threat so that GUI wont lag.
 04. Make installer display centered.
 05. Give an option in installer to rename the batch file.
 06. Distinguish data and view layer.
