@@ -81,8 +81,8 @@
 |bld			= _bn,_bld
 |bbld			= _bn,_bbld
 
-|run			= _bn,_bld,cpy
-|rrun			= _bn,_bbld,ccpy
+|run			= bld,cpy
+|rrun			= bbld,ccpy
 
 |ins			= manifest,compress,_ins
 |iins			= mmanifest,ccompress,_iins

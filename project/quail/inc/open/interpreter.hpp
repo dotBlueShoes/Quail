@@ -101,6 +101,7 @@ namespace OPEN::INTERPRETER::MAIN::COMMAND {
 
 namespace OPEN::INTERPRETER::MAIN::QUEUE {
 	void Initialize ();
+	void Cascade 	();
 	void SpaceC16 	(const Interpreter&);
 	void Name		(const Interpreter&);
 	void Value		(const Interpreter&);
@@ -812,6 +813,39 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 		parsingstage = Name;
 	}
 
+	void Cascade () {
+		c8* value = (c8*)(temporary + lastSeparator);
+		u32 length = temporaryLength - lastSeparator;
+		u32 index = 0;
+
+
+		//  ABOUT
+		// Search if subvalue in queue syntax is an arleady read queue key.
+		// If so - Copy it's value to this key's value.
+		//
+
+		COMPARESEARCH::ArrayPartFirstMatchVector ( 
+			value, length, sizeof (c8),
+			index, 
+			queues.keys.size (),
+			(void**)(queues.keys.data ())
+		);
+
+		if (index != queues.keys.size ()) {
+			const auto&& found = (c8*)queues.values[index];
+
+			// Get it's length
+			u32 fLength = 0; for (; found[fLength] != '\0'; ++fLength);
+
+			// Remove cascading queue key from this queue value.
+			temporaryLength = lastSeparator;
+
+			// Add it to the string.
+			memcpy (temporary + temporaryLength, found, fLength);
+			temporaryLength += fLength;
+		}
+	}
+
 	void SpaceC16 (const Interpreter& interpreter) {
 
 		switch (interpreter.current) {
@@ -886,26 +920,33 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 
 		switch (interpreter.current) {
 
-			//case TYPE_PROJECT:
-			//case TYPE_INCLUDE:
-			//case TYPE_COMMAND:
-			//case TYPE_QUEUE:
-			//case TYPE_ASSIGN:
 			case TYPE_TAB: {
 				ERROR_INTERPRETER ("queue:value", interpreter.current);
 			} break;
 
 			case TYPE_CONSTANT: specialStage = Value; CASCADE::Initialize (); break;
+
+			case TYPE_SEPARATOR: {
+
+				Cascade ();
+				
+				AddTemp (interpreter.current);
+				lastSeparator = temporaryLength;
+
+			} break;
 			
 			case TYPE_EOF:
 			case TYPE_CARRIAGE_RETURN:
 			case TYPE_NEW_LINE: {
+
+				Cascade ();
 
 				AddTemp (TYPE_EOS);
 
 				u8* value; ALLOCATE (u8, value, temporaryLength);
 				memcpy (value, temporary, temporaryLength);
 
+				lastSeparator = 0; // RESET
 				queues.values.push_back (value);
 				parsingstage = Main;
 

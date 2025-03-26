@@ -3,8 +3,7 @@
 
 --- QUAIL
 
-01. Make it so queues can reference previous queues too.
-02. Fix bug with files (main, global, include) being still in use.
+01. Fix bug with files (main, global, include) being still in use.
 
 --- INSTALLER
 

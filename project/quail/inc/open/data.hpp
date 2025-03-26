@@ -170,6 +170,7 @@ namespace OPEN {
 	u32 temporaryLength;
 	u8 temporary[2048];
 
+	u32 lastSeparator = 0;
 
 	// So called modules or subprojects are being counted. 
 	// And we also need to say if we only read the main config for some checks.
