@@ -126,8 +126,8 @@ namespace INSTALLATION {
 
 			FREE (buffer); MEMORY::EXIT::POP ();
 
-			// Create download for Quail Executable.
-			DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);
+			// Create download for Quail uninstaller.
+			DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_UNINSTALLER);
 		}
 
 	}
