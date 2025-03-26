@@ -2,7 +2,7 @@ param (
 	[string]$path = ""
 )
 
-$out = "$path\project\installer\res\license.h"
+$out = "$path\project\global\inc\global\license.h"
 $temp = "$path\temp"
 $in = "$path\LICENSE"
 

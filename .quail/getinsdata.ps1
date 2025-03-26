@@ -4,7 +4,7 @@ param (
 )
 
 $exePath = "$path\build\$profile\project\quail\Quail.exe"
-$filePath = "$path\project\installer\res\data.h"
+$filePath = "$path\project\global\inc\global\data.h"
 
 
 # Ensure we're using '.' sing instead of ',' sign for fpn.

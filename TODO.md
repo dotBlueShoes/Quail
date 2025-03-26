@@ -1,10 +1,5 @@
 # 0.5
 
-
---- QUAIL
-
-01. Fix bug with files (main, global, include) being still in use.
-
 --- INSTALLER
 
 01. Make sure everything is being destroyed properly.
@@ -12,12 +7,12 @@
 
 --- OTHER 
 
-01. Make script for automatic releases.
-02. Examples:
+01. Examples:
 - unity
 - gimp
 - windows terminal
 - directory
+02. gittag and rebuild and release
 03. yt-video
 
 
@@ -39,13 +34,12 @@
 07. Secrets vs Defines
 08. Make it so global.txt values can be overridden
 09. Make "_quail" variable to pass Quail directory - not sure if it's needed
-10. Move license.h" & "data.h" to GLOBAL project.
-11. ? Maybe create a roadmap using that github tool (tables).
-12. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
-13. diffrentiate between topConfigsFolder and installedBinFolder
-14. Make it so queues can reference prefious queues too.
-15. Disable making projects in global.txt -> see how it works. Maybe if it works fine leave it.
-
+10. ? Maybe create a roadmap using that github tool (tables).
+11. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
+12. diffrentiate between topConfigsFolder and installedBinFolder
+13. Make it so queues can reference prefious queues too.
+14. Disable making projects in global.txt -> see how it works. Maybe if it works fine leave it.
+15. Fix bug with files (main, global, include) being still in use. Its an edge case but it happends sometimes.
 
 --- INSTALLER
 
@@ -55,3 +49,8 @@
 04. Make installer display centered.
 05. Give an option in installer to rename the batch file.
 06. Distinguish data and view layer.
+
+--- OTHER
+
+01. Make script for automatic releases.
+02. gittag and rebuild and release
