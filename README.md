@@ -34,6 +34,41 @@ For simplicity sake I'll refer to commands, queues, projects and subprojects her
 
 . . .
 
+## Linking a Project
+
+1. Create a *quail-file* in your project directory. Name it, for example `.quail\quail.txt`.
+2. This file now represents your project. Link it to your top-level configuration file with the following command:
+
+- Add a project / module (absolute path)
+  > `^+project = C:\Projects\project\ .quail\quail.txt`
+- Add a project / module (relative path)
+  > `^-subproject = subproject\ .quail\quail.txt`
+
+> Note the space between `key`, `project_drectory` **and** `quail-file`. It is required as Quail predefines `%_name%` & `%_path%` constants for your use inside the *quail-file* of your project.
+
+3. Add the following command to your project configuration file: `!directory = explorer.exe "%_path%"`.
+4. Now try executing it via `quail -o project directory`.
+
+## Including a file
+
+1. Includes for now are always relative. Create a `include.txt` next to your *project-main-configuration-file*.
+2. At the top of your *project-main-configuration-file*, write the following: `&include.txt`.
+3. Now try to create an alias, or include another file or a project.
+
+## Global configuration file
+
+There are **2** different configuration files for **Quail** use:
+- `config.txt` -> your top-level configuration file.
+- `global.txt` -> your top-level global configuration file.
+
+> **Quail** will first read the global file `global.txt` and all of its includes and keep it for use later. Then Quail reads only the last project / module, and it's includes in a tree of all the modules from the top-level config file `config.txt` down to your project / subproject. This makes referencing a variable from a parent project impossible if not via include. Thus, global files. Use them to define constants and aliases that you want to use in every module.
+
+
+## More Examples
+
+Where can I find some ready to use commands for software I might be using?
+> Look into the `examples` directory.
+
 # Software Notes
 Why writing my own `Wizard` when WinApi provides a ready to use control with localization support?
 
