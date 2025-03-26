@@ -37,11 +37,8 @@ namespace CONFIG {
 	const c16 CONFIG_GLOBAL_W			[] = L"global.txt";
 	const u32 CONFIG_GLOBAL_LENGTH		= sizeof (CONFIG_GLOBAL_W);
 
-	const c8 URL_QUAIL_EXECUTABLE 		[] = "https://github.com/dotBlueShoes/MS_Fogger/releases/download/v1.1.2/fogger-1.12.2-1.1.2.0.jar";
-	//const c8 URL_QUAIL_EXECUTABLE 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/Quail.exe";
-
-	const c8 URL_QUAIL_UNINSTALLER 		[] = "https://github.com/dotBlueShoes/bta-Gems/releases/download/0.4.5/gems_mod-0.4.5.jar";
-	//const c8 URL_QUAIL_UNINSTALLER 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.4/uninstaller.exe";
+	const c8 URL_QUAIL_EXECUTABLE 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.5/Quail.exe";
+	const c8 URL_QUAIL_UNINSTALLER 	[] = "https://github.com/dotBlueShoes/Quail/releases/download/0.5/uninstall.exe";
 
 	//const c16 EXECUTABLE_NAME			[] = L"QuailNew.exe";
 	const c16 EXECUTABLE_NAME			[] = L"Quail.exe";

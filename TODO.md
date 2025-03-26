@@ -1,10 +1,3 @@
-# 0.5
-
---- OTHER 
-
-01. gittag and rebuild and release
-02. yt-video
-
 # LATER
 
 
