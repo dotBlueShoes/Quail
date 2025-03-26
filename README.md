@@ -37,7 +37,7 @@ For simplicity sake I'll refer to commands, queues, projects and subprojects her
 ## Linking a Project
 
 1. Create a *quail-file* in your project directory. Name it, for example `.quail\quail.txt`.
-2. This file now represents your project. Link it to your top-level configuration file with the following command:
+2. This file now represents your project. Link it to your top-level configuration file with the following:
 
 - Add a project / module (absolute path)
   > `^+project = C:\Projects\project\ .quail\quail.txt`
