@@ -21,7 +21,7 @@ const c16 MSG_FAILURE	[] = L"Uninstallation was Interrupted";
 const c16 MSG_NOTHING	[] = L"Quail components were NOT removed due to the intentional user selection";
 //
 const c16 MSG_R_REG		[] = L"Remove registries?";
-const c16 MSG_R_VPE		[] = L"Remove entry in path enviroment variable?";
+const c16 MSG_R_VPE		[] = L"Remove entry in path environment variable?";
 const c16 MSG_R_DIR		[] = L"Remove directories?";
 
 
@@ -223,7 +223,7 @@ void Setup () {
 
 	// Check if valid unistallation.
 	if (error != ERROR_SUCCESS || key == nullptr) {
-		ERRORWIN ("Could not get quail filepath from registry. Quail might be arleady uninstalled.");
+		ERRORWIN ("Could not get quail filepath from registry. Quail might be already uninstalled.");
 	} else {
 		RegCloseKey (key);
 	}
@@ -298,7 +298,7 @@ void UninstallALL() {
 			//  ABOUT
 			// Due to the delay on the execution of the directory removal
 			//  it is not possible to wait for user input at that state.
-			// Application must end execution quicly...
+			// Application must end execution quickly...
 			//
 			//MessageBoxW (nullptr, MSG_SUCCESS, MSG_TITLE, MB_OK);
 			

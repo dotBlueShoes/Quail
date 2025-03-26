@@ -1,0 +1,26 @@
+# More on Unity command line arguments
+# -> https://docs.unity3d.com/Manual/EditorCommandLineArguments.html
+
+#
+# CONSTANTS (Those are examples replace their values for your project!)
+#
+
+%unityPath 			= C:\Program Files\Unity\Hub\Editor\6000.0.34f1\Editor\Unity.exe
+%unityProject		= %_path%/Example/
+%buildDestination	= %_path%/builds/profile/Example.exe
+
+#
+# COMMANDS
+#
+
+# Open a "Unity" project using specified version of "Unity" - Executable. 
+!open 				= start "" "%unityPath%" -projectPath "%unityProject%"
+
+#  !Important
+# Be aware this is prob. not the best way to do this. I would 
+#  recommend running a separate batch program for this. Simply
+#  to control the execution time. The following command runs on 
+#  a separate process.
+
+# Build a "Unity" project using a specified platform. 
+!build 				= start "" "%unityPath%" -quit -batchmode -projectpath "%unityProject%" -buildWindows64Player "%buildDestination%"

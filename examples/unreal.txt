@@ -1,0 +1,26 @@
+# More on Unreal command line arguments
+# -> https://dev.epicgames.com/documentation/en-us/unreal-engine/command-line-arguments-in-unreal-engine
+# -> https://dev.epicgames.com/documentation/en-us/unreal-engine/build-operations-cooking-packaging-deploying-and-running-projects-in-unreal-engine
+
+#
+# CONSTANTS (Those are examples replace their values for your project!)
+#
+
+%unrealPath 	= C:\Program Files\Epic Games\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe
+%uatPath		= C:\"Program Files\Epic Games"\UE_5.5\Engine\Build\BatchFiles\RunUAT.bat
+%unrealProject 	= %_path%\Example\Example.uproject
+%buildPlatform	= Win64
+%buildPath		= %_path%\builds\Win64
+
+#
+# COMMANDS
+#
+
+# Open a "Unreal" project using specified version of "Unreal" - Executable. 
+!open 			= start "" "%unrealPath%" "%unrealProject%"
+
+# Open a "Unreal" project in play mode and selected resolution. 
+!game 			= start "" "%unrealPath%" "%unrealProject%" -game -windowed -ResX=1080 -ResY=1920
+
+# Build a "Unreal" project for a selected platform.
+!build			= %uatPath% BuildCookRun -project="%unrealProject%" -platform=%buildPlatform% -clientconfig=Development -serverconfig=Development -cook -allmaps -build -stage -pak -archive -archivedirectory=%buildPath%"

@@ -30,7 +30,7 @@ int WinMain (
 		LOGINFO ("Application Statred!\n");
 	}
 
-	// Check for Adming Rights.
+	// Check for Admin Rights.
 	//IsUserAnAdmin()
 	if (!IsUserAnAdmin()) {
 		MessageBoxA (nullptr, "Instalator requires admin rights.", "ERROR", MB_OK);

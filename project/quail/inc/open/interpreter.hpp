@@ -820,7 +820,7 @@ namespace OPEN::INTERPRETER::MAIN::QUEUE {
 
 
 		//  ABOUT
-		// Search if subvalue in queue syntax is an arleady read queue key.
+		// Search if subvalue in queue syntax is an already read queue key.
 		// If so - Copy it's value to this key's value.
 		//
 
