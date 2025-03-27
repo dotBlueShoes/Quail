@@ -33,9 +33,6 @@ namespace INSTALLATION {
 
 	void BeginPhaseOne (HWND& progressBar) {
 
-		//LOGINFO ("1\n");
-		//getchar ();
-
 		DOWNLOAD::runningHandles = 1;
 		currentPhase = PHASE_DOWNLOAD_MAIN; 
 
@@ -50,9 +47,6 @@ namespace INSTALLATION {
 			memcpy (buffer + (directoryPathLength / 2), CONFIG::EXECUTABLE_NAME, CONFIG::EXECUTABLE_NAME_LENGTH);
 			LOGINFO ("executable filepath: %ls\n", buffer);
 		}
-
-		//LOGINFO ("2\n");
-		//getchar ();
 
 		{
 
@@ -77,14 +71,8 @@ namespace INSTALLATION {
 		
 		FREE (buffer); MEMORY::EXIT::POP ();
 
-		//LOGINFO ("3\n");
-		//getchar ();
-
 		// Create download for Quail Executable.
 		DOWNLOAD::Create (DOWNLOAD::syncHandle, DOWNLOAD::asyncHandle, fileHandle, progressBar, CONFIG::URL_QUAIL_EXECUTABLE);
-
-		//LOGINFO ("4\n");
-		//getchar ();
 
 	}
 
@@ -165,9 +153,6 @@ namespace INSTALLATION {
 			InvalidateRect (GetParent (progressBar), &REST_REGION, FALSE);
 		}
 
-		//LOGINFO ("HERE: [%d], %ls\n", CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder);
-		//getchar ();
-
 		if (isPath) WINDOWS::REGISTRY::AddQuailToPath (
 			CONFIG::topConfigsFolderLength, 
 			CONFIG::topConfigsFolder
@@ -183,9 +168,6 @@ namespace INSTALLATION {
 			InvalidateRect (GetParent (progressBar), &TEXT_REGION, FALSE);
 			InvalidateRect (GetParent (progressBar), &REST_REGION, FALSE);
 		}
-
-		//LOGINFO ("1\n");
-		//getchar ();
 
 		WINDOWS::REGISTRY::CreateFiles (
 			CONFIG::topConfigsFolderLength, 

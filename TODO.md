@@ -1,27 +1,28 @@
-# LATER
-
+# FUTURE
 
 --- QUAIL
 
-01. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\main.hpp` reads outside memory!
-	It does not check for EOS sign it simply goes through. Those string do have EOS.
-	But when we're checking against a string thats longer we simply bypass it. (and it might memory allocated by us?)
-02. DEBUG_FLAG_POSTLOGGING implementation - file/buffer logging
-03. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
-	then is being stored in Windows Registry and we reuse it as the first allocation for open command data.
-04. proper styling display with -> registry keys and values.
-	project-header, command-header, footer, line-format, line-size, key-padding-size
-05. Adding Quail configuration data using --add command: like `quail -a module "Name" "ProjectPath"`.
-06. Edit Quail configuration data using --edit command: like `quail -e module "Name" "ProjectPath"`.
-07. Secrets vs Defines
-08. Make it so global.txt values can be overridden
-09. Make "_quail" variable to pass Quail directory - not sure if it's needed
-10. ? Maybe create a roadmap using that github tool (tables).
-11. New feature 'groups' eg. cmake_remove -> make it so user can match with "cma rem".
-12. differentiate between topConfigsFolder and installedBinFolder
-13. Make it so queues can reference prefious queues too.
-14. Disable making projects in global.txt -> see how it works. Maybe if it works fine leave it.
-15. Fix bug with files (main, global, include) being still in use. Its an edge case but it happens sometimes.
+01. Have a better look at: Making projects in global.txt. There might be potential bugs and unchecked errors.
+02. Differentiate between "topConfigsFolder" and "installedBinaryFolder". This will help in making 
+	top-level-configs located outside Quail directory.
+03. Make "%_quail%" variable to tell location of Quail top-level-configs directory. 
+04. Make it so global config values can be overridden by normal config values.
+05. New type Secrets / Defines - Or how to tell the new user what specific constant he is missing should point to?
+06. New feature 'groups' e.g. "cmake_remove" -> make it so user can match with "cma rem".
+07. Customizable styling for command display -> registry keys and values.
+08. Adding Quail configuration data using --add command: like `quail -a module key "value"`.
+09. Edit Quail configuration data using --edit command: like `quail -e module key "value"`.
+10. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
+	Store that in Windows Registry and we reuse it as the first allocation size the open buffer.
+11. Replace std::vector's with one buffer only.
+
+06. BUGS
+
+	01. Not dangerous. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\main.hpp` reads outside it's memory. 
+		Still within my program scope. When we're checking against a string with a key that has more characters we are
+		bypassing the EOS sign and reading outside of the variable memory (possibly, ... its std::vector).
+	02. Not dangerous. Configuration files (main, global, include) being still in use. 
+		Its an edge case but it happens sometimes. Making uninstaller not uninstalling everything properly.
 
 --- INSTALLER
 
@@ -38,4 +39,7 @@
 02. Examples:
 - gimp
 - blender
-03. gittag and rebuild and release
+03. Create a changelog.txt
+04. Git tag and rebuild and release
+05. Create a roadmap
+06. DEBUG_FLAG_POSTLOGGING implementation - file/buffer logging

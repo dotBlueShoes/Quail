@@ -1,0 +1,3 @@
+
+!config			= start "" notepad++ "%_path%\quail.txt"
+!terminal 		= wt -w 1 nt --title %_name% -d "%_path%" --tabColor "#FF0000"

@@ -115,65 +115,7 @@ void RemoveQuailFromPath () {
 }
 
 
-//old-code	void RemoveItself () {
-//old-code		c16* buffer; ALLOCATE (c16, buffer, CONFIG::topConfigsFolderLength + CONFIG::UNINSTALLER_NAME_LENGTH);
-//old-code		MEMORY::EXIT::PUSH (buffer, FREE);
-//old-code	
-//old-code		{ // CONSTRUCT
-//old-code			memcpy (buffer, CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
-//old-code			wmemset (buffer + (CONFIG::topConfigsFolderLength / 2) - 1, L'\\', 1);
-//old-code			memcpy (buffer + (CONFIG::topConfigsFolderLength / 2), CONFIG::UNINSTALLER_NAME, CONFIG::UNINSTALLER_NAME_LENGTH);
-//old-code			LOGINFO ("uninstall: %ls\n", buffer);
-//old-code		}
-//old-code	
-//old-code		BOOL errorCode;
-//old-code	
-//old-code		//errorCode = DeleteFileW (buffer);
-//old-code		//if (errorCode != TRUE) LOGWARN ("Could not remove uninstaller file!\n");
-//old-code	
-//old-code		FREE (buffer); MEMORY::EXIT::POP ();
-//old-code	}
-
-
-//old-code	void RemoveDirectory () {
-//old-code	
-//old-code		IFileOperation* fileOperation;
-//old-code		HRESULT errorCode; 
-//old-code	
-//old-code		IShellItem* fileOrFolderItem = nullptr;
-//old-code		BOOL isAborted = FALSE; // not needed?
-//old-code	
-//old-code		errorCode = CoInitializeEx (NULL, COINIT_MULTITHREADED);
-//old-code	    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't initialize COM library."); }
-//old-code	
-//old-code	    errorCode = CoCreateInstance (CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS (&fileOperation));
-//old-code	    if (FAILED (errorCode)) { CoUninitialize (); ERROR ("Couldn't CoCreateInstance."); }
-//old-code	
-//old-code	    errorCode = fileOperation->SetOperationFlags (FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI);
-//old-code	    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't add flags."); }
-//old-code	
-//old-code	    errorCode = SHCreateItemFromParsingName (CONFIG::topConfigsFolder, NULL, IID_PPV_ARGS (&fileOrFolderItem));
-//old-code	    if (FAILED (errorCode)) { fileOrFolderItem->Release (); fileOperation->Release (); CoUninitialize (); ERROR ("Couldn't get file into an item."); }
-//old-code	    	
-//old-code		errorCode = fileOperation->DeleteItem (fileOrFolderItem, NULL); // 2 param is track of progress.
-//old-code	    fileOrFolderItem->Release ();
-//old-code	    if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to mark file/folder item for deletion."); }
-//old-code	
-//old-code	    errorCode = fileOperation->PerformOperations ();
-//old-code		if (FAILED (errorCode)) { fileOperation->Release (); CoUninitialize (); ERROR ("Failed to carry out delete."); }
-//old-code	
-//old-code		errorCode = fileOperation->GetAnyOperationsAborted (&isAborted);
-//old-code	
-//old-code		fileOperation->Release ();
-//old-code		CoUninitialize ();
-//old-code	
-//old-code		if (FAILED (errorCode)) { ERROR ("Could not GetAnyOperationsAborted()."); }
-//old-code	    if (isAborted) { LOGWARN ("Some operations were aborted.\n"); }
-//old-code	}
-
-
 void RemoveDirectory () {
-	//const c16 path [] = L"C:\\Program Files\\dotBlueShoes\\Quail\\";
 
 	LOGINFO ("%ls\n", CONFIG::topConfigsFolder);
 
@@ -277,12 +219,6 @@ void UninstallALL() {
 		++collectiveResponse;
 		LOGINFO ("4. Removing itself+directory\n");
 		RemoveDirectory ();
-		//old-code	// Remove itself.
-		//old-code	LOGINFO ("4. Removing itself\n");
-		//old-code	RemoveItself ();
-		//old-code	// Remove catalog.
-		//old-code	LOGINFO ("5. Removing directories\n");
-		//old-code	RemoveDirectory ();
 	} else if (response == IDCANCEL) goto uni_error;
 
 	FREE (CONFIG::topConfigsFolder); MEMORY::EXIT::POP ();

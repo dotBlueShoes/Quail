@@ -57,7 +57,7 @@ namespace WINDOWS::REGISTRY {
 					memcpy (contetnt, DEFAULT_CONFIG_MAIN_1, CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH);
 					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH / 2), CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength - 2);
 					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + CONFIG::topConfigsFolderLength - 2) / 2, DEFAULT_CONFIG_MAIN_2, CONFIG::DEFAULT_CONFIG_MAIN_2_LENGTH);
-					LOGINFO ("FINAL CONTENT: \n%ls\n\n", contetnt);
+					//LOGINFO ("FINAL CONTENT: \n%ls\n\n", contetnt);
 				}
 
 				IO::CreateAdd (buffer, contetnt);
@@ -128,8 +128,6 @@ namespace WINDOWS::REGISTRY {
     	errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
     	if (errorCode != ERROR_SUCCESS) { ERROR ("Could not open key at `%ls`\n", KEY_ENVIRONMENT_VARIABLES_W); }
 
-		if (key == nullptr) LOGINFO ("WUT!\n");
-
 		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_REG_SZ, NULL, env, &envSize); // GET
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
 
@@ -137,8 +135,6 @@ namespace WINDOWS::REGISTRY {
 			LOGWWARN ("Environment Variable `PATH` entry for Quail already exists.\n");
 		} else {
 			LOGWINFO ("Creating new entry in Environment Variable `PATH` for Quail.\n");
-
-			LOGINFO ("%d\n", envSize);
 
 			{ // Creating proper entry string representing Quail.
 				auto&& begin = env + ((envSize / 2) - 2); // - '\0' sign.

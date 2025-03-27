@@ -1,4 +1,4 @@
-`Quail` is a Command Line Interface application build to help in project management. The idea is to create 'Alias' like commands that are stored within a project which can be then accessed with an ease.
+`Quail` is a Command Line Interface application built to help in project management. The idea is to create 'Alias' like commands that are stored within a project which can be then accessed with an ease.
 
 # FEATURES
 

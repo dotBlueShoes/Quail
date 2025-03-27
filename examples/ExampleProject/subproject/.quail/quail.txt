@@ -1,0 +1,8 @@
+&include.txt
+
+^-subsubproject = subsubproject\ quail.txt
+^-other 		= other\ quail.txt
+
+!config			= start "" notepad++ "%_path%\.quail\quail.txt"
+!include		= start "" notepad++ "%_path%\.quail\include.txt"
+!terminal 		= wt -w 1 nt --title %var2% -d "%_path%" --tabColor "#FF0000"
