@@ -147,7 +147,7 @@ namespace OPEN {
 
 	void Open (
 		IN 		const u32& 	depth,
-		IN 		c8** const& actions
+		INOUT 	c8** const& actions
 	) {
 
 		INTERPRETER::Interpreter interpreter;

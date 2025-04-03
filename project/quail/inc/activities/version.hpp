@@ -7,7 +7,6 @@
 
 namespace ACTIVITIES {
 
-	//const c8* VERSION_ALL = "\n" QUAIL_FULL_VERSION "\n\n";
 	const c8* VERSION_ALL = QUAIL_FULL_VERSION "\n";
 
 }

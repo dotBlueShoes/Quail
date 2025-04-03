@@ -23,9 +23,10 @@
 10. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
 	Store that in Windows Registry and we reuse it as the first allocation size the open buffer.
 11. Replace std::vector's with one buffer only.
-12. Setting Quail `quial -s 'key' 'value'` or `quail --settings 'key' 'value'` to change certain aspects of quail
-	such as `wide_chars false/true`, coloring, spacing.
-13. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
+12. Quail setting - coloring.
+13. Quail setting - spacing.
+14. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
+15. Replace "IsForceC8Display" with flags variable.
 
 --- INSTALLER
 
@@ -41,6 +42,13 @@
 --- UNINSTALLER
 
 01. When folder is being opened during deinstalation it wont remove itself. 
+
+--- GITHUB
+
+01. Add 'Settings' page that reflects settings from `--settings` and their meaning.
+02. Add information that download is in Release.
+03. More info on Global files.
+04. Give info on shell changing and that by default it is batch
 
 --- OTHER
 

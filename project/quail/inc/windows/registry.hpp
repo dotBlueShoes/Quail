@@ -3,8 +3,34 @@
 //
 #pragma once
 #include <global/windows/registry.hpp>
+#include <blue/windows/registry.hpp>
 
 namespace WINDOWS::REGISTRY {
+
+	void SetPropertyIsForceC8Display (
+		IN 		const bool& value
+	) {
+
+		unsigned long error = 0;
+		u32 data = !value;
+		HKEY key;
+
+		LOGINFO ("huh: %d\n", data);
+
+		error = RegOpenKeyW(
+			HKEY_LOCAL_MACHINE,
+			KEY_PATH_W,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+
+		CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, data);
+		CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
+
+		CONFIG::isForceC8Display = data & (1 << 0);
+		
+	}
 
 	void CreateQuailConfigsFilePaths (
 		INOUT 	u32& 	folderPathLength,

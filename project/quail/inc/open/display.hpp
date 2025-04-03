@@ -4,6 +4,8 @@
 #pragma once
 #include <blue/types.hpp>
 #include <blue/io.hpp>
+//
+#include <global/config.hpp>
 
 namespace OPEN::DISPLAY {
 
@@ -61,7 +63,7 @@ namespace OPEN::DISPLAY {
 			' ', ' ', ' ', ' ' 
 		};
 
-		const u16 LINE_SIZE = 120 - 1;
+		const u16 LINE_SIZE = CONFIG::listingLineSize - 1;
 		const u16 NAME_SIZE = 18;
 		const u16 DOTS_SIZE = 3;
 

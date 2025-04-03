@@ -49,6 +49,7 @@ namespace CONFIG {
 	const u32 UNINSTALLER_NAME_LENGTH 			= sizeof (UNINSTALLER_NAME);
 
 	bool isForceC8Display = false;
+	u16 listingLineSize = 120;
 	
 	u32 topConfigsFolderLength; 
 	c16* topConfigsFolder;
