@@ -14,11 +14,11 @@ namespace ACTIVITIES::MATCH {
 		c8** const& commands
 	) {
 
-		if (activityLength < ACTIVITIES::MIN_LENGTH) {
+		if (activityLength < MIN_LENGTH) {
 
 			ERROR ("Invalid argument: %s\n\n", activity);
 
-		} else if (activityLength > ACTIVITIES::MIN_LENGTH && activityLength <= ACTIVITIES::MAX_LENGTH) {
+		} else if (activityLength > MIN_LENGTH && activityLength <= MAX_LENGTH) {
 
 			ToLowCase (activity, activityLength); // Conversion
 
@@ -28,13 +28,13 @@ namespace ACTIVITIES::MATCH {
 			COMPARESEARCH::ArrayPartFirstMatch ( 
 				activity, activityLength, sizeof (c8),
 				index, 
-				ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.size (),
-				ACTIVITIES::MAXS_WITHOUT_ARGUMENTS.data ()
+				MAXS_WITHOUT_ARGUMENTS.size (),
+				MAXS_WITHOUT_ARGUMENTS.data ()
 			);
 
-			ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
+			TranslateIndex (activity, activityLength, index, depth, commands);
 
-		} else if (activityLength > ACTIVITIES::MAX_LENGTH) {
+		} else if (activityLength > MAX_LENGTH) {
 
 			ERROR ("Invalid argument: %s\n\n", activity);
 
@@ -48,11 +48,11 @@ namespace ACTIVITIES::MATCH {
 			COMPARESEARCH::ArrayPartFirstMatch ( 
 				activity, activityLength, sizeof (c8),
 				index, 
-				ACTIVITIES::MINS_WITHOUT_ARGUMENTS.size (),
-				ACTIVITIES::MINS_WITHOUT_ARGUMENTS.data ()
+				MINS_WITHOUT_ARGUMENTS.size (),
+				MINS_WITHOUT_ARGUMENTS.data ()
 			);
 
-			ACTIVITIES::TranslateIndex (activity, activityLength, index, depth, commands);
+			TranslateIndex (activity, activityLength, index, depth, commands);
 
 		}
 
