@@ -5,14 +5,12 @@
 #include <global/config.hpp>
 #include <blue/types.hpp>
 
-// TODO: CANCEL
-// CANCEL CONFIRM MSG BOX
-// Title as Window
-// Install has not completed. Are you sure you want to exit?
-
 namespace LOCAL {
 
 	const c16 WINDOW_TITLE				[] = QUAIL_NAME_VERSION_W L" Setup Wizard";
+	const c16 MSG_CANCEL_CONFIRM		[] = L"Installation not completed. Are you sure you want to exit?";
+	const c8  MSG_INVALID_DIR_PATH		[] = "The specified directory path is invalid. Please use a valid path.";
+
 	// TEXTS
 	const c16 EntryWelcome				[] = L"Welcome to " QUAIL_NAME_VERSION_W L" Setup Wizard";
 	const c16 EntryText					[] = L"This wizard will guide you through the installation of\n" QUAIL_NAME_VERSION_W L".\n\nClick 'Next' to continue.";

@@ -2,11 +2,14 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
-
+//
 #include <blue/windows/controls.hpp>
 #include <blue/types.hpp>
 #include <blue/log.hpp>
-
+#include <blue/io.hpp>
+//
+#include <global/license.h>
+//
 #include "../installation.hpp"
 #include "../localization.hpp"
 #include "../res/resource.h"
@@ -14,18 +17,6 @@
 #include "download.hpp"
 
 namespace WINDOWS::WINDOW {
-
-	///////////////////////////////////////////////////////////////////////////
-
-	// IDS
-	//const u64 ID_RICHEDIT 				= 0b00001001;
-	//const u64 ID_STATIC	 				= 0b00001010;
-	//const u64 ID_LISTVIEW 				= 0b00001011;
-	//
-	//const u16 ID_LAST					= 1;
-	//const u16 ID_NEXT					= 2;
-	//const u16 ID_CANCEL					= 3;
-	//const u16 ID_BROWSE					= 4;
 
 	// IDS
 	enum WINDOW_IDS : u16 {
@@ -663,7 +654,7 @@ namespace WINDOWS::WINDOW {
 		LOGINFO ("SyncValidateRichEditPath () Call\n");
 		LOGINFO ("path: %ls\n", CONFIG::topConfigsFolder);
 
-		return IsValidDirectory (CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
+		return IO::IsValidDirectory (CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength);
 	}
 
 
@@ -934,9 +925,7 @@ namespace WINDOWS::WINDOW {
 				LOGINFO ("Selected a valid directory for installation.\n");
 				PageSub ();
 				InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
-			} else {
-				MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
-			}
+			} else { MSGERROR (LOCAL::MSG_INVALID_DIR_PATH); }
 
 		} else {
 			PageSub ();
@@ -953,27 +942,34 @@ namespace WINDOWS::WINDOW {
 			if (SyncValidateRichEditPath ()) {
 				LOGINFO ("Selected a valid directory for installation.\n");
 				PageAdd ();
-				SetFocus (window); // Issue. Something else breaks and its a quick fix.
-				//REGISTRY::ReplaceFolderPathWithFilePath (REGISTRY::mainConfigFilePath, REGISTRY::topConfigsFolderPathLength); // Update pointer value
 				InvalidateRect (window, NULL, true); 	// Make the whole window redraw itself. Also clears previous draw.
-			} else {
-				MessageBoxW (nullptr, L"The specified directory path is invalid. Please use a valid path.", nullptr, MB_OK);
-			}
+			} else { MSGERROR (LOCAL::MSG_INVALID_DIR_PATH); }
 
 		} else {
 			PageAdd ();
-			SetFocus (window); // Issue. Something else breaks and its a quick fix.
-
 			InvalidateRect (window, NULL, true); 		// Make the whole window redraw itself. Also clears previous draw.
 		}
+
+		SetFocus (window); 								// Issue. Something else breaks and its a quick fix. TODO describe what...
 
 		SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
 	}
 
 
 	void OnButtonCancel (const HWND& window) {
-		SendMessageW (window, WM_CLOSE, 0, 0);
-		SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+		if (currentPage != PAGE_TYPE_EXIT) {
+			s32 response = MessageBoxW (
+				nullptr, LOCAL::MSG_CANCEL_CONFIRM, LOCAL::WINDOW_TITLE, MB_YESNO | MB_ICONQUESTION
+			);
+
+			if (response == IDYES) { 
+				SendMessageW (window, WM_CLOSE, 0, 0);
+				SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+			}
+		} else {
+			SendMessageW (window, WM_CLOSE, 0, 0);
+			SendMessageW (wbLast, BM_SETSTATE, FALSE, 0); 	// Release the pressed state
+		}
 	}
 
 
@@ -1162,11 +1158,7 @@ namespace WINDOWS::WINDOW {
 						HandlePageSwitch (window);
 					} break;
 
-					//case VK_UP: {
-					//} break;
-					//case VK_DOWN: {
-					//} break;
-
+					case VK_DOWN:
 					case VK_LEFT: {
 						const auto& pageActivablesStart = KEYBOARD::pageActivablesStarts[currentPage];
 						const auto& pageActivablesEnd = KEYBOARD::pageActivablesEnds[currentPage];
@@ -1179,6 +1171,7 @@ namespace WINDOWS::WINDOW {
 						KEYBOARD::HandleFocusChange (current, last);
 					} break;
 
+					case VK_UP:
 					case VK_TAB:
 					case VK_RIGHT: {
 						const auto& pageActivablesStart = KEYBOARD::pageActivablesStarts[currentPage];
