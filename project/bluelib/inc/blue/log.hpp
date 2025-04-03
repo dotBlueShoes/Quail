@@ -138,8 +138,7 @@
 	}
 
 	#define MSGERROR(message) { \
-		DEBUG (DEBUG_FLAG_LOGGING) \
-		MessageBoxA (NULL, message, "ERROR", MB_OK); \
+		MessageBoxA (NULL, message, nullptr, MB_OK | MB_ICONERROR); \
 	}
 
 #else
@@ -254,8 +253,7 @@
 	}
 	
 	#define MSGERROR(message) { \
-		DEBUG (DEBUG_FLAG_LOGGING) \
-		MessageBoxA (NULL, message, "ERROR", MB_OK); \
+		MessageBoxA (NULL, message, nullptr, MB_OK | MB_ICONERROR); \
 	}
 
 #endif

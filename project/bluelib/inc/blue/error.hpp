@@ -6,6 +6,16 @@
 #include "log.hpp"
 #include "windows/types.hpp"
 
+#ifndef ERROR_EXIT_SLEEP
+
+	//#define ERROR_EXIT_SLEEP() { \
+	//	Sleep (2000); \
+	//}
+
+	#define ERROR_EXIT_SLEEP() // dummy
+
+#endif
+
 #define ERRORWIN(text) { \
 	MSGERROR (text); \
 	MEMORY::EXIT::ATEXIT (); \
@@ -19,6 +29,7 @@
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
+	ERROR_EXIT_SLEEP () \
 	exit (-1); \
 }
 
@@ -29,5 +40,6 @@
 	LOGMEMORY (); \
 	DEBUG (DEBUG_FLAG_LOGGING) putc ('\n', stdout); \
 	 \
+	ERROR_EXIT_SLEEP () \
 	exit (-1); \
 }
