@@ -70,7 +70,7 @@ There are **2** different configuration files for **Quail** use:
 ## More Examples
 
 Where can I find some ready to use commands for software I might be using?
-> Look into the `examples` directory.
+> Look into the [examples](https://github.com/dotBlueShoes/Quail/tree/master/examples) directory.
 
 # Software Notes
 Why writing my own `Wizard` when WinApi provides a ready to use control with localization support?
