@@ -4,7 +4,7 @@
 
 00. BUGS
 
-	01. Not dangerous. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\main.hpp` reads outside it's memory. 
+	01. Not dangerous. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\open.hpp` reads outside it's memory. 
 		Still within my program scope. When we're checking against a string with a key that has more characters we are
 		bypassing the EOS sign and reading outside of the variable memory (possibly, ... its std::vector).
 	02. Not dangerous. Configuration files (main, global, include) being still in use. 
@@ -47,10 +47,9 @@
 
 --- GITHUB
 
-01. Add 'Settings' page that reflects settings from `--settings` and their meaning.
-02. Add information that download is in Release.
-03. More info on Global files.
-04. Give info on shell changing and that by default it is batch
+01. More info on Global files.
+02. Give info on shell changing and that by default it is batch
+03. Add a new build to github with "--settings" feature.
 
 --- OTHER
 
