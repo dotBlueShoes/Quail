@@ -38,10 +38,12 @@
 06. Distinguish data and view layer.
 07. Double check for folder creation.
 08. BUG. Directory path that is being displayed at confirmation sometimes goes off screen.
+09. Shared icon for installer and uninstaller with a pc in the back.
 
 --- UNINSTALLER
 
 01. When folder is being opened during deinstalation it wont remove itself. 
+02. Shared icon for installer and uninstaller with a pc in the back.
 
 --- GITHUB
 
