@@ -3,9 +3,10 @@
 //
 #pragma once
 #include <global/config.hpp>
-
+//
 #include "windows/registry.hpp"
 #include "download.hpp"
+#include "io.hpp"
 
 namespace INSTALLATION {
 
@@ -55,7 +56,11 @@ namespace INSTALLATION {
 			// Check if directory exists.
     		if (fileAttribs == INVALID_FILE_ATTRIBUTES || !(fileAttribs & FILE_ATTRIBUTE_DIRECTORY)) {
         		// Does not exist - therefore we create one.
-        		BOOL error = CreateDirectoryW (CONFIG::topConfigsFolder, NULL);
+
+				BOOL error = IO::CreateAllPathDirectories (
+					CONFIG::topConfigsFolder,
+					CONFIG::topConfigsFolderLength / 2
+				);
 
 				if (error == 0) {
 					ERROR ("Folder creation for file failed\n");
@@ -169,7 +174,7 @@ namespace INSTALLATION {
 			InvalidateRect (GetParent (progressBar), &REST_REGION, FALSE);
 		}
 
-		WINDOWS::REGISTRY::CreateFiles (
+		IO::CreateFiles (
 			CONFIG::topConfigsFolderLength, 
 			CONFIG::topConfigsFolder,
 			isBatch

@@ -3,14 +3,12 @@
 //
 #pragma once
 #include <global/windows/registry.hpp>
-
+#include <global/data.h>
+//
 #include <blue/windows/registry.hpp>
 #include <blue/memory.hpp>
 #include <blue/types.hpp>
 #include <blue/log.hpp>
-
-// TODO MOVE!
-#include "resources.hpp"
 
 namespace WINDOWS::REGISTRY {
 
@@ -22,102 +20,16 @@ namespace WINDOWS::REGISTRY {
 	const c16 VALUE_UNINSTALL_PUBLISHER				[] = L".BlueShoes";
 	const c16 VALUE_UNINSTALL_URL_INFO_ABOUT		[] = L"0";
 	const c16 VALUE_UNINSTALL_URL_UPDATE_INFO		[] = L"0";
-	
-
-	void CreateFiles (
-		const u32& directoryPathLength, 
-		const c16* const& directoryPath,
-		const bool& isBatch
-	) {
-		c16* buffer;
-
-		{ // Main Config
-
-			{ // CONSTRUCT (Main Config Path)
-				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_MAIN_LENGTH + 1);
-
-				memcpy (buffer, directoryPath, directoryPathLength);
-				buffer[(directoryPathLength / 2) - 1] = L'\\';
-				memcpy (buffer + (directoryPathLength / 2), CONFIG::CONFIG_MAIN_W, CONFIG::CONFIG_MAIN_LENGTH);
-
-				LOGINFO ("main config filepath: %ls\n", buffer);
-			}
-
-			BRANCH if (!IO::IsExisting (buffer)) { 
-
-				const u32 length = 
-					CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + 
-					CONFIG::topConfigsFolderLength + 
-					CONFIG::DEFAULT_CONFIG_MAIN_2_LENGTH
-				;
-
-				c16* contetnt; ALLOCATE (c16, contetnt, length);
-
-				{ // CONSTRUCT
-					memcpy (contetnt, DEFAULT_CONFIG_MAIN_1, CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH);
-					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH / 2), CONFIG::topConfigsFolder, CONFIG::topConfigsFolderLength - 2);
-					memcpy (contetnt + (CONFIG::DEFAULT_CONFIG_MAIN_1_LENGTH + CONFIG::topConfigsFolderLength - 2) / 2, DEFAULT_CONFIG_MAIN_2, CONFIG::DEFAULT_CONFIG_MAIN_2_LENGTH);
-					//LOGINFO ("FINAL CONTENT: \n%ls\n\n", contetnt);
-				}
-
-				IO::CreateAdd (buffer, contetnt);
-				FREE (contetnt);
-
-			} else { LOGWARN ("Main config file already exists.\n"); }
-
-			FREE (buffer);
-
-		}
-
-		{ // Global Config
-
-			{ // CONSTRUCT (Global Config Path)
-				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);
-
-				memcpy (buffer, directoryPath, directoryPathLength);
-				buffer[(directoryPathLength / 2) - 1] = L'\\';
-				memcpy (buffer + (directoryPathLength / 2), CONFIG::CONFIG_GLOBAL_W, CONFIG::CONFIG_GLOBAL_LENGTH);
-
-				LOGINFO ("global config filepath: %ls\n", buffer);
-			}
-
-			BRANCH if (!IO::IsExisting (buffer)) { IO::CreateEmpty (buffer); }
-			else { LOGWARN ("Global config file already exists.\n"); }
-
-			FREE (buffer);
-
-		}
-
-		if (isBatch) { // Executable Shortcut
-
-			{ // CONSTRUCT (Global Config Path)
-				ALLOCATE (c16, buffer, directoryPathLength + CONFIG::CONFIG_GLOBAL_LENGTH + 1);
-
-				memcpy (buffer, directoryPath, directoryPathLength);
-				buffer[(directoryPathLength / 2) - 1] = L'\\';
-				memcpy (buffer + (directoryPathLength / 2), CONFIG::QUAIL_SHOURTCUT_NAME, CONFIG::QUAIL_SHOURTCUT_NAME_LENGTH);
-				LOGINFO ("executable shortcut filepath: %ls\n", buffer);
-				
-			}
-
-			BRANCH if (!IO::IsExisting (buffer)) { 
-
-				IO::CreateAdd (buffer, CONFIG::QUAIL_SHOURTCUT_CONTENT);
-
-			} else { LOGWARN ("Executable shortcut file already exists.\n"); }
-
-			FREE (buffer);
-
-		}
-	}
-	
 
 	void AddQuailToPath (
 		const u16& quailLength,
 		const c16* const& quail
 	) {
 
-		DWORD envSize = 2048;
+		//DWORD envSize = 2048 * sizeof (c16); // up to win 7 limit.
+		//DWORD envSize = 32767 * sizeof (c16); // now the limit is.
+		DWORD envSize = 4096 * sizeof (c16); // for now.
+
 		c16* env; ALLOCATE (c16, env, envSize);
 		MEMORY::EXIT::PUSH (env, FREE);
 		
@@ -130,6 +42,10 @@ namespace WINDOWS::REGISTRY {
 
 		errorCode = RegGetValueW (key, NULL, PROPERTY_PATH_W, RRF_RT_REG_SZ, NULL, env, &envSize); // GET
 		if (errorCode != ERROR_SUCCESS) { ERROR ("Could not get `%ls` value.\n", PROPERTY_PATH_W); }
+
+		// BUG
+		// https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
+		// ERROR_MORE_DATA
 
 		if (wcsstr (env, quail) != nullptr) {
 			LOGWWARN ("Environment Variable `PATH` entry for Quail already exists.\n");
