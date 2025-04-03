@@ -2,6 +2,14 @@
 
 --- QUAIL
 
+00. BUGS
+
+	01. Not dangerous. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\main.hpp` reads outside it's memory. 
+		Still within my program scope. When we're checking against a string with a key that has more characters we are
+		bypassing the EOS sign and reading outside of the variable memory (possibly, ... its std::vector).
+	02. Not dangerous. Configuration files (main, global, include) being still in use. 
+		Its an edge case but it happens sometimes. Making uninstaller not uninstalling everything properly.
+
 01. Have a better look at: Making projects in global.txt. There might be potential bugs and unchecked errors.
 02. Differentiate between "topConfigsFolder" and "installedBinaryFolder". This will help in making 
 	top-level-configs located outside Quail directory.
@@ -15,14 +23,9 @@
 10. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
 	Store that in Windows Registry and we reuse it as the first allocation size the open buffer.
 11. Replace std::vector's with one buffer only.
-
-06. BUGS
-
-	01. Not dangerous. COMPARESEARCH::ArrayPartFirstMatchVector inside `open\main.hpp` reads outside it's memory. 
-		Still within my program scope. When we're checking against a string with a key that has more characters we are
-		bypassing the EOS sign and reading outside of the variable memory (possibly, ... its std::vector).
-	02. Not dangerous. Configuration files (main, global, include) being still in use. 
-		Its an edge case but it happens sometimes. Making uninstaller not uninstalling everything properly.
+12. Setting Quail `quial -s 'key' 'value'` or `quail --settings 'key' 'value'` to change certain aspects of quail
+	such as `wide_chars false/true`, coloring, spacing.
+13. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
 
 --- INSTALLER
 
@@ -32,6 +35,12 @@
 04. Make installer display centered.
 05. Give an option in installer to rename the batch file.
 06. Distinguish data and view layer.
+07. Double check for folder creation.
+08. BUG. Directory path that is being displayed at confirmation sometimes goes off screen.
+
+--- UNINSTALLER
+
+01. When folder is being opened during deinstalation it wont remove itself. 
 
 --- OTHER
 
