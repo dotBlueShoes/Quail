@@ -1,7 +1,7 @@
 // Created 2024.01.14 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
-#include <global/logger.hpp>
+#include <global/logger/win.hpp>
 //
 #include <blue/windows/console.hpp>
 //
