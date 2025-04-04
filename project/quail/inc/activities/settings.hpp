@@ -96,7 +96,7 @@ namespace ACTIVITIES {
 		fwrite (A, sizeof (c8), sizeof (A), stdout);
 		SetConsoleTextAttribute (console, 14);
 		fwrite (settingName, sizeof (c8), settingNameLength, stdout);
-		SetConsoleTextAttribute (console, 15);
+		SetConsoleTextAttribute (console, 7);
 		fwrite (B, sizeof (c8), sizeof (B), stdout);
 	}
 
@@ -108,7 +108,7 @@ namespace ACTIVITIES {
 		SetConsoleTextAttribute (console, 11);
 		if (value) { fwrite (STRING_TRUE, sizeof (c8), sizeof (STRING_TRUE), stdout); } 
 		else { fwrite (STRING_FALSE, sizeof (c8), sizeof (STRING_FALSE), stdout); }
-		SetConsoleTextAttribute (console, 15);
+		SetConsoleTextAttribute (console, 7);
 	}
 
 
@@ -119,7 +119,7 @@ namespace ACTIVITIES {
 	) {
 		SetConsoleTextAttribute (console, 11);
 		fwrite (settingValue, sizeof (c8), settingValueLength, stdout);
-		SetConsoleTextAttribute (console, 15);
+		SetConsoleTextAttribute (console, 7);
 	}
 
 
