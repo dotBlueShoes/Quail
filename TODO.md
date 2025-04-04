@@ -24,9 +24,10 @@
 	Store that in Windows Registry and we reuse it as the first allocation size the open buffer.
 11. Replace std::vector's with one buffer only.
 12. Quail setting - coloring.
-13. Quail setting - spacing.
-14. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
-15. Replace "IsForceC8Display" with flags variable.
+13. Quail setting - spacing - registry value.
+14. Quail setting - spacing - 0 means no limiting.
+15. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
+16. Replace "IsForceC8Display" with flags variable.
 
 --- INSTALLER
 

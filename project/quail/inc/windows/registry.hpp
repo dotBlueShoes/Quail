@@ -15,8 +15,6 @@ namespace WINDOWS::REGISTRY {
 		u32 data = !value;
 		HKEY key;
 
-		LOGINFO ("huh: %d\n", data);
-
 		error = RegOpenKeyW(
 			HKEY_LOCAL_MACHINE,
 			KEY_PATH_W,

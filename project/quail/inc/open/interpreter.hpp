@@ -6,6 +6,7 @@
 #include "blue/error.hpp"
 #include "blue/comparesearch.hpp"
 
+#include "locale/error_codes.hpp"
 #include "data.hpp"
 
 namespace OPEN::INTERPRETER {
@@ -21,7 +22,7 @@ namespace OPEN::INTERPRETER {
 
 
 	#define ERROR_INTERPRETER(typeStr, character) { \
-		ERROR ("Invalid syntax '%s' ['%c'-%d]" ERROR_NEW_LINE, typeStr, character, character); \
+		ERROR (LOCALE_ERROR_INTERPRETER_SYNTAX, typeStr, character, character); \
 	}
 
 }
@@ -472,7 +473,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 					break;
 
 					// TODO. Look into it more.
-		error:		ERROR ("Said project file is already being loaded: `%ls`" ERROR_NEW_LINE, (c16*)path);
+		error:		ERROR (LOCALE_ERROR_RECURENT_PROJECT, (c16*)path);
 
 				}
 
@@ -562,7 +563,7 @@ namespace OPEN::INTERPRETER::MAIN::CASCADE {
 					);
 
 					if (index == constants.keys.size ()) {
-						ERROR ("Invalid cascaded constant: %s" ERROR_NEW_LINE, key);
+						ERROR (LOCALE_ERROR_CASC_CONSTANT, key);
 					}
 
 					const auto& foundLength = constants.valueLengths[index];

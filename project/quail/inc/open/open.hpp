@@ -216,7 +216,7 @@ namespace OPEN {
 					
 					if (projectId == projects.keys.size ()) {
 						// Triggers when 'quail -o 'invalid' anything_else...'.
-						ERROR ("Could not match string with any project." ERROR_NEW_LINE);
+						ERROR (LOCALE_ERROR_INVALID_PRE_ALIAS);
 					} else { 
 						ReadProject (interpreter, includesCounter, projectId); 
 						spaceFiles = projects.capes[projectId].special.includesCount; // Store information about current module files amount.
@@ -370,7 +370,7 @@ namespace OPEN {
 
 						// Triggers when 'quail -o 'invalid''.
 						// Triggers when 'quail -o 'valid' 'invalid''.
-						ERROR ("Could not match string with a command nor a queue." ERROR_NEW_LINE);
+						ERROR (LOCALE_ERROR_INVALID_ALIAS);
 
 					} else {
 
@@ -413,9 +413,7 @@ namespace OPEN {
 							if (index == commands.keys.size ()) { 
 
 								// Invalid command-key as queue-value.
-								ERROR ("Command '%s' inside Queue '%s' does not exist." ERROR_NEW_LINE, 
-									command, queueKey
-								);
+								ERROR (LOCALE_ERROR_INVALID_ALIAS_IN_QUEUE, command, queueKey);
 
 							} else {
 

@@ -39,11 +39,7 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 	switch (argumentsCount) {
 
 		case 0:
-		case 1: {
-
-			printf ("\n    %s\n\n", LOCALE::ERROR_NO_ACTIVITY);
-
-		} break;
+		case 1: { printf ("\n\t%s\n\n", LOCALE_ERROR_NO_ACTIVITY); } break;
 
 		default: {
 			auto&& argument = arguments[1];

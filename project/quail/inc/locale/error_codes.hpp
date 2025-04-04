@@ -6,6 +6,18 @@
 
 namespace LOCALE {
 
-	const c8* ERROR_NO_ACTIVITY ( "run `quail --help` to view the manual." );
+	#define LOCALE_ERROR_NO_ACTIVITY 			"run `quail --help` to view the manual."
+	#define LOCALE_ERROR_INTERPRETER_SYNTAX 	"Invalid syntax '%s' ['%c'-%d]" ERROR_NEW_LINE
+	#define LOCALE_ERROR_RECURENT_PROJECT 		"Said project file is already being loaded: `%ls`" ERROR_NEW_LINE
+	#define LOCALE_ERROR_CASC_CONSTANT			"Invalid cascaded constant: %s" ERROR_NEW_LINE
+	#define LOCALE_ERROR_INVALID_PRE_ALIAS		"Could not match string with any project." ERROR_NEW_LINE
+	#define LOCALE_ERROR_INVALID_ALIAS 			"Could not match string with a command nor a queue." ERROR_NEW_LINE
+	#define LOCALE_ERROR_INVALID_ALIAS_IN_QUEUE	"Command '%s' inside Queue '%s' does not exist." ERROR_NEW_LINE
+
+	#define LOCALE_ERROR_INVALID_SETTING_VALUE 	"Incorrect setting value." ERROR_NEW_LINE
+	#define LOCALE_ERROR_INVALID_SETTING_NAME	"Incorrect setting name." ERROR_NEW_LINE
+	#define LOCALE_ERROR_INVALID_SETTING_QUEUE	"Missing string. Could be representing a key or a value." ERROR_NEW_LINE
+	#define LOCALE_ERROR_NO_SETTING 			"No strings were specified." ERROR_NEW_LINE
+
 
 }

@@ -54,7 +54,10 @@ namespace IO {
 		OUT		FILE*& 				file
 	) {
 		file = _wfopen (pathname, L"rb");
-		if (file == nullptr) ERROR ("File could not be opened - '%ls'." ERROR_NEW_LINE, pathname);
+
+		if (file == nullptr) {
+			ERROR ("File could not be opened - '%ls'." ERROR_NEW_LINE, pathname);
+		}
 	}
 
 	void Close (

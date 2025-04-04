@@ -18,6 +18,9 @@ namespace ACTIVITIES {
 		STRING_FALSE, STRING_TRUE, ERROR_TYPE
 	};
 
+	const c8 SETTING_WC_DEFAULT [] ("isWideCharacters");
+	const c8 SETTING_LS_DEFAULT [] ("listingLineSize");
+
 	const c8 SETTING_WC [] ("iswidecharacters" 	""		);
 	const c8 SETTING_LS [] ("listinglinesize" 	"\0"	);
 
@@ -53,7 +56,7 @@ namespace ACTIVITIES {
 		switch (index) {
 			case 0:  { value = false; } return;
 			case 1:  { value = true;  } return;
-			default: { ERROR ("Incorrect setting value!\n"); }
+			default: { ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE); }
 		}
 	}
 
@@ -63,11 +66,60 @@ namespace ACTIVITIES {
 		IN 		const u32& stringCount,
 		INOUT 	c8* const& string
 	) {
-		value = CONFIG::listingLineSize;
-		//  TODO
-		// 1. Validate that each character in string is a number
-		// 40 to 49 codes ?
-		// 2. Transform chars to int.
+
+		//  ABOUT
+		// Custom atoi implementation. This will ERROR instead of returning 0
+		//  when error encountered.
+
+		u32 isNotValidNumber = 0;
+		u32 i = 0;
+		
+		value = 0;
+		for (; i < stringCount; ++i) {
+			isNotValidNumber += (string[i] - '0') > 10;
+			value = value * 10 + (string[i] - '0');
+		}
+
+		if (isNotValidNumber) { ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE); }
+
+	}
+
+
+	void DisplayName (
+		IN		const HANDLE& console,
+		IN		const u32& settingNameLength,
+		IN		const c8* const& settingName
+	) {
+		const c8 A [] = "\n\tSuccessfully set \"";
+		const c8 B [] = "\" to ";
+
+		fwrite (A, sizeof (c8), sizeof (A), stdout);
+		SetConsoleTextAttribute (console, 14);
+		fwrite (settingName, sizeof (c8), settingNameLength, stdout);
+		SetConsoleTextAttribute (console, 15);
+		fwrite (B, sizeof (c8), sizeof (B), stdout);
+	}
+
+
+	void DisplayBool (
+		IN		const HANDLE& console,
+		IN		const bool& value
+	) {
+		SetConsoleTextAttribute (console, 11);
+		if (value) { fwrite (STRING_TRUE, sizeof (c8), sizeof (STRING_TRUE), stdout); } 
+		else { fwrite (STRING_FALSE, sizeof (c8), sizeof (STRING_FALSE), stdout); }
+		SetConsoleTextAttribute (console, 15);
+	}
+
+
+	void DisplayU32 (
+		IN		const HANDLE& console,
+		IN		const u32& settingValueLength,
+		IN		const c8* const& settingValue
+	) {
+		SetConsoleTextAttribute (console, 11);
+		fwrite (settingValue, sizeof (c8), settingValueLength, stdout);
+		SetConsoleTextAttribute (console, 15);
 	}
 
 
@@ -75,6 +127,8 @@ namespace ACTIVITIES {
 		IN 		const u32& 	stringsCount,
 		IN 		c8** const& strings
 	) {
+
+		HANDLE console = GetStdHandle (STD_OUTPUT_HANDLE);
 		auto keysCount = stringsCount / 2;
 
 		for (u32 i = 0; i < keysCount; ++i) {
@@ -103,23 +157,39 @@ namespace ACTIVITIES {
 
 					bool value;
 					GetBool (value, settingValueLength, settingValue);
-
-					if (value) { LOGINFO ("%s, true\n", settingKey); }
-					else { LOGINFO ("%s, false\n", settingKey); }
-
 					WINDOWS::REGISTRY::SetPropertyIsForceC8Display (value);
+
+					{ // Display
+						DisplayName (console, sizeof (SETTING_WC_DEFAULT), SETTING_WC_DEFAULT);
+						DisplayBool (console, value);
+					}
 
 				} break;
 
-				//case ENUM_SETTING_LS:  {
-				//	LOGINFO ("%s, %s!\n", settingKey, settingValue);
-				//} break;
+				case ENUM_SETTING_LS:  {
+
+					u32 value;
+					GetUnsigned (value, settingValueLength, settingValue);
+					// TODO
+					//WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+
+					{ // Display
+						DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);
+						DisplayU32 (console, settingValueLength, settingValue);
+					}
+
+				} break;
 
 				default: {
-					ERROR ("Incorrect setting name!\n");
+					ERROR (LOCALE_ERROR_INVALID_SETTING_NAME);
 				} break;
 			}
 		}
+
+		{ // Offset Display
+			fwrite ("\n\n", sizeof (c8), sizeof ("\n\n"), stdout);
+		}
+
 	}
 
 
@@ -134,9 +204,9 @@ namespace ACTIVITIES {
 
 		switch (condition) {
 			case 0:  { MatchSettings (stringsCount, strings); } break;
-			case 1:  { ERROR ("missing string\n"); } break;
+			case 1:  { ERROR (LOCALE_ERROR_INVALID_SETTING_QUEUE); } break;
 
-			default: { ERROR ("no strings at all\n"); } break;
+			default: { ERROR (LOCALE_ERROR_NO_SETTING); } break;
 		}
 
 	}
