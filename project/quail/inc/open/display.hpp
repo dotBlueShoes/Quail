@@ -28,11 +28,11 @@ namespace OPEN::DISPLAY {
 		const c8 LP[] = "    ";
 
 		fwrite (LP, 	 sizeof (c8),	strlen (LP),	stdout);
-		printf ("...executing [%c", symbol);
+		printf ("...executing [%c", 					symbol);
 
-		SetConsoleTextAttribute (console, color);
+		SetConsoleTextAttribute (console, 				 color);
 		fwrite (key, 	 sizeof (c8), 	strlen (key), 	stdout);
-		SetConsoleTextAttribute (console, COLOR_DEFAULT);
+		SetConsoleTextAttribute (console, 		 COLOR_DEFAULT);
 
 		fwrite ("]\n", 	sizeof (c8), 	2, 				stdout);
 
@@ -63,7 +63,7 @@ namespace OPEN::DISPLAY {
 			' ', ' ', ' ', ' ' 
 		};
 
-		const u16 LINE_SIZE = CONFIG::listingLineSize - 1;
+		const u16 LINE_SIZE = CONFIG::listingLineSize;
 		const u16 NAME_SIZE = 18;
 		const u16 DOTS_SIZE = 3;
 
@@ -83,7 +83,7 @@ namespace OPEN::DISPLAY {
 		s16 lps = LINE_SIZE - ( strlen (LP) + 1 + keySize + vps + 2 + DOTS_SIZE);
 		s16 lineEndSize = lps - valueSize;
 
-		BRANCH if (lineEndSize < 0) { 
+		BRANCH if (lineEndSize < 0 && CONFIG::listingLineSize >= CONFIG::LISTING_LINE_SIZE_MIN) { 
 			valueSize = lps; lineEndSize = DOTS_SIZE;
 		} else { 
 			lineEndSize = 0; 
@@ -91,18 +91,19 @@ namespace OPEN::DISPLAY {
 		
 		{ // Actual WRITE
 			fwrite (LP, 	sizeof (c8),		strlen (LP),	stdout);
-			putc   (symbol, stdout);
-
-			SetConsoleTextAttribute (console, color);
+			putc   (symbol, 									stdout);
+		
+			SetConsoleTextAttribute (console, 	color				  );
 			fwrite (key, 	sizeof (keyT), 		keySize, 		stdout);
-			SetConsoleTextAttribute (console, COLOR_WHITE);
-
+			SetConsoleTextAttribute (console, 	COLOR_WHITE			  );
+		
 			fwrite (VP, 	sizeof (c8), 		vps, 			stdout);
 			fwrite (": ", 	sizeof (c8), 		2, 				stdout);
 			fwrite (value, 	sizeof (valueT), 	valueSize, 		stdout);
 			fwrite ("...", 	sizeof (c8), 		lineEndSize, 	stdout);
-			putc   ('\n', stdout);
+			putc   ('\n', 										stdout);
 		}
+
 	}
 
 }

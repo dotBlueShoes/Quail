@@ -1,5 +1,9 @@
 # FUTURE
 
+--- NOTES
+
+01. Working on Path env variable remember to change values for both installer and uninstaller!
+
 --- QUAIL
 
 00. BUGS

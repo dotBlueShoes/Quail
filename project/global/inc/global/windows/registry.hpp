@@ -12,6 +12,7 @@ namespace WINDOWS::REGISTRY {
 	const c16 KEY_PATH_W							[] = L"SOFTWARE\\dotBlueShoes\\Quail";
 	const c16 PROPERTY_QUAIL_CONFIGS_FILEPATH_W		[] = L"ConfigsFilepath";
 	const c16 PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY	[] = L"IsForceC8Display";
+	const c16 PROPERTY_QUAIL_LISTING_LINE_SIZE		[] = L"ListingLineSize";
 
 	const c16 VALUE_DEFAULT_QUAIL_FOLDER_W			[] = L"C:\\Program Files\\dotBlueShoes\\Quail";
 

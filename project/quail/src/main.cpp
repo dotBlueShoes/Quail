@@ -17,11 +17,12 @@ s32 main (s32 argumentsCount, c8* arguments[]) {
 		LOGINFO ("Application Statred!\n");
 	}
 
-	{ // TODO. Clean and move it.
+	{ // TODO. Optimize it.
 		LOGWINFO ("[ REGISTRY ]\n");
 		
 		WINDOWS::REGISTRY::ReadPropertyTopConfigsFolder ();
-		WINDOWS::REGISTRY::ReadPropertyIsForceC8Display();
+		WINDOWS::REGISTRY::ReadPropertyIsForceC8Display ();
+		WINDOWS::REGISTRY::GetPropertyListingLineSize ();
 
 		WINDOWS::REGISTRY::CreateQuailConfigsFilePaths (
 			CONFIG::topConfigsFolderLength, CONFIG::topConfigsFolder,

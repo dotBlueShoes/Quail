@@ -170,8 +170,7 @@ namespace ACTIVITIES {
 
 					u32 value;
 					GetUnsigned (value, settingValueLength, settingValue);
-					// TODO
-					//WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+					WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
 
 					{ // Display
 						DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);

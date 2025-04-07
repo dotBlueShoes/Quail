@@ -58,6 +58,8 @@ void RemoveRegistryQuail () {
 
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_QUAIL_CONFIGS_FILEPATH_W);
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
+	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::PROPERTY_QUAIL_LISTING_LINE_SIZE);
+	
 	RegDeleteKeyW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_PATH_W);
 }
 
@@ -67,8 +69,11 @@ void RemoveQuailFromPath () {
 	LSTATUS errorCode;
 	HKEY key;
 
-	c16* pathEnvVar; ALLOCATE (c16, pathEnvVar, 2048);
-	DWORD pathEnvVarSize = -1;
+	//DWORD envSize = 2048 * sizeof (c16); // up to win 7 limit.
+	//DWORD envSize = 32767 * sizeof (c16); // now the limit is.
+	DWORD pathEnvVarSize = 4096 * sizeof (c16); // for now.
+
+	c16* pathEnvVar; ALLOCATE (c16, pathEnvVar, pathEnvVarSize);
 
 	MEMORY::EXIT::PUSH (pathEnvVar, FREE);
 

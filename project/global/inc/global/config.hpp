@@ -48,8 +48,11 @@ namespace CONFIG {
 	const c16 UNINSTALLER_NAME					[] = L"uninstall.exe";
 	const u32 UNINSTALLER_NAME_LENGTH 			= sizeof (UNINSTALLER_NAME);
 
+	const u16 LISTING_LINE_SIZE_DEFUALT			= 120;
+	const u16 LISTING_LINE_SIZE_MIN				= 28;
+
 	bool isForceC8Display = false;
-	u16 listingLineSize = 120;
+	u16 listingLineSize = LISTING_LINE_SIZE_DEFUALT;
 	
 	u32 topConfigsFolderLength; 
 	c16* topConfigsFolder;
