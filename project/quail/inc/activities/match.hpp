@@ -29,7 +29,7 @@ namespace ACTIVITIES::MATCH {
 			} break;
 
 			case ENUM_HELP: {
-				printf ("%s", HELP_ALL);
+				printf ("\n%s%s", CONFIG::QUAIL_LINE_OFFSET, HELP_ALL);
 			} break;
 
 			case ENUM_VERSION: {

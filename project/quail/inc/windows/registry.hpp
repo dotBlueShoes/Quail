@@ -11,9 +11,13 @@ namespace WINDOWS::REGISTRY {
 		IN 		const bool& value
 	) {
 
-		unsigned long error = 0;
+		LOGINFO ("value is: %d\n", value);
+
+		LSTATUS error = 0;
 		u32 data = !value;
 		HKEY key;
+
+		LOGINFO ("value is: %d\n", data);
 
 		error = RegOpenKeyW(
 			HKEY_LOCAL_MACHINE,
@@ -33,7 +37,7 @@ namespace WINDOWS::REGISTRY {
 		IN 		const u32& value
 	) {
 
-		unsigned long error = 0;
+		LSTATUS error = 0;
 		HKEY key;
 
 		error = RegOpenKeyW(
@@ -51,7 +55,7 @@ namespace WINDOWS::REGISTRY {
 
 	void GetPropertyListingLineSize () {
 		
-		unsigned long status;
+		LSTATUS status;
 		u32 data;
 
 		unsigned long dataSize = sizeof (data);

@@ -54,8 +54,11 @@ namespace OPEN::DISPLAY {
 		IN  const u8& 				color
 	) {
 
-		const c8 LP[] = "    "; // Padding of a Line.
-		const c8 VP[] { 		// Padding of a Value. 
+		// Line padding.
+		const auto& LP = CONFIG::QUAIL_LINE_OFFSET;
+
+		// Value padding. 
+		const c8 VP[] { 
 			' ', ' ', ' ', ' ', 
 			' ', ' ', ' ', ' ', 
 			' ', ' ', ' ', ' ', 

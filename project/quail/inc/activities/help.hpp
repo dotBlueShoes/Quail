@@ -7,7 +7,7 @@
 namespace ACTIVITIES {
 
 	const c8* HELP_ALL =
-		"\n    'quail' is a project-oriented alias-like utility software.\n"
+		"'quail' is a project-oriented alias-like utility software.\n"
 		"\n-h, --help"
 		"\n    Displays manual. View basic application information and learn the basisic of use quail."
 		"\n-s, --settings"

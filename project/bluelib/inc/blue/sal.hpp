@@ -24,28 +24,28 @@
 
 	#include <sal.h>
 
-	// SAL - FUNCTION ARGUMENT IN 
+	// SAL - Function argument IN
 	#define IN _In_
-	// SAL - FUNCTION ARGUMENT OUT 
+	// SAL - Function argument OUT 
 	#define OUT _Out_
-	// SAL - FUNCTION ARGUMENT IN & OUT
+	// SAL - Function argument IN & OUT
 	#define INOUT _Inout_
 
 #else
 
-	// SAL - FUNCTION ARGUMENT IN 
+	// SAL - Function argument IN 
 	#define IN
-	// SAL - FUNCTION ARGUMENT OUT 
+	// SAL - Function argument OUT 
 	#define OUT
-	// SAL - FUNCTION ARGUMENT IN & OUT
+	// SAL - Function argument IN & OUT
 	#define INOUT
 
 #endif
 
-// SAL - STATING THAT IT WAS TESTED THAT BRANCHLESS
-// IMPLEMENTATION HERE IS IN FACT BETTER.
+// SAL - Stating that it was tested that branchless
+// implementation here is in fact better.
 #define BRANCHLESS
 
-// SAL - STATING THAT IT WAS TESTED THAT BRANCH
-// IMPLEMENTATION HERE IS IN FACT BETTER.
+// SAL - Stating that it was tested that branch
+// implementation here is in fact better.
 #define BRANCH

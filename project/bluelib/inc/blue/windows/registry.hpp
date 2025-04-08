@@ -55,7 +55,11 @@ namespace WINDOWS::REGISTRY {
 	//}
 	
 
-	#define CHECK_PROPERTY(error, propertyName) { if (error != ERROR_SUCCESS) ERROR ("Setting up property '%ls' failed.\n\n", propertyName); }
+	#define CHECK_PROPERTY(error, propertyName) { \
+		if (error != ERROR_SUCCESS) { \
+			ERROR ("Setting up property '%ls' failed. Ensure administrative privileges." ERROR_NEW_LINE, propertyName); \
+		} \
+	}
 
 	void CreateKeyMachine (
 		OUT 	HKEY& 				key, 
@@ -78,8 +82,8 @@ namespace WINDOWS::REGISTRY {
 
 
 	void CreatePropertyC16 (
-		OUT		HKEY 				key, 
-		OUT		LSTATUS 			error,
+		OUT		HKEY& 				key, 
+		OUT		LSTATUS& 			error,
 		IN		const c16* const& 	property,
 		IN		const c16* const& 	data,
 		IN		const u32& 			dataLength
@@ -95,8 +99,8 @@ namespace WINDOWS::REGISTRY {
 	}
 
 	void CreatePropertyS64 (
-		OUT		HKEY 				key, 
-		OUT		LSTATUS 			error,
+		OUT		HKEY& 				key, 
+		OUT		LSTATUS& 			error,
 		IN		const c16* const& 	property,
 		IN		const u64& 			data
 	) {
@@ -112,8 +116,8 @@ namespace WINDOWS::REGISTRY {
 
 
 	void CreatePropertyS32 (
-		OUT		HKEY 				key, 
-		OUT		LSTATUS 			error,
+		OUT		HKEY& 				key, 
+		OUT		LSTATUS& 			error,
 		IN		const c16* const& 	property,
 		IN		const u32& 			data
 	) {
