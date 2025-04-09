@@ -25,7 +25,7 @@ namespace LOCAL {
 	const c16 LVRegistry				[] = L"Create necessary " QUAIL_NAME_W L" Registry Keys (Personal configuration settings)";
 	const c16 LVPath					[] = L"Add " QUAIL_NAME_W L" to 'Path' variable (Will make " QUAIL_NAME_W L" accessible from anywhere)";
 	const c16 LVBatch					[] = L"Create an additional 'o.bat' file which is a short for '" QUAIL_NAME_W " -o ...'";
-	const c16 LVForceC8Display			[] = L"Force " QUAIL_NAME_W " to output text in ASCI range (E.g. cmd.exe use)";
+	const c16 LVIsWideCharacters		[] = L"Make " QUAIL_NAME_W " output in wide characters range (Not recommended for cmd.exe)";
 
 	// TEXTS TAGS
 	const c16 TagLicense				[] = L"License Agreement";

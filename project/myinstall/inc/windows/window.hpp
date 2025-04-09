@@ -1040,7 +1040,7 @@ namespace WINDOWS::WINDOW {
             		lvItem.mask = LVIF_TEXT;
             		lvItem.iSubItem = 0;
 
-					lvItem.pszText = (LPWSTR) LOCAL::LVForceC8Display;
+					lvItem.pszText = (LPWSTR) LOCAL::LVIsWideCharacters;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 3, (LPARAM) &lvItem);
 					lvItem.pszText = (LPWSTR) LOCAL::LVBatch;
             		SendMessageW (wlbComponents, LVM_INSERTITEMW, 2, (LPARAM) &lvItem);
