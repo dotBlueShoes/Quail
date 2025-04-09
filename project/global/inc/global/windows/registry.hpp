@@ -35,43 +35,15 @@ namespace WINDOWS::REGISTRY {
 	const c16 KEY_ENVIRONMENT_VARIABLES_W 			[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
 	const c16 PROPERTY_PATH_W 						[] = L"Path";
 
-
-	void GetPropertyIsWideCharacters (
-		OUT		bool& value
-	) {
-
-		LSTATUS error;
-		u32 data;
-		DWORD dataSize = sizeof (data);
-
-		error = RegGetValueW (
-			HKEY_LOCAL_MACHINE, 
-			KEY_PATH_W, 
-			PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, 
-			RRF_RT_REG_DWORD, 
-			NULL, 
-			&data,
-			&dataSize
-		);
-
-		if (error != ERROR_SUCCESS) {
-			ERROR ("Could not get 'IsForceC8Display' from registry.\n");
-		}
-
-		LOGWINFO (" > Successfully read property '%s' as: '%d'\n", PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, data);
-
-		//CONFIG::isForceC8Display = data & (1 << 0);
-		//value = data & (1 << 0);
-		value = data;
-		
-	}
+}
 
 
-	void GetPropertyTopConfigsFolder (
-		OUT		u32& valueSize,
+namespace WINDOWS::REGISTRY::PROPERTY::GET {
+
+	void TopConfigsFolder (
+		OUT		u32&  valueSize,
 		OUT		c16*& value
 	) {
-
 		LSTATUS error;
     	c16* data;
     	DWORD dataSize = 0;
@@ -113,57 +85,39 @@ namespace WINDOWS::REGISTRY {
 
 		valueSize = dataSize;
     	value = data;
-
-		//CONFIG::topConfigsFolderLength = size;
-    	//CONFIG::topConfigsFolder = data;
-
 	}
 
-	void SetPropertyIsWideCharacters (
-		IN 		const bool& value
+
+	void IsWideCharacters (
+		OUT		bool& value
 	) {
-
 		LSTATUS error;
-		HKEY key;
+		u32 data;
+		DWORD dataSize = sizeof (data);
 
-		error = RegOpenKeyW (
-			HKEY_LOCAL_MACHINE,
-			KEY_PATH_W,
-			&key
+		error = RegGetValueW (
+			HKEY_LOCAL_MACHINE, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, 
+			RRF_RT_REG_DWORD, 
+			NULL, 
+			&data,
+			&dataSize
 		);
 
-		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+		if (error != ERROR_SUCCESS) {
+			ERROR ("Could not get 'IsForceC8Display' from registry.\n");
+		}
 
-		CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, value);
-		CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
-		
+		LOGWINFO (" > Successfully read property '%s' as: '%d'\n", PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, data);
+
+		value = data & (1 << 0);
 	}
 
 
-	void SetPropertyListingLineSize (
-		IN 		const u16& value
-	) {
-
-		LSTATUS error;
-		HKEY key;
-
-		error = RegOpenKeyW (
-			HKEY_LOCAL_MACHINE,
-			KEY_PATH_W,
-			&key
-		);
-
-		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
-
-		CreatePropertyS32 (key, error, PROPERTY_QUAIL_LISTING_LINE_SIZE, value);
-		CHECK_PROPERTY (error, PROPERTY_QUAIL_LISTING_LINE_SIZE);
-		
-	}
-
-	void GetPropertyListingLineSize (
+	void ListingLineSize (
 		OUT		u16& value
 	) {
-		
 		LSTATUS error;
 		u32 data;
 		DWORD dataSize = sizeof (data);
@@ -197,7 +151,48 @@ namespace WINDOWS::REGISTRY {
 		}
 
 		value = data;
-		
+	}
+
+}
+
+
+namespace WINDOWS::REGISTRY::PROPERTY::SET {
+
+	void IsWideCharacters (
+		IN 		const bool& value
+	) {
+		LSTATUS error;
+		HKEY key;
+
+		error = RegOpenKeyW (
+			HKEY_LOCAL_MACHINE,
+			KEY_PATH_W,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+
+		CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, value);
+		CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
+	}
+
+
+	void ListingLineSize (
+		IN 		const u16& value
+	) {
+		LSTATUS error;
+		HKEY key;
+
+		error = RegOpenKeyW (
+			HKEY_LOCAL_MACHINE,
+			KEY_PATH_W,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+
+		CreatePropertyS32 (key, error, PROPERTY_QUAIL_LISTING_LINE_SIZE, value);
+		CHECK_PROPERTY (error, PROPERTY_QUAIL_LISTING_LINE_SIZE);
 	}
 
 }

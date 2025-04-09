@@ -2,11 +2,12 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
-#include "blue/comparesearch.hpp"
+#include <blue/comparesearch.hpp>
 #include <blue/error.hpp>
 //
+#include <global/windows/registry.hpp>
+//
 #include "activities.hpp"
-#include "../windows/registry.hpp"
 
 namespace ACTIVITIES {
 
@@ -185,7 +186,7 @@ namespace ACTIVITIES {
 						GetBool (index, settingValueLength, settingValue);
 					}
 
-					WINDOWS::REGISTRY::SetPropertyIsWideCharacters (index);
+					WINDOWS::REGISTRY::PROPERTY::SET::IsWideCharacters (index);
 
 					{ // Display
 						DisplayName (console, sizeof (SETTING_WC_DEFAULT), SETTING_WC_DEFAULT);
@@ -213,7 +214,7 @@ namespace ACTIVITIES {
 							value = 0;
 						}
 
-						WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+						WINDOWS::REGISTRY::PROPERTY::SET::ListingLineSize (value);
 
 						{ // Display
 							DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);
@@ -222,7 +223,7 @@ namespace ACTIVITIES {
 
 					} else {
 
-						WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+						WINDOWS::REGISTRY::PROPERTY::SET::ListingLineSize (value);
 
 						{ // Display
 							DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);

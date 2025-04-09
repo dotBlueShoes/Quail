@@ -176,7 +176,7 @@ void Setup () {
 	}
 
 	// Then get quail filepath.
-	WINDOWS::REGISTRY::GetPropertyTopConfigsFolder (
+	WINDOWS::REGISTRY::PROPERTY::GET::TopConfigsFolder (
 		CONFIG::topConfigsFolderLength, 
 		CONFIG::topConfigsFolder
 	);
