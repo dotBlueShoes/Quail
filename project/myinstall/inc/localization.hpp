@@ -59,7 +59,7 @@ namespace LOCAL {
 	const c16 CONFIRMATION_REGISTRY		[] = L"- Registry keys will be added.";
 	const c16 CONFIRMATION_PATH			[] = L"- New entry in Environment Variable 'Path' will be added.";
 	const c16 CONFIRMATION_BATCH		[] = L"- Batch short will be created.";
-	const c16 CONFIRMATION_FORCE_C8		[] = L"- Quial will output data in byte/char string format.";
+	const c16 CONFIRMATION_FORCE_C8		[] = L"- Quial will output data in wide char string format.";
 
 	const c8 INSTALL_TASK_REGISTRY		[] = "Adding registry keys";
 	const c8 INSTALL_TASK_PATH			[] = "Adding " QUAIL_NAME_VERSION " to path environment variable";

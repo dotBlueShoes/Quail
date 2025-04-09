@@ -8,6 +8,8 @@
 
 namespace CONFIG {
 
+	const u32 DEFAULT_ENVIRONMENT_VARIABLE_PATH_SIZE = 4096;
+
 	#define QUAIL_NAME_W						L"Quail"
 	#define QUAIL_NAME							"Quail"
 

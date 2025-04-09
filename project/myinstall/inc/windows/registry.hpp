@@ -28,7 +28,7 @@ namespace WINDOWS::REGISTRY {
 
 		//DWORD envSize = 2048 * sizeof (c16); // up to win 7 limit.
 		//DWORD envSize = 32767 * sizeof (c16); // now the limit is.
-		DWORD envSize = 4096 * sizeof (c16); // for now.
+		DWORD envSize = CONFIG::DEFAULT_ENVIRONMENT_VARIABLE_PATH_SIZE * sizeof (c16); // for now.
 
 		c16* env; ALLOCATE (c16, env, envSize);
 		MEMORY::EXIT::PUSH (env, FREE);

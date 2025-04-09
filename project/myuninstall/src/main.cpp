@@ -71,7 +71,7 @@ void RemoveQuailFromPath () {
 
 	//DWORD envSize = 2048 * sizeof (c16); // up to win 7 limit.
 	//DWORD envSize = 32767 * sizeof (c16); // now the limit is.
-	DWORD pathEnvVarSize = 4096 * sizeof (c16); // for now.
+	DWORD pathEnvVarSize = CONFIG::DEFAULT_ENVIRONMENT_VARIABLE_PATH_SIZE * sizeof (c16); // for now.
 
 	c16* pathEnvVar; ALLOCATE (c16, pathEnvVar, pathEnvVarSize);
 
