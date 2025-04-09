@@ -438,7 +438,27 @@ namespace OPEN {
 			SetConsoleTextAttribute (console, 15);
 			putc ('\n', stdout);
 			
-			if (CONFIG::isForceC8Display) {
+			if (CONFIG::isWideCharacters) {
+
+				for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
+					const auto&& value = (c16*) projects.paths[i];
+					const auto&& key = (c8*) projects.keys[i];
+
+					DISPLAY::KeyValue<c8, c16> (
+						console, key, strlen (key), value, wcslen (value), TYPE_PROJECT, 14
+					);
+				}
+
+				for (u32 i = 0; i < commands.keys.size (); ++i) {
+					const auto&& value = (c16*) commands.values[i];
+					const auto&& key = (c8*) commands.keys[i];
+
+					DISPLAY::KeyValue<c8, c16> (
+						console, key, strlen (key), value, wcslen (value), TYPE_COMMAND, 11
+					);
+				}
+
+			} else {
 
 				for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
 					const auto&& value = (c16*) projects.paths[i];
@@ -463,26 +483,6 @@ namespace OPEN {
 				
 					DISPLAY::KeyValue<c8, c8> (
 						console, key, strlen (key), temp, wcslen (value), TYPE_COMMAND, 11
-					);
-				}
-
-			} else {
-
-				for (u32 i = projectsOffset; i < projects.keys.size (); ++i) {
-					const auto&& value = (c16*) projects.paths[i];
-					const auto&& key = (c8*) projects.keys[i];
-
-					DISPLAY::KeyValue<c8, c16> (
-						console, key, strlen (key), value, wcslen (value), TYPE_PROJECT, 14
-					);
-				}
-
-				for (u32 i = 0; i < commands.keys.size (); ++i) {
-					const auto&& value = (c16*) commands.values[i];
-					const auto&& key = (c8*) commands.keys[i];
-
-					DISPLAY::KeyValue<c8, c16> (
-						console, key, strlen (key), value, wcslen (value), TYPE_COMMAND, 11
 					);
 				}
 

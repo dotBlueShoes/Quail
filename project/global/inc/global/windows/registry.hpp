@@ -2,6 +2,7 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#include <blue/windows/registry.hpp>
 #include <blue/types.hpp>
 #include <blue/error.hpp>
 
@@ -35,14 +36,15 @@ namespace WINDOWS::REGISTRY {
 	const c16 PROPERTY_PATH_W 						[] = L"Path";
 
 
-	void ReadPropertyIsForceC8Display () {
+	void GetPropertyIsWideCharacters (
+		OUT		bool& value
+	) {
 
-		unsigned long status;
-
+		LSTATUS error;
 		u32 data;
-		unsigned long dataSize = sizeof (data);
+		DWORD dataSize = sizeof (data);
 
-		status = RegGetValueW (
+		error = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			KEY_PATH_W, 
 			PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, 
@@ -52,63 +54,150 @@ namespace WINDOWS::REGISTRY {
 			&dataSize
 		);
 
-		if ((status != ERROR_SUCCESS)) {
+		if (error != ERROR_SUCCESS) {
 			ERROR ("Could not get 'IsForceC8Display' from registry.\n");
 		}
 
 		LOGWINFO (" > Successfully read property '%s' as: '%d'\n", PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, data);
 
-		CONFIG::isForceC8Display = data & (1 << 0);
+		//CONFIG::isForceC8Display = data & (1 << 0);
+		//value = data & (1 << 0);
+		value = data;
 		
 	}
 
 
-	void ReadPropertyTopConfigsFolder () {
+	void GetPropertyTopConfigsFolder (
+		OUT		u32& valueSize,
+		OUT		c16*& value
+	) {
 
 		LSTATUS error;
-		unsigned long status;
-
     	c16* data;
-    	DWORD size = 0;
+    	DWORD dataSize = 0;
 
 		// First get required size for memory allocation.
-    	status = RegGetValueW (
+    	error = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			KEY_PATH_W, 
 			PROPERTY_QUAIL_CONFIGS_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			NULL, 
-			&size
+			&dataSize
 		);
 		
-    	if ((status != ERROR_SUCCESS) || (size < 1)) {
+    	if ((error != ERROR_SUCCESS) || (dataSize < 1)) {
 			ERROR ("Could not get 'ConfigsFilepath' from registry. #1\n");
 		}
 
 		// ALLOCATION
-		ALLOCATE (c16, data, size);
+		ALLOCATE (c16, data, dataSize);
 
 		// Second get data.
-        status = RegGetValueW (
+        error = RegGetValueW (
 			HKEY_LOCAL_MACHINE, 
 			KEY_PATH_W, 
 			PROPERTY_QUAIL_CONFIGS_FILEPATH_W, 
 			RRF_NOEXPAND | RRF_RT_REG_EXPAND_SZ, 
 			NULL, 
 			data,
-			&size
+			&dataSize
 		);
 
-		if ((status != ERROR_SUCCESS)) {
+		if (error != ERROR_SUCCESS) {
 			ERROR ("Could not get 'ConfigsFilepath' from registry. #2\n");
 		}
         	
 		LOGWINFO (" > Successfully read property '%s' as: '%s'\n", PROPERTY_QUAIL_CONFIGS_FILEPATH_W, data);
 
-		CONFIG::topConfigsFolderLength = size;
-    	CONFIG::topConfigsFolder = data;
+		valueSize = dataSize;
+    	value = data;
 
+		//CONFIG::topConfigsFolderLength = size;
+    	//CONFIG::topConfigsFolder = data;
+
+	}
+
+	void SetPropertyIsWideCharacters (
+		IN 		const bool& value
+	) {
+
+		LSTATUS error;
+		HKEY key;
+
+		error = RegOpenKeyW (
+			HKEY_LOCAL_MACHINE,
+			KEY_PATH_W,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+
+		CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, value);
+		CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
+		
+	}
+
+
+	void SetPropertyListingLineSize (
+		IN 		const u16& value
+	) {
+
+		LSTATUS error;
+		HKEY key;
+
+		error = RegOpenKeyW (
+			HKEY_LOCAL_MACHINE,
+			KEY_PATH_W,
+			&key
+		);
+
+		if (error != ERROR_SUCCESS) ERROR ("Could not open the key!\n");
+
+		CreatePropertyS32 (key, error, PROPERTY_QUAIL_LISTING_LINE_SIZE, value);
+		CHECK_PROPERTY (error, PROPERTY_QUAIL_LISTING_LINE_SIZE);
+		
+	}
+
+	void GetPropertyListingLineSize (
+		OUT		u16& value
+	) {
+		
+		LSTATUS error;
+		u32 data;
+		DWORD dataSize = sizeof (data);
+
+		error = RegGetValueW (
+			HKEY_LOCAL_MACHINE, 
+			KEY_PATH_W, 
+			PROPERTY_QUAIL_LISTING_LINE_SIZE, 
+			RRF_RT_REG_DWORD, 
+			NULL, 
+			&data,
+			&dataSize
+		);
+
+		if (error != ERROR_SUCCESS) {
+			ERROR ("Could not get 'ListingLineSize' from registry.\n");
+		}
+
+		const bool isInvalidRange = data < CONFIG::LISTING_LINE_SIZE_MIN && data != 0;
+
+		if (isInvalidRange) {
+			LOGWARN (
+				" > ListingLineSize value (%d) is invalid! Minimal value is (%d). Defaulting to NO_CAP (0).\n", 
+				data, CONFIG::LISTING_LINE_SIZE_MIN
+			)
+		} else {
+			LOGWINFO (
+				" > Successfully read property '%s' as: '%d'\n", 
+				PROPERTY_QUAIL_LISTING_LINE_SIZE, data
+			);
+		}
+
+		value = data;
+		
 	}
 
 }

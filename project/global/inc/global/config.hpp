@@ -54,7 +54,8 @@ namespace CONFIG {
 	const u16 LISTING_LINE_SIZE_DEFUALT			= 0; //120;
 	const u16 LISTING_LINE_SIZE_MIN				= 28;
 
-	bool isForceC8Display = false;
+	//bool isForceC8Display = false;
+	bool isWideCharacters = true;
 	u16 listingLineSize = LISTING_LINE_SIZE_DEFUALT;
 	
 	u32 topConfigsFolderLength; 

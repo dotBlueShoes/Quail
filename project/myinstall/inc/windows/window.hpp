@@ -536,7 +536,7 @@ namespace WINDOWS::WINDOW {
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_BATCH, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
 
-		if (CONFIG::isForceC8Display) {
+		if (CONFIG::isWideCharacters) {
 			const RECT textRegion = { 29, 75 + 56 + 28 + 28 + 28, textRegion.left + 500, textRegion.top + 14 };
 			DrawTextW (windowContext, LOCAL::CONFIRMATION_FORCE_C8, -1, (RECT*) &textRegion, DT_NOCLIP);
 		}
@@ -1058,7 +1058,7 @@ namespace WINDOWS::WINDOW {
 					ListView_SetCheckState (wlbComponents, 0, INSTALLATION::isPath);
 					ListView_SetCheckState (wlbComponents, 1, INSTALLATION::isRegistry);
 					ListView_SetCheckState (wlbComponents, 2, INSTALLATION::isBatch);
-					ListView_SetCheckState (wlbComponents, 3, CONFIG::isForceC8Display);
+					ListView_SetCheckState (wlbComponents, 3, CONFIG::isWideCharacters);
 				}
 				
 
@@ -1206,7 +1206,7 @@ namespace WINDOWS::WINDOW {
 								case 0: INSTALLATION::isRegistry = state; break;
 								case 1: INSTALLATION::isPath = state; break;
 								case 2: INSTALLATION::isBatch = state; break;
-								case 3: CONFIG::isForceC8Display = state; break;
+								case 3: CONFIG::isWideCharacters = state; break;
 							}
 
         	            }

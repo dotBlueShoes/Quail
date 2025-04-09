@@ -143,7 +143,7 @@ namespace INSTALLATION {
 		if (isRegistry) WINDOWS::REGISTRY::CreateKeys (
 			CONFIG::topConfigsFolderLength, 
 			CONFIG::topConfigsFolder,
-			(u32)CONFIG::isForceC8Display
+			(u32)CONFIG::isWideCharacters
 		);
 
 		++currentPhase;

@@ -83,7 +83,7 @@ namespace WINDOWS::REGISTRY {
 	void CreateKeys (
 		const u32& filepathLength, 
 		const c16* const& filepath,
-		const u32& isForceC8Display
+		const u32& isWideCharacters
 	) {
 
 		HKEY key; LSTATUS error; DWORD status;
@@ -128,7 +128,7 @@ namespace WINDOWS::REGISTRY {
 			CreatePropertyC16 (key, error, PROPERTY_QUAIL_CONFIGS_FILEPATH_W, filepath, filepathLength);
 			CHECK_PROPERTY (error, PROPERTY_QUAIL_CONFIGS_FILEPATH_W);
 
-			CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, isForceC8Display);
+			CreatePropertyS32 (key, error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY, isWideCharacters);
 			CHECK_PROPERTY (error, PROPERTY_QUAIL_IS_FORCE_C8_DISPLAY);
 
 			CreatePropertyS32 (key, error, PROPERTY_QUAIL_LISTING_LINE_SIZE, CONFIG::LISTING_LINE_SIZE_DEFUALT);

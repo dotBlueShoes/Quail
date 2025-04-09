@@ -10,12 +10,16 @@
 
 namespace ACTIVITIES {
 
+	// jysk
+
+	const u16 STRING_SIZE		= 5;
 	// + here could add other String values (enum types).
-	const c8 STRING_FALSE  	[] ("false" "" );
-	const c8 STRING_TRUE   	[] ("true" "\0");
+	const c8  STRING_FALSE  	[] ("false" ""  );
+	const c8  STRING_TRUE   	[] ("true" "\0" );
+	const c8  STRING_ERROR   	[] ("\0\0\0\0\0");
 
 	const arr8<const c8*, 3> STRINGS {
-		STRING_FALSE, STRING_TRUE, ERROR_TYPE
+		STRING_FALSE, STRING_TRUE, STRING_ERROR
 	};
 
 	const c8 SETTING_WC_DEFAULT [] ("isWideCharacters");
@@ -34,45 +38,48 @@ namespace ACTIVITIES {
 		ENUM_SETTING_ERROR 	= 2,
 	};
 
-
 	void GetBool (
-		OUT 	bool& value,
+		OUT		u32& value,
 		IN 		const u32& stringCount,
-		INOUT 	c8* const& string
+		IN	 	c8* const& string
 	) {
-		u32 index = 0;
+
+		//  ABOUT
+		// Before calling this function set the value to 0!
+		// This is because value is also treated as index.
+		// In C/CPP false is 0, true is 1 and we abuse it.
 
 		// Conversion
 		ToLowCase (string, stringCount); 
 
-		// Try match with MAXs
+		// Try match with possible strings (bool section only)
 		COMPARESEARCH::ArrayPartFirstMatch ( 
 			string, stringCount, sizeof (c8),
-			index, 
+			value, 
 			STRINGS.size (),
 			STRINGS.data ()
 		);
 
-		switch (index) {
-			case 0:  { value = false; } return;
-			case 1:  { value = true;  } return;
-			default: { ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE); }
-		}
+		if (value > 1) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE);
 	}
 
 
+	//  ABOUT, TODO
+	// The valid types are < u8, u16, u32, u64 >.
+	//
+	template <typename T>
 	void GetUnsigned (
-		OUT 	u32& value,
-		IN 		const u32& stringCount,
-		INOUT 	c8* const& string
+		OUT 	T& value,
+		IN 		const T& stringCount,
+		IN 		const c8* const& string
 	) {
 
 		//  ABOUT
 		// Custom atoi implementation. This will ERROR instead of returning 0
 		//  when error encountered.
 
-		u32 isNotValidNumber = 0;
-		u32 i = 0;
+		T isNotValidNumber = 0;
+		T i = 0;
 		
 		value = 0;
 		for (; i < stringCount; ++i) {
@@ -80,8 +87,7 @@ namespace ACTIVITIES {
 			value = value * 10 + (string[i] - '0');
 		}
 
-		if (isNotValidNumber) { ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE); }
-
+		if (isNotValidNumber) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE);
 	}
 
 
@@ -91,7 +97,7 @@ namespace ACTIVITIES {
 		IN		const c8* const& settingName
 	) {
 		const c8 A [] = "\n\tSuccessfully set \"";
-		const c8 B [] = "\" to ";
+		const c8 B [] = "\" from ";
 
 		fwrite (A, sizeof (c8), sizeof (A), stdout);
 		SetConsoleTextAttribute (console, 14);
@@ -103,20 +109,37 @@ namespace ACTIVITIES {
 
 	void DisplayBool (
 		IN		const HANDLE& console,
+		IN		const bool& previousValue,
 		IN		const bool& value
 	) {
+		const c8 A [] = " to ";
+
 		SetConsoleTextAttribute (console, 11);
-		if (value) { fwrite (STRING_TRUE, sizeof (c8), sizeof (STRING_TRUE), stdout); } 
-		else { fwrite (STRING_FALSE, sizeof (c8), sizeof (STRING_FALSE), stdout); }
+		fwrite (STRINGS[previousValue], sizeof (c8), STRING_SIZE, stdout);
+		SetConsoleTextAttribute (console, 7);
+
+		fwrite (A, sizeof (c8), sizeof (A), stdout);
+
+		SetConsoleTextAttribute (console, 11);
+		fwrite (STRINGS[value], sizeof (c8), STRING_SIZE, stdout);
 		SetConsoleTextAttribute (console, 7);
 	}
 
 
 	void DisplayU32 (
 		IN		const HANDLE& console,
+		IN		const u32& previousValue,
 		IN		const u32& settingValueLength,
 		IN		const c8* const& settingValue
 	) {
+		const c8 A [] = " to ";
+
+		SetConsoleTextAttribute (console, 11);
+		fprintf  (stdout, "%d", previousValue);
+		SetConsoleTextAttribute (console, 7);
+
+		fwrite (A, sizeof (c8), sizeof (A), stdout);
+
 		SetConsoleTextAttribute (console, 11);
 		fwrite (settingValue, sizeof (c8), settingValueLength, stdout);
 		SetConsoleTextAttribute (console, 7);
@@ -156,32 +179,61 @@ namespace ACTIVITIES {
 				case ENUM_SETTING_WC:  {
 
 					bool value;
-					GetBool (value, settingValueLength, settingValue);
-					WINDOWS::REGISTRY::SetPropertyIsForceC8Display (value);
+
+					{ // Boolean is a String subtype.
+						index = 0;
+						GetBool (index, settingValueLength, settingValue);
+					}
+
+					WINDOWS::REGISTRY::SetPropertyIsWideCharacters (index);
 
 					{ // Display
 						DisplayName (console, sizeof (SETTING_WC_DEFAULT), SETTING_WC_DEFAULT);
-						DisplayBool (console, value);
+						DisplayBool (console, CONFIG::isWideCharacters, index);
 					}
 
 				} break;
 
 				case ENUM_SETTING_LS:  {
 
-					u32 value;
-					GetUnsigned (value, settingValueLength, settingValue);
-					WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+					u16 value;
+					GetUnsigned<u16> (value, settingValueLength, settingValue);
 
-					{ // Display
-						DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);
-						DisplayU32 (console, settingValueLength, settingValue);
+					const bool isInvalidRange = value < CONFIG::LISTING_LINE_SIZE_MIN && value != 0;
+					
+					if (isInvalidRange) {
+
+						{ // Range validation update.
+							const c8 msg [] = "\n\tValue is in invalid range! Defaulting to \"NO_CAP\" (0).";
+
+							SetConsoleTextAttribute (console, 4);
+							fwrite (msg, sizeof (c8), sizeof (msg), stdout);
+							SetConsoleTextAttribute (console, 7);
+
+							value = 0;
+						}
+
+						WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+
+						{ // Display
+							DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);
+							DisplayU32 (console, CONFIG::listingLineSize, 2, "0");
+						}
+
+					} else {
+
+						WINDOWS::REGISTRY::SetPropertyListingLineSize (value);
+
+						{ // Display
+							DisplayName (console, sizeof (SETTING_LS_DEFAULT), SETTING_LS_DEFAULT);
+							DisplayU32 (console, CONFIG::listingLineSize, settingValueLength, settingValue);
+						}
+
 					}
 
 				} break;
 
-				default: {
-					ERROR (LOCALE_ERROR_INVALID_SETTING_NAME);
-				} break;
+				default: { ERROR (LOCALE_ERROR_INVALID_SETTING_NAME); } 
 			}
 		}
 
