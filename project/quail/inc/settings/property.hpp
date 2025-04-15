@@ -24,7 +24,8 @@ namespace ACTIVITIES::SETTINGS::PROPERTY {
 	void GetBool (
 		INOUT	u32& value,
 		IN 		const u32& stringCount,
-		INOUT	c8* const& string
+		INOUT	c8* const& string,
+		IN		const c8* const& keyName
 	) {
 		// Conversion
 		ToLowCase (string, stringCount); 
@@ -37,7 +38,7 @@ namespace ACTIVITIES::SETTINGS::PROPERTY {
 			STRINGS.data ()
 		);
 
-		if (value > 1) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE);
+		if (value > 1) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE, string, keyName);
 	}
 
 
@@ -49,7 +50,8 @@ namespace ACTIVITIES::SETTINGS::PROPERTY {
 	void GetUnsigned (
 		OUT 	T& value,
 		IN 		const T& stringCount,
-		IN 		const c8* const& string
+		IN 		const c8* const& string,
+		IN		const c8* const& keyName
 	) {
 		T isNotValidNumber = 0;
 		T i = 0;
@@ -60,7 +62,7 @@ namespace ACTIVITIES::SETTINGS::PROPERTY {
 			value = value * 10 + (string[i] - '0');
 		}
 
-		if (isNotValidNumber) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE);
+		if (isNotValidNumber) ERROR (LOCALE_ERROR_INVALID_SETTING_VALUE, string, keyName);
 	}
 
 }

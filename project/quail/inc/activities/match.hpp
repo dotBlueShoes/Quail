@@ -62,7 +62,7 @@ namespace ACTIVITIES::MATCH {
 
 		switch (condition) {
 
-			case 0 + 0 + 0: { 
+			case 0: { // Use of MAX's activities.
 
 				u32 index = 0;
 
@@ -82,7 +82,7 @@ namespace ACTIVITIES::MATCH {
 
 			} break;
 
-			case 1 + 0 + 0: { 
+			case 1: { // Use of Min's activities.
 
 				u32 index = 0;
 
@@ -102,9 +102,7 @@ namespace ACTIVITIES::MATCH {
 
 			} break;
 
-			default: {
-				ERROR ("Invalid argument: %s\n\n", activity);
-			}
+			default: ERROR ("Invalid argument: %s\n\n", activity);
 
 		}
 

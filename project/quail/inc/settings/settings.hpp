@@ -47,11 +47,12 @@ namespace ACTIVITIES::SETTINGS {
 			switch (index) {
 				case ENUM_SETTING_WC:  {
 
+					auto&& settingName = SETTINGS[index];
 					bool value;
 
 					{ // Boolean is a String subtype.
 						index = 0;
-						PROPERTY::GetBool (index, settingValueLength, settingValue);
+						PROPERTY::GetBool (index, settingValueLength, settingValue, settingName);
 					}
 
 					WINDOWS::REGISTRY::PROPERTY::SET::IsWideCharacters (index);
@@ -65,8 +66,10 @@ namespace ACTIVITIES::SETTINGS {
 
 				case ENUM_SETTING_LS:  {
 
+					auto&& settingName = SETTINGS[index];
 					u16 value;
-					PROPERTY::GetUnsigned<u16> (value, settingValueLength, settingValue);
+
+					PROPERTY::GetUnsigned<u16> (value, settingValueLength, settingValue, settingName);
 
 					const bool isInvalidRange = value < CONFIG::LISTING_LINE_SIZE_MIN && value != 0;
 					
@@ -102,7 +105,7 @@ namespace ACTIVITIES::SETTINGS {
 
 				} break;
 
-				default: { ERROR (LOCALE_ERROR_INVALID_SETTING_NAME); } 
+				default: { ERROR (LOCALE_ERROR_INVALID_SETTING_NAME, settingKey); } 
 			}
 		}
 
