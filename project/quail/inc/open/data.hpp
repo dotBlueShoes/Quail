@@ -8,12 +8,6 @@
 
 namespace OPEN { 
 
-	//template <typename T>
-	//struct Map {
-	//	std::vector<T> key;
-	//	std::vector<T> value;
-	//};
-
 	enum PATH_TYPE : u8 {
 		PATH_ABSOLUTE = 0,
 		PATH_RELATIVE = 1,

@@ -7,10 +7,10 @@
 //
 #include "locale/error_codes.hpp"
 //
-#include "activities/settings.hpp"
 #include "activities/version.hpp"
 #include "activities/help.hpp"
 //
+#include "settings/settings.hpp"
 #include "open/open.hpp"
 
 namespace ACTIVITIES::MATCH {
@@ -37,7 +37,7 @@ namespace ACTIVITIES::MATCH {
 			} break;
 
 			case ENUM_SETTINGS: {
-				Settings (stringsCount, strings);
+				SETTINGS::Settings (stringsCount, strings);
 			} break;
 
 			default: {
@@ -47,6 +47,7 @@ namespace ACTIVITIES::MATCH {
 		}
 	}
 
+	
 	void Activity (
 		IN		u32& activityLength,
 		INOUT	c8*& activity,
@@ -105,57 +106,7 @@ namespace ACTIVITIES::MATCH {
 				ERROR ("Invalid argument: %s\n\n", activity);
 			}
 
-			//case 0 + 2 + 0: { 
-			//	LOGINFO ("TO SMALL\n"); 
-			//} break;
-			//
-			//case 0 + 0 + 4: { 
-			//	LOGINFO ("TO LONG\n"); 
-			//} break;
-
 		}
-
-		//if (activityLength < MIN_LENGTH) {
-		//
-		//	ERROR ("Invalid argument: %s\n\n", activity);
-		//
-		//} else if (activityLength > MIN_LENGTH && activityLength <= MAX_LENGTH) {
-		//
-		//	ToLowCase (activity, activityLength); // Conversion
-		//
-		//	u32 index = 0;
-		//
-		//	// Try match with MAXs
-		//	COMPARESEARCH::ArrayPartFirstMatch ( 
-		//		activity, activityLength, sizeof (c8),
-		//		index, 
-		//		MAXS_ACTIVITIES.size (),
-		//		MAXS_ACTIVITIES.data ()
-		//	);
-		//
-		//	TranslateIndex (activity, activityLength, index, depth, commands);
-		//
-		//} else if (activityLength > MAX_LENGTH) {
-		//
-		//	ERROR ("Invalid argument: %s\n\n", activity);
-		//
-		//} else {
-		//
-		//	ToLowCase (activity, activityLength); // Conversion
-		//
-		//	u32 index = 0;
-		//
-		//	// Try match with MINs
-		//	COMPARESEARCH::ArrayPartFirstMatch ( 
-		//		activity, activityLength, sizeof (c8),
-		//		index, 
-		//		MINS_ACTIVITIES.size (),
-		//		MINS_ACTIVITIES.data ()
-		//	);
-		//
-		//	TranslateIndex (activity, activityLength, index, depth, commands);
-		//
-		//}
 
 	}
 

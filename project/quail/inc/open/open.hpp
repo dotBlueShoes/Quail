@@ -445,7 +445,7 @@ namespace OPEN {
 					const auto&& key = (c8*) projects.keys[i];
 
 					DISPLAY::KeyValue<c8, c16> (
-						console, key, strlen (key), value, wcslen (value), TYPE_PROJECT, 14
+						console, key, strlen (key), value, wcslen (value), TYPE_PROJECT, COLOR_YELLOW
 					);
 				}
 
@@ -454,7 +454,7 @@ namespace OPEN {
 					const auto&& key = (c8*) commands.keys[i];
 
 					DISPLAY::KeyValue<c8, c16> (
-						console, key, strlen (key), value, wcslen (value), TYPE_COMMAND, 11
+						console, key, strlen (key), value, wcslen (value), TYPE_COMMAND, COLOR_BLUE
 					);
 				}
 
@@ -469,7 +469,7 @@ namespace OPEN {
 					for (u32 c = 0; c < wcslen (value); ++c) { temporary[c] = value[c]; }
 				
 					DISPLAY::KeyValue<c8, c8> (
-						console, key, strlen (key), temp, wcslen (value), TYPE_PROJECT, 14
+						console, key, strlen (key), temp, wcslen (value), TYPE_PROJECT, COLOR_YELLOW
 					);
 				}
 			
@@ -482,7 +482,7 @@ namespace OPEN {
 					for (u32 c = 0; c < wcslen (value); ++c) { temporary[c] = value[c]; }
 				
 					DISPLAY::KeyValue<c8, c8> (
-						console, key, strlen (key), temp, wcslen (value), TYPE_COMMAND, 11
+						console, key, strlen (key), temp, wcslen (value), TYPE_COMMAND, COLOR_BLUE
 					);
 				}
 
@@ -493,7 +493,7 @@ namespace OPEN {
 				const auto&& key = (c8*) queues.keys[i];
 
 				DISPLAY::KeyValue<c8, c8>  (
-					console, key, strlen (key), value, strlen (value), TYPE_QUEUE, 12
+					console, key, strlen (key), value, strlen (value), TYPE_QUEUE, COLOR_RED
 				);
 			}
 

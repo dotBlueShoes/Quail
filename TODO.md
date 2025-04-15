@@ -32,6 +32,7 @@
 14. Quail setting - spacing - 0 means no limiting.
 15. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
 16. Replace "IsForceC8Display" with flags variable.
+17. Add a `--show`, `-s` with an allias. It prints the WHOLE command-value in one line just like version is.
 
 --- INSTALLER
 

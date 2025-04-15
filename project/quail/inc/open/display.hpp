@@ -6,14 +6,10 @@
 #include <blue/io.hpp>
 //
 #include <global/config.hpp>
+//
+#include "colors.hpp"
 
 namespace OPEN::DISPLAY {
-
-	//  TODO
-	// Theres prob. a different default color within different console settings.
-	//
-	const u8 COLOR_DEFAULT = 7;
-	const u8 COLOR_WHITE = 15;
 
 	//  ABOUT
 	// Writes a line to better visualize what command in queue is being 
