@@ -33,6 +33,7 @@
 15. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
 16. Replace "IsForceC8Display" with flags variable.
 17. Add a `--show`, `-s` with an allias. It prints the WHOLE command-value in one line just like version is.
+18. Add HIDDEN - new feature 'tags' now befors '=' sign a tag can be created. Tags can be defined by quail itself or by the user (but thats a far future). `!cmd HIDDEN = start "" "something"`. HIDDEN tag makes the command or queue not visible in view.
 
 --- INSTALLER
 

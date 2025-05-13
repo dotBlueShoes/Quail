@@ -1,0 +1,15 @@
+# Quail is an Project-Oriented Alias-like tool.
+#  made by Matthew Strumiłło (dotBlueShoes)
+&shared.txt
+
+!config 	= start "" notepad++ %_path%/.quail/cmake.txt
+
+#
+# CMAKE
+#
+
+!refresh	= %shell% "%cmd%\cmake\refresh" "%_path%" '%compilersets%'
+!clear		= %shell% "%cmd%\cmake\clear" "%_path%\build" "%_path%\.cache"
+
+# Alt. name
+|remove		= clear

@@ -1,0 +1,22 @@
+# Quail is an Project-Oriented Alias-like tool.
+#  made by Matthew Strumiłło (dotBlueShoes)
+&shared.txt
+
+!catalog 	    = explorer.exe "%_path%\build\%pd%\project\myuninstall\"
+!ccatalog 	    = explorer.exe "%_path%\build\%pr%\project\myuninstall\"
+
+!manifest		= %shell% "%cmd%\manifest" "'%mt_path%'" "%_path%" %pd% myuninstall myuninstall.exe
+!mmanifest		= %shell% "%cmd%\manifest" "'%mt_path%'" "%_path%" %pr% myuninstall myuninstall.exe
+
+!compress		= %shell% "%cmd%\compress" %upx_path% "%_path%\build\%pd%\project\myuninstall\myuninstall.exe" "%_path%\build\%pd%\%new_uni_path%"
+!ccompress		= %shell% "%cmd%\compress" %upx_path% "%_path%\build\%pr%\project\myuninstall\myuninstall.exe" "%_path%\build\%pr%\%new_uni_path%"
+
+!exe			= start "" "%_path%\build\%pd%\%new_uni_path%"
+!eexe			= start "" "%_path%\build\%pr%\%new_uni_path%"
+
+#
+# -
+#
+
+|run			= manifest,compress,catalog
+|rrun			= mmanifest,ccompress,ccatalog

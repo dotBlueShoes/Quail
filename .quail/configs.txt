@@ -1,0 +1,11 @@
+# Quail is an Project-Oriented Alias-like tool.
+#  made by Matthew Strumiłło (dotBlueShoes)
+&shared.txt
+
+!main 		    = start "" notepad++ %_path%\.quail\main.txt
+!shared 	    = start "" notepad++ %_path%\.quail\shared.txt
+!configs 	    = start "" notepad++ %_path%\.quail\configs.txt
+!cmake 		    = start "" notepad++ %_path%\.quail\cmake.txt
+!quail 		    = start "" notepad++ %_path%\.quail\quail.txt
+!installer 		= start "" notepad++ %_path%\.quail\installer.txt
+!uninstaller    = start "" notepad++ %_path%\.quail\uninstaller.txt

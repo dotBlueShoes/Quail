@@ -8,7 +8,7 @@ $buildBumber | Out-File "$filepath/buildNumber.txt"
 
 #TODO: SKIP GITTAG IF FLAG OR NO SOMETHINK FAILS
 
-$gitTag = & "$filepath/.quail/getGitTag.ps1" "$filepath"
+$gitTag = & "$filepath/.quail/cmd/getGitTag.ps1" "$filepath"
 
 $header = "#pragma once
 #define QUAIL_FULL_VERSION_W L`"$gitTag.$buildBumber`"

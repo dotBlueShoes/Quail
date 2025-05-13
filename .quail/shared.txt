@@ -1,0 +1,15 @@
+%project_color 	= #d11f48
+%cmd		    = %_path%\.quail\cmd
+%pr 			= x64-win-release
+%pd 			= x64-win-debug
+
+%new_ins_path	= project\myinstall\Installer.exe
+%new_uni_path	= project\myuninstall\uninstall.exe
+
+# TODO - %_quail% so that my compiler information is stored not in the repo.
+#%compilersets	= %_path%\.quail\cmd\clangset
+%compilersets	= %vcvarsall%
+
+# TODO - each module should have it's own build version.
+#  Short for 'increment-build-number'
+!ibn 			= %shell% "%cmd%\incrementBuildVersion" '%_path%'

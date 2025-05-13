@@ -1,0 +1,71 @@
+# Quail is an Project-Oriented Alias-like tool.
+#  made by Matthew Strumiłło (dotBlueShoes)
+&shared.txt
+
+### Quail-BUG ',' alone forwards to first defined command which is !directory in this setup.
+### |uni			= umanifest,ucompress,
+
+### TODO - defines
+### ?quail_dir	= Path to Quail directory.
+### ?vcvarsall_dir= Path to vcvarsall directory.
+### ?vscode_path	= Path to vscode executable.
+### ?shell		= Prefered shell for e.g. "pwsh - c".
+
+
+#
+# MODULES
+#
+
+^-configs 	    = \ .quail\configs.txt
+^-shared	 	= \ .quail\shared.txt
+^-cmake 	    = \ .quail\cmake.txt
+^-quail         = \ .quail\quail.txt
+^-installer     = \ .quail\installer.txt
+^-uninstaller   = \ .quail\uninstaller.txt
+
+#
+# BASIC
+#
+
+!terminal 		= wt -w 0 nt --title %_name% -d "%_path%" --tabColor "%project_color%"
+!code 			= start "" "%vscode_path%" "%_path%"
+!github			= github "%_path%"
+
+#
+# BUILDING
+#
+
+!cmp            = %shell% "%cmd%\build" '%_path%' '%vcvarsall_dir%' '%pd%'
+!ccmp           = %shell% "%cmd%\build" '%_path%' '%vcvarsall_dir%' '%pr%'
+
+#
+# ISSUE
+#  `datains` requires a compiled executable to make a change inside an executable. (Double compiling)
+#  Instead of changing a header file I should reserve space and apply a post-compile change 
+#  similary to the way manifest files work i think.
+#
+
+!datains		= %shell% "%cmd%\getinsdata" "%_path%" %pd%
+!ddatains		= %shell% "%cmd%\getinsdata" "%_path%" %pr%
+
+!license		= %shell% "%cmd%\getlicense" "%_path%"
+
+|bld			= ibn,cmp
+|bbld			= ibn,ccmp
+
+#
+# ISSUE
+#  r/run does not copy a freshly compiled executable for uninstaller
+#  before executing this command it is necessery to run `quail uninstall u/uni`
+#
+
+!cpy 			= %shell% "%cmd%\cb" '%_path%' '%quail_dir%' '%pd%'
+!ccpy 			= %shell% "%cmd%\cb" '%_path%' '%quail_dir%' '%pr%'
+
+#|run			= bld,cpy
+#|rrun			= bbld,ccpy
+
+#
+# ISSUE
+#  We don't want to run _uni or _uuni from here. Config files would not be removed properly!
+#
