@@ -7,6 +7,7 @@
 #include <blue/types.hpp>
 #include <blue/log.hpp>
 #include <blue/io.hpp>
+#include <blue/windows/io.hpp>
 //
 #include <global/license.h>
 //

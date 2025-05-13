@@ -457,7 +457,7 @@ namespace OPEN::INTERPRETER::MAIN::PROJECT {
 
 				u8* project; // Allocate & create FilePath string.
 				MEMORY::Construct2<u8> (project, pathLength, path, temporaryLength, temporary);
-				MEMORY::EXIT::PUSH (project, FREE);
+				MEMORY::EXIT::PUSH (FREE, project);
 
 				{ // See if said FilePath already occurs. If not save it.
 					for (u16 i = 0; i < projects.configs.size (); ++i) {

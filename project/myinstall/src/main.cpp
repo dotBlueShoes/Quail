@@ -3,6 +3,7 @@
 //
 #include <global/logger/win.hpp>
 //
+#define MEMORY_TYPE_NOT_SIZED
 #include <blue/windows/console.hpp>
 #include <blue/io.hpp>
 //
@@ -44,7 +45,7 @@ int WinMain (
 		WINDOWS::CONTROLS::LoadRichEdit ();
 
 		{ // Properly deallocate data if we hit ERROR.
-			MEMORY::EXIT::PUSH (CONFIG::topConfigsFolder, FREE);
+			MEMORY::EXIT::PUSH (FREE, CONFIG::topConfigsFolder);
 		}
 
 		HWND window; WINDOWS::WINDOW::Create (instance, window, isConsole, { CW_USEDEFAULT, CW_USEDEFAULT }, { 496, 360 });

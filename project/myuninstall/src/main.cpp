@@ -1,6 +1,7 @@
 // Created 2024.01.14 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+#define MEMORY_TYPE_NOT_SIZED
 #include <global/logger/win.hpp>
 //
 #include <blue/windows/console.hpp>
@@ -75,7 +76,7 @@ void RemoveQuailFromPath () {
 
 	c16* pathEnvVar; ALLOCATE (c16, pathEnvVar, pathEnvVarSize);
 
-	MEMORY::EXIT::PUSH (pathEnvVar, FREE);
+	MEMORY::EXIT::PUSH (FREE, pathEnvVar);
 
 	{ // Get 
 		errorCode = RegOpenKeyExW (HKEY_LOCAL_MACHINE, WINDOWS::REGISTRY::KEY_ENVIRONMENT_VARIABLES_W, 0, KEY_ALL_ACCESS, &key);
@@ -191,7 +192,7 @@ void UninstallALL() {
 	Setup ();
 
 	{ // Properly deallocate data if we hit ERROR.
-		MEMORY::EXIT::PUSH (CONFIG::topConfigsFolder, FREE);
+		MEMORY::EXIT::PUSH (FREE, CONFIG::topConfigsFolder);
 	}
 
 	response = MessageBoxW (

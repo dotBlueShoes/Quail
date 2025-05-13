@@ -45,4 +45,22 @@ target_include_directories (
 # --- Add library 'headers' for use to said project
 target_link_libraries (${PROJECT_NAME} kernel32 Comctl32 dwmapi user32 shell32 ole32)
 target_link_libraries (${PROJECT_NAME} BLUELIB GLOBAL)
-target_link_libraries (${PROJECT_NAME} CURL::libcurl_static)
+
+
+if (${CURL_SHARED_LIBRARY})
+
+    target_link_libraries (${PROJECT_NAME} CURL::libcurl)
+
+    # --- Copy .dlls inside project build directory.
+    add_custom_command ( 
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		$<TARGET_FILE:CURL::libcurl> 
+		$<TARGET_FILE_DIR:${PROJECT_NAME}>
+	)
+
+else ()
+
+    target_link_libraries (${PROJECT_NAME} CURL::libcurl_static)
+
+endif ()

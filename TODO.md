@@ -63,7 +63,6 @@
 02. Examples:
 - gimp
 - blender
-03. Create a changelog.txt
-04. Git tag and rebuild and release
-05. Create a roadmap
-06. DEBUG_FLAG_POSTLOGGING implementation - file/buffer logging
+03. Git tag and rebuild and release
+04. Create a roadmap
+05. DEBUG_FLAG_POSTLOGGING implementation - file/buffer logging

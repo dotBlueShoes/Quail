@@ -46,4 +46,3 @@ target_include_directories (
 target_link_libraries (${PROJECT_NAME} kernel32 Comctl32 dwmapi user32 shell32 ole32 Shlwapi)
 target_link_libraries (${PROJECT_NAME} BLUELIB)
 target_link_libraries (${PROJECT_NAME} GLOBAL)
-target_link_libraries (${PROJECT_NAME} CURL::libcurl_static)

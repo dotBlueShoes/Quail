@@ -1,6 +1,7 @@
 // Created 2024.10.28 by Matthew Strumiłło (dotBlueShoes)
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
+
 #include <global/logger/cli.hpp>
 #include <global/windows/registry.hpp>
 //
@@ -73,9 +74,9 @@ s32 main (s32 argumentsCount, c8** arguments) {
 	}
 
 	{ // Properly deallocate data if we hit ERROR.
-		MEMORY::EXIT::PUSH (CONFIG::topConfigsFolder, FREE);
-		MEMORY::EXIT::PUSH (CONFIG::configMainFilePath, FREE);
-		MEMORY::EXIT::PUSH (CONFIG::configGlobalFilePath, FREE);
+		MEMORY::EXIT::PUSH (FREE, CONFIG::topConfigsFolder);
+		MEMORY::EXIT::PUSH (FREE, CONFIG::configMainFilePath);
+		MEMORY::EXIT::PUSH (FREE, CONFIG::configGlobalFilePath);
 	}
 
 	switch (argumentsCount) {

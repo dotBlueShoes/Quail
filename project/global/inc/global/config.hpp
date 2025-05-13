@@ -2,6 +2,7 @@
 //  LICENSE: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 //
 #pragma once
+#define MEMORY_TYPE_NOT_SIZED
 #include <blue/types.hpp>
 
 #include "version.h"

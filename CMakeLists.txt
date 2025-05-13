@@ -8,6 +8,12 @@ message ("\n")
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include (properties)
 
+
+# --- Configurable Properties
+
+option (CURL_SHARED_LIBRARY     "Link 'curl' as shared library"             OFF)
+option (BLUELIB_LOCALLY         "Link 'bluelib' sources from local cache"   OFF)
+
 # --- Dependencies
 
 add_subdirectory (dependencies)
@@ -22,7 +28,6 @@ add_compile_definitions (DEBUG_FLAG_POSTLOGGING=${DEBUG_FLAG_POSTLOGGING})
 
 # --- Project's sources
 
-add_subdirectory (project/bluelib)
 add_subdirectory (project/global)
 add_subdirectory (project/quail)
 add_subdirectory (project/myinstall)

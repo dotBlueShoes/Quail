@@ -31,7 +31,7 @@ namespace WINDOWS::REGISTRY {
 		DWORD envSize = CONFIG::DEFAULT_ENVIRONMENT_VARIABLE_PATH_SIZE * sizeof (c16); // for now.
 
 		c16* env; ALLOCATE (c16, env, envSize);
-		MEMORY::EXIT::PUSH (env, FREE);
+		MEMORY::EXIT::PUSH (FREE, env);
 		
 		LSTATUS errorCode;
 		HKEY key;
@@ -109,8 +109,8 @@ namespace WINDOWS::REGISTRY {
 		}
 
 		{ // Properly deallocate data if we hit ERROR.
-			MEMORY::EXIT::PUSH (uninstallerFilepath, FREE);
-			MEMORY::EXIT::PUSH (quailFilepath, FREE);
+			MEMORY::EXIT::PUSH (FREE, uninstallerFilepath);
+			MEMORY::EXIT::PUSH (FREE, quailFilepath);
 		}
 
 		{ // Quail Key

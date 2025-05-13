@@ -40,7 +40,7 @@ namespace INSTALLATION {
 		auto& directoryPathLength = CONFIG::topConfigsFolderLength;
 		auto&& directoryPath = CONFIG::topConfigsFolder;
 		c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::EXECUTABLE_NAME_LENGTH + 1);
-		MEMORY::EXIT::PUSH (buffer, FREE);
+		MEMORY::EXIT::PUSH (FREE, buffer);
 
 		{ // CONSTRUCT 
 			memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
@@ -104,7 +104,7 @@ namespace INSTALLATION {
 			auto&& directoryPath = CONFIG::topConfigsFolder;
 			
 			c16* buffer; ALLOCATE (c16, buffer, directoryPathLength + CONFIG::UNINSTALLER_NAME_LENGTH + 1);
-			MEMORY::EXIT::PUSH (buffer, FREE);
+			MEMORY::EXIT::PUSH (FREE, buffer);
 
 			{ // CONSTRUCT
 				memcpy (buffer, directoryPath, directoryPathLength); 	// Copy '\0'.
