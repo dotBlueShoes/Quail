@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.6] - ?
 
 ### Added
+- New predefined constant `%_quail%`. It will point to the place where the top quail config catalog is.
 
 ### Changed
 

@@ -19,21 +19,20 @@
 01. Have a better look at: Making projects in global.txt. There might be potential bugs and unchecked errors.
 02. Differentiate between "topConfigsFolder" and "installedBinaryFolder". This will help in making 
 	top-level-configs located outside Quail directory.
-03. Make "%_quail%" variable to tell location of Quail top-level-configs directory. 
-04. Make it so global config values can be overridden by normal config values.
-05. Customizable styling for command display -> registry keys and values.
-06. Adding Quail configuration data using --add command: like `quail -a module key "value"`.
-07. Edit Quail configuration data using --edit command: like `quail -e module key "value"`.
-08. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
+03. Make it so global config values can be overridden by normal config values.
+04. Customizable styling for command display -> registry keys and values.
+05. Adding Quail configuration data using --add command: like `quail -a module key "value"`.
+06. Edit Quail configuration data using --edit command: like `quail -e module key "value"`.
+07. `--optimize`, `-x` to test the memory allocations, the amount of required data that is needed 
 	Store that in Windows Registry and we reuse it as the first allocation size the open buffer.
-09. Replace std::vector's with one buffer only.
-10. Quail setting - coloring.
-11. Quail setting - spacing - registry value.
-12. Quail setting - spacing - 0 means no limiting.
-13. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
-14. Replace "IsForceC8Display" with flags variable.
-15. Add a `--show`, `-s` with an allias. It prints the WHOLE command-value in one line just like version is.
-16. Add HIDDEN - new feature 'tags' now befors '=' sign a tag can be created. Tags can be defined by quail itself or by the user (but thats a far future). `!cmd HIDDEN = start "" "something"`. HIDDEN tag makes the command or queue not visible in view.
+08. Replace std::vector's with one buffer only.
+09. Quail setting - coloring.
+10. Quail setting - spacing - registry value.
+11. Quail setting - spacing - 0 means no limiting.
+12. ???. Maybe directory as `-d` or `--directory` to open directory of a defined project.
+13. Replace "IsForceC8Display" with flags variable.
+14. Add a `--show`, `-s` with an allias. It prints the WHOLE command-value in one line just like version is.
+15. Add HIDDEN - new feature 'tags' now befors '=' sign a tag can be created. Tags can be defined by quail itself or by the user (but thats a far future). `!cmd HIDDEN = start "" "something"`. HIDDEN tag makes the command or queue not visible in view.
 16. Add GROUP, MODULE, VARIABLE, SPECIAL - new feature 'tags' for module syntax. This highlights text according to tag.
 17. Argument passing via "" or `` or ''. Detect parenthasis and remove it from quail processing but add it to the command parsed at the very end.
 18. ? Quail HotKey via RegisterHotKey() with either MOD_ALT or MOD_CONTROL. This would run the quail -o <rest_of_the_command>. However an input box app would be neccessery for providing the rest_of_the_command.

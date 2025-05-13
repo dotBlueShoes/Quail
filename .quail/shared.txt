@@ -6,8 +6,8 @@
 %new_ins_path	= project\myinstall\Installer.exe
 %new_uni_path	= project\myuninstall\uninstall.exe
 
-# TODO - %_quail% so that my compiler information is stored not in the repo.
-#%compilersets	= %_path%\.quail\cmd\clangset
+# TODO - Variables
+#%compilersets	= `%_quail%\cmd\clangset`
 %compilersets	= %vcvarsall%
 
 # TODO - each module should have it's own build version.

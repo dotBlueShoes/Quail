@@ -14,6 +14,8 @@ set "vcvarsall=%~2"
 set "p1=x64-win-debug"
 set "p2=x64-win-release"
 
+echo %vcvarsall%
+
 @REM
 @REM Replaces '`' character with `"` character.
 @REM  It's a good practise for passed strings because:
@@ -25,7 +27,7 @@ set "p2=x64-win-release"
 set "vcvarsall=%vcvarsall:`="%"
 
 @REM
-@REM Calling vcvarsall.bat with architecture as argument
+@REM Preset required data with following script/exe.
 @REM
 call %vcvarsall%
 

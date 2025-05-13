@@ -50,6 +50,8 @@
 
 !license		= %shell% "%cmd%\getlicense" "%_path%"
 
+!log            = echo %compilersets%
+
 |bld			= ibn,cmp
 |bbld			= ibn,ccmp
 

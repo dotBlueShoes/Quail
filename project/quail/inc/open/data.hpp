@@ -306,6 +306,37 @@ namespace OPEN {
 			}
 
 		}
+
+
+        { // "_quail"
+
+			{ // - key
+				const u8 temp[] { "_quail" }; // Const definition.
+				const u32 tempLength = sizeof (temp);
+
+				// Cpy -> We can easily deallocate it with others later.
+				u8* constantName; ALLOCATE (u8, constantName, tempLength);
+				memcpy (constantName, temp, tempLength);
+
+				constants.keys.push_back (constantName);
+			}
+
+			{ // value (copy but with removal of '/' sign at the end)
+
+                const auto& value = CONFIG::topConfigsFolder;
+                auto length = CONFIG::topConfigsFolderLength;
+
+				u8* constantValue; ALLOCATE (u8, constantValue, length); // should alloc one less char.
+				memcpy (constantValue, value, length - 2);
+
+                constantValue[length - 2] = 0;
+				constantValue[length - 1] = 0;
+
+				constants.values.push_back (constantValue);
+				constants.valueLengths.push_back (length - 2); // minus EOF
+			}
+
+		}
 		
 	}
 
