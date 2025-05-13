@@ -11,11 +11,6 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "CMAKE_RC_COMPILER": "rc.exe"
-            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -31,10 +26,6 @@
                 "PROFILE": {
                     "type": "INT",
                     "value": "0"
-                },
-                "PLATFORM": {
-                    "type": "INT",
-                    "value": "1"
                 }
             }
         },
@@ -45,10 +36,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "PROFILE": {
-                    "type": "INT",
-                    "value": "1"
-                },
-                "PLATFORM": {
                     "type": "INT",
                     "value": "1"
                 }
