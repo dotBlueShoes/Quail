@@ -34,10 +34,8 @@
 14. Add a `--show`, `-s` with an allias. It prints the WHOLE command-value in one line just like version is.
 15. Add HIDDEN - new feature 'tags' now befors '=' sign a tag can be created. Tags can be defined by quail itself or by the user (but thats a far future). `!cmd HIDDEN = start "" "something"`. HIDDEN tag makes the command or queue not visible in view.
 16. Add GROUP, MODULE, VARIABLE, SPECIAL - new feature 'tags' for module syntax. This highlights text according to tag.
-17. Argument passing via "" or `` or ''. Detect parenthasis and remove it from quail processing but add it to the command parsed at the very end.
-18. ? Quail HotKey via RegisterHotKey() with either MOD_ALT or MOD_CONTROL. This would run the quail -o <rest_of_the_command>. However an input box app would be neccessery for providing the rest_of_the_command.
-19. Argument passing for queues. `quail -o queue "arg, arg arg 'value'"`. ',' means the next string belongs to next command in queue.
-20. .qtf - quail text file, give an option to use such extension reqistring in as openable via notepad/++. This would allow an easier way of identifing quail files maybe even support creating syntax highlight for them in future.
+17. ? Quail HotKey via RegisterHotKey() with either MOD_ALT or MOD_CONTROL. This would run the quail -o <rest_of_the_command>. However an input box app would be neccessery for providing the rest_of_the_command.
+18. .qtf - quail text file, give an option to use such extension reqistring in as openable via notepad/++. This would allow an easier way of identifing quail files maybe even support creating syntax highlight for them in future.
 
 --- INSTALLER
 

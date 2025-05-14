@@ -84,14 +84,48 @@ s32 main (s32 argumentsCount, c8** arguments) {
 		case 0:
 		case 1: { printf ("\n%s%s\n\n", CONFIG::QUAIL_LINE_OFFSET, LOCALE_ERROR_NO_ACTIVITY); } break;
 
-		default: {
-			auto&& argument = arguments[1];
-			auto depth = argumentsCount - 2;
+        case 2:
+        case 3: {
+			auto&& activity = arguments[1];
+            u32 activityLength = 0; for (; activity[activityLength] != 0; ++activityLength);
+
 			auto commands = arguments + 2;
-		
-			u32 argumentLength = 0; for (; argument[argumentLength] != 0; ++argumentLength);
-			ACTIVITIES::MATCH::Activity (argumentLength, argument, depth, commands);
-		}
+            auto commandsCount = argumentsCount - 2;
+			
+			ACTIVITIES::MATCH::Activity (activityLength, activity, commandsCount, commands, nullptr);
+		} break;
+
+        default: {
+
+            auto&& activity = arguments[1];
+            u32 activityLength = 0; for (; activity[activityLength] != 0; ++activityLength);
+
+            //  ABOUT
+            // The argument before has to be equal to '$' sign.
+            // And the argument after specifies the arguments used for commands.
+
+            auto&& prearg = arguments[argumentsCount - 2];
+            u32 preargLength = 0; for (; prearg[preargLength] != 0; ++preargLength);
+
+            // Check for action-argument-passing
+            if (prearg[0] == '$' && preargLength == 1) {
+                auto&& actionargs = arguments[argumentsCount - 1];
+
+                {
+                    auto commands = arguments + 2;
+                    auto commandsCount = argumentsCount - 4;
+
+                    ACTIVITIES::MATCH::Activity (activityLength, activity, commandsCount, commands, actionargs);
+                }
+
+            } else {
+			    auto commands = arguments + 2;
+                auto commandsCount = argumentsCount - 2;
+
+			    ACTIVITIES::MATCH::Activity (activityLength, activity, commandsCount, commands, nullptr);
+            }
+
+        }
 		
 	}
 

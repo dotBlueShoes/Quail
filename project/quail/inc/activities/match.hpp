@@ -16,16 +16,17 @@
 namespace ACTIVITIES::MATCH {
 
 	void TranslateIndex (
-		IN		const c8* const& activity,
-		IN		const u32& activityLength,
-		IN		const u32& activityId,
-		IN		const u32& stringsCount,
-		INOUT	c8** const& strings
+		IN		const c8* const&    activity,
+		IN		const u32&          activityLength,
+		IN		const u32&          activityId,
+		IN		const u32&          actionsCount,
+		INOUT	c8** const&         actions,
+        INOUT	c8* const&          actionsArgs
 	) {
 		switch (activityId) {
 
 			case ENUM_OPEN: {
-				OPEN::Open (stringsCount, strings);
+				OPEN::Open (actionsCount, actions, actionsArgs);
 			} break;
 
 			case ENUM_HELP: {
@@ -37,7 +38,7 @@ namespace ACTIVITIES::MATCH {
 			} break;
 
 			case ENUM_SETTINGS: {
-				SETTINGS::Settings (stringsCount, strings);
+				SETTINGS::Settings (actionsCount, actions);
 			} break;
 
 			default: {
@@ -51,8 +52,9 @@ namespace ACTIVITIES::MATCH {
 	void Activity (
 		IN		u32& activityLength,
 		INOUT	c8*& activity,
-		IN		const u32& stringsCount,
-		IN		c8** const& strings
+		IN		const u32& actionsCount,
+		IN		c8** const& actions,
+        IN		c8* const& actionsArgs
 	) {
 
 		u8 condition;
@@ -78,7 +80,7 @@ namespace ACTIVITIES::MATCH {
 				);
 
 				// Progress further
-				TranslateIndex (activity, activityLength, index, stringsCount, strings);
+				TranslateIndex (activity, activityLength, index, actionsCount, actions, actionsArgs);
 
 			} break;
 
@@ -98,7 +100,7 @@ namespace ACTIVITIES::MATCH {
 				);
 
 				// Progress further
-				TranslateIndex (activity, activityLength, index, stringsCount, strings);
+				TranslateIndex (activity, activityLength, index, actionsCount, actions, actionsArgs);
 
 			} break;
 

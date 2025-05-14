@@ -147,8 +147,11 @@ namespace OPEN {
 
 	void Open (
 		IN 		const u32& 	depth,
-		INOUT 	c8** const& actions
+		INOUT 	c8** const& actions,
+        INOUT	c8* const&  actionsArgs
 	) {
+
+        //LOGINFO ("here: %s\n", actionsArgs);
 
 		INTERPRETER::Interpreter interpreter;
 
@@ -395,6 +398,10 @@ namespace OPEN {
 						buffer[substrings] = queueLength + 1;
 						buffer[0] = 0;
 
+                        // actionargs
+                        u32 subargStart = 0; 
+                        u32 subargEnd = 0;
+
 						for (u32 i = 0; i < substrings; ++i) {
 
 							auto& start = buffer[i];
@@ -419,7 +426,53 @@ namespace OPEN {
 
 								const auto&& comm = (c16*) commands.values[index];
 								DISPLAY::QueueProgress (console, (c8*) commands.keys[index], TYPE_COMMAND, 11);
-								_wsystem (comm);
+
+                                if (actionsArgs != nullptr) { // Add action args if available.
+
+                                    //  ISSUE
+                                    // For Every command in queue the length of args is being calculated.
+                                    //  it should happend only once.
+                                    
+                                    u32 commLength = 0; for (; comm[commLength] != L'\0'; ++commLength);
+                                    u32 argsLength = 0; for (; actionsArgs[argsLength] != L'\0'; ++argsLength);
+                                    for (; subargEnd < argsLength && actionsArgs[subargEnd] != L','; ++subargEnd);
+
+                                    LOGINFO ("d: %d, %d, %d, %d\n", commLength, argsLength, subargStart, subargEnd);
+
+                                    if (subargEnd != subargStart) {
+                                        u32 subargMem = subargEnd - subargStart;
+                                        u32 argcompletebufLength = commLength + 1 + subargMem + 1;
+                                        c16* argcompletebuf; ALLOCATE (c16, argcompletebuf, argcompletebufLength * 2);
+
+                                        memcpy (argcompletebuf, comm, commLength * 2);
+
+                                        argcompletebuf[commLength] = L' ';
+
+                                        for (u32 i = 0; i < subargMem; ++i) {
+                                            auto&& ptr = argcompletebuf + commLength + 1;
+                                            ptr[i] = actionsArgs[subargStart + i];
+                                        }
+
+                                        argcompletebuf[argcompletebufLength - 1] = L'\0';
+
+                                        LOGINFO ("q: [%d]: %ls\n", argcompletebufLength, argcompletebuf);
+								        _wsystem (argcompletebuf);
+
+                                        ++subargEnd;
+                                        subargStart = subargEnd;
+                                        FREE (argcompletebuf);
+                                        
+                                    } else {
+                                        LOGINFO ("p: here!\n");
+                                        _wsystem (comm);
+
+                                        ++subargEnd;
+                                        subargStart = subargEnd;
+                                    }
+
+                                } else {
+                                    _wsystem (comm);
+                                }
 
 							}
 						}
@@ -428,8 +481,26 @@ namespace OPEN {
 
 				} else {
 					const auto&& command = (c16*) commands.values[index];
-					LOGINFO ("id: [%d]: %ls\n", index, command);
-					_wsystem (command);
+
+                    if (actionsArgs != nullptr) { // Add action args if available.
+                        auto&& temp = (c16*)temporary;
+
+                        u32 commandLength = 0; for (; command[commandLength] != L'\0'; ++commandLength);
+
+                        memcpy (temp, command, commandLength * 2);
+                        temp[commandLength] = ' ';
+                        
+                        for (u32 argsLength = 0; actionsArgs[argsLength] != L'\0'; ++argsLength) {
+                            temp[commandLength + 1 + argsLength] = actionsArgs[argsLength];
+                        }
+
+                        LOGINFO ("id: [%d]: %ls\n", index, temp);
+                        _wsystem (command);
+                    } else {
+                        LOGINFO ("id: [%d]: %ls\n", index, command);
+					    _wsystem (command);
+                    }
+					
 				}
 			}
 
