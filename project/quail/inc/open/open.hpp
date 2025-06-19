@@ -490,12 +490,14 @@ namespace OPEN {
                         memcpy (temp, command, commandLength * 2);
                         temp[commandLength] = ' ';
                         
-                        for (u32 argsLength = 0; actionsArgs[argsLength] != L'\0'; ++argsLength) {
+                        u32 argsLength = 0; for (; actionsArgs[argsLength] != L'\0'; ++argsLength) {
                             temp[commandLength + 1 + argsLength] = actionsArgs[argsLength];
                         }
 
+                        temp[commandLength + 1 + argsLength] = L'\0';
+
                         LOGINFO ("id: [%d]: %ls\n", index, temp);
-                        _wsystem (command);
+                        _wsystem (temp);
                     } else {
                         LOGINFO ("id: [%d]: %ls\n", index, command);
 					    _wsystem (command);
